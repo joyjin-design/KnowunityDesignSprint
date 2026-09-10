@@ -1,0 +1,92 @@
+# Design system rules
+
+This file is rules, not values. For any actual color, size, weight, or line height, look in `tokens.json`. Nothing here repeats a value that lives there.
+
+Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below assume that scope unless noted.
+
+## Which component to reach for
+
+**button** — the single primary CTA on a screen. Pair it with a secondary `buttonIcon` when a screen needs both a primary and a secondary action, and wrap the pair in `buttonGroup` (Horizontal) rather than placing them as loose siblings.
+
+**buttonIcon** — the secondary action next to a primary button. Set its icon by editing the nested `iconSlot` instance, not the buttonIcon layer itself.
+
+**buttonGroup** — a container for exactly a primary + secondary action pair. It is not a general-purpose button list; don't reach for it expecting more than two slots.
+
+**chips** — tags, filters, or a PRO label. Confirmed real usage is thin (one instance in the file), so treat size and color choices here as unproven until you see more of them in context. Don't assume the component's own default (XXS, inactive) is the expected look.
+
+**iconSlot** — the base wrapper for every icon in the system. It is the most-used primitive in the file. Its size axis is confusingly named `Size (IGNORE)`; until that naming is resolved with Harry, know that this axis is in fact what's driving real icon sizing today, the name is misleading, not a warning to obey.
+
+**mascotSlot** — large, hero-scale mascot moments only (onboarding, celebration). Confirmed real usage starts at 2XL and goes up. Don't use it at its own default size (XL) or smaller expecting it to read as a small inline mascot appearance; nothing in the file supports that use.
+
+**progressIndicator** — lesson/quiz progress, and it lives inside the appBar's Slot in real use. It is a five-step snap scale (0/25/50/75/100), not a freeform percentage bar. Don't wire it up expecting arbitrary progress values.
+
+**appBar** — the lesson/quiz top nav. In real use it holds a back action, a progress indicator, and a streak/lives counter (chip + icon) beside it. Its own six named variants don't fully describe every real top nav in the file, some screens add elements beyond the formal Slot, so don't assume picking a variant alone reproduces a specific real screen.
+
+**snackbar** — confirmation and error toasts. Not built anywhere in the file yet. Treat the first real instance as the first real test of its structure, particularly the nested chips-with-icon-slots it expects for an action (dismiss, retry).
+
+**textBlock** — a short emotional headline plus one specific supporting stat, used next to a mascot moment. The pattern is already followed loosely with hand-built text; use the real component going forward instead of two plain text layers.
+
+**buttonVoice** — the primary voice input control (Start/Stop) in the recall loop. Built as a local override, not a shared master edit: each state variant wraps a real `button` instance (variant=Secondary, size=L) and overrides only its CTA text. Default and Recording reuse `button`'s own Default state (no shared 'Recording' state exists yet, this is a text-only override). Loading and Disabled reuse `button`'s real Loading and Disabled states directly, so their color, opacity, and spinner are already correctly token-bound. Icon swap (mic / waveform) is NOT wired yet, no real icon component exists for it. When Harry is available, propose folding 'Recording' into `button`'s own state axis instead of keeping this as a separate local set.
+- States (`state` axis): `Default`, `Recording`, `Loading`, `Disabled`.
+- No other properties beyond the inherited `button` instance's own (CTA text, showLeftIcon, showRightIcon), none of which are exposed at this component's own level yet.
+- What Default and Recording mean: idle, ready to start (Default) versus actively capturing the student's spoken answer (Recording). Both are visually identical except for the CTA label, since no dedicated 'Recording' state exists on the shared `button` master, this is a known gap, not a finished design.
+- What Loading and Disabled mean: Loading is the round-trip while the transcript is being judged, reuses `button`'s real Loading treatment (spinner, label hidden). Disabled is for when the mic can't be used (e.g. permission denied), reuses `button`'s real Disabled treatment.
+- What not to do with it: don't add a fifth state without checking whether it belongs on `button`'s own shared `state` axis instead. Don't treat this component as the icon's home, the icon is still unbuilt and unwired, don't attach a raw vector to make it look finished.
+
+**bottomSheetVerdict** — the result sheet shown after a student answers: Success, Partial, Error, or Silence (nothing was heard). `variant` axis reused from the same Success/Error vocabulary already established on `snackbar`, extended with Partial and Silence. Success and Error backgrounds/titles bind to `feedback/success` and `feedback/error` tokens. Partial has no dedicated feedback token in this file, its background and title currently reuse `accent/blue` as a stand-in (this was already in place before this build, not invented here). Silence reuses `feedback/error` for its title and icon, no dedicated 'neutral recovery' token exists either, same kind of stand-in as Partial. Every variant's action buttons are real component instances, not hand-drawn: Silence specifically reuses the real `buttonVoice` component for its 're-record' action instead of a generic button, since that's the actual re-record control. Header icons are raw vectors bound to real color tokens on Error, Success, and Silence; Partial is the one exception using a real `iconSlot` instance (`info-circle`). Known gap: Partial still has no dedicated icon concept of its own, no established 'partial credit' icon exists in the connected library yet. Incorrect's background stays neutral (`background/surface`) while Success tints its background, worth confirming that asymmetry is intentional.
+- States (`variant` axis): `Success`, `Partial`, `Error`, `Silence`.
+- What each state means: Success is a fully correct recall, Error is a fully incorrect one, Partial is a partial-credit recall, Silence is the recovery sheet for when nothing was heard at all (mirrors `transcriptDisplay`'s own `Silence` state, same underlying scenario, different surface). All four carry a header icon, title, thumbs up/down feedback control, and a two-button CTA row. Silence's CTA row is `buttonVoice` (re-record) paired with a plain `button` ('Type instead'), the other three both use plain `button` instances.
+- What not to do with it: don't add a third button to the CTA row inside `buttonGroup`, `buttonGroup` is capped at two slots by design (see `buttonGroup` above); a third action needs its own sibling slot outside `buttonGroup`, the way this component's CTA row already does. Don't invent a color or icon for Partial, flag the gap instead, same as this component's own build did. Don't reach for a generic `button` where the action is actually voice input, reuse `buttonVoice` the way Silence does.
+
+**transcriptDisplay** — the live and post-recording transcript surface inside the recall loop's middle content. Shows what Knowie heard, so a wrong answer reads as heard wrong rather than the app being broken. Not a general purpose paragraph container, only for a literal transcript of what the student said. States: Empty (placeholder, dimmed), Filled (real transcript), Overflow (demonstrates clipping past the established 448px box height, no scroll behavior built, that's still an open decision), Silence (recovery copy for when nothing was heard, same dimmed treatment as Empty, replaces the flatter 'No answer recorded' still sitting on the un-migrated Silence03 screen). Text bound to `Greed/Headline XS Regular` throughout. Empty and Silence differ from Filled/Overflow only by color (`text/secondary` vs `text/primary`). Frame width/height (358/448) match the box size already used seven times across the recall screens, not newly invented. Each state's content is fixed per variant, not an exposed override property, an earlier version exposed a shared text property across all three original states and it collapsed their distinct content into one value, don't repeat that.
+- States (`state` axis): `Empty`, `Filled`, `Overflow`, `Silence`.
+- What each state means: Empty is before the student has said anything. Filled is a normal transcript. Overflow demonstrates what happens when the transcript is too long for the box (it clips, nothing further is designed for this yet). Silence is the recovery copy shown when the recall loop timed out without hearing anything.
+- What not to do with it: don't expose the transcript text as a shared component property across states again, each state needs its own fixed content, a shared property collapses them into one value. Don't reuse this for any paragraph of copy that isn't a literal transcript, that's what `textBlock` or plain text is for.
+
+**aiDisclaimer** — the responsible-AI overreliance disclaimer: 'AI-generated content may be incorrect. Check it for accuracy.' Bound to `Greed/Caption M Regular` and `text/secondary`, not `text/tertiary`, `text/tertiary`'s own description explicitly rules out anything a student must read, and this is compliance copy, not decorative metadata. Copy is fixed, not exposed as an editable text property, on purpose: this is regulatory-adjacent content and shouldn't vary per instance the way a button's label does. Reach for it anywhere AI-generated or AI-judged content is shown to a student. Don't reword or shorten the copy per screen, don't swap it to a different text style to make it stand out less, that defeats the point of it.
+- No variant axis, no other properties. One fixed component, single text layer.
+- What not to do with it: don't expose its copy as an editable property, and don't reach for `text/tertiary` for it or anything like it, `text/tertiary`'s own description already rules that out.
+
+**scaffold** — the device frame every screen is built inside. See slot composition below.
+
+## Scaffold composition
+
+`scaffold` has a fixed frame plus four content areas. Don't put arbitrary content directly on the scaffold outside these slots.
+
+- **Panel Header → Status Bar**: fixed device chrome. Not a slot, not something a screen design touches.
+- **topNavigation** (slot): navigation items — back buttons, the home top nav with streaks, and similar. Toggle with `showTopNavSlot` when a screen has no top nav.
+- **middleContent** (slot): the screen's actual content. Carries an internal `Scrim` layer for dimming this content when a bottom sheet is showing over it.
+- **bottomContent** (slot): bottom navigation bar, chat input field, and similar persistent bottom elements. Toggle with `showBottomNavSlot`.
+- **Bottom-sheet background**: fixed dimming rectangle behind a bottom sheet. Controlled by `showBottomSheetBackground`, not placed by hand.
+- **bottomSheetOnly** (slot): content that appears only when the bottom sheet is showing. Don't put persistent screen content here, it disappears with the sheet.
+
+`scaffold` also carries a `size` variant with tablet and desktop options. Everything except the phone sizes is out of scope for this project; don't pull a tablet or MacBook variant into a mobile-iOS screen.
+
+## Naming conventions
+
+- Semantic color tokens are lowercase, grouped with a slash: `group/token` (e.g. `background/page`, `interactive/onPrimary`). Never a bare adjective, never an appearance word (see the never-list below).
+- Reusable component names are camelCase: `button`, `buttonIcon`, `buttonGroup`, `chips`, `iconSlot`, `mascotSlot`, `progressIndicator`, `textBlock`, `appBar`, `snackbar`, `scaffold`. If you're adding a new one, match this, not Title Case.
+- The three standard variant axes on an interactive component are named `variant` (visual intent: Primary/Secondary/Tertiary, or Default/Success/Error), `size`, and `state`. Don't invent a fourth axis name for something that fits one of these three.
+- Boolean toggles are prefixed `show` (`showLeftIcon`, `showCaption`, `showTopNavSlot`). Keep that prefix for any new toggle.
+- Text/content properties are named for what they hold (`Text`, `Label`, `Title`, `Caption`), not a generic placeholder name.
+- If a property must not be touched, remove it or fix it. Don't leave it live with a warning baked into its name, that's how `Size (IGNORE)` happened, and it didn't stop the axis from being used anyway.
+
+### Building a new component: the sequence that was used for buttonVoice, bottomSheetVerdict, and transcriptDisplay
+
+- Check the real component library before building anything by hand. `buttonVoice` exists because the recall screens were built with hand-drawn frames imitating `button`, when a real, fully token-bound `button` component set was already sitting unused in the library. Check for an existing master first, every time.
+- Reuse an existing variant vocabulary before inventing a new one. `bottomSheetVerdict`'s `Success`/`Error`/`Partial` values reuse the same words `snackbar` already uses for the same idea, rather than a fresh set of names for the same concept.
+- Prefer overriding an instance's exposed properties (text, boolean, instance-swap) over adding a value to a shared master's own variant axis, if the change should only affect one local feature and not every other screen using that master. `buttonVoice`'s `Recording` value is a CTA-text-only override on `button`'s existing `Default` state for exactly this reason, not a new value added to `button`'s own shared `state` axis.
+- Build each variant as its own component (`createComponentFromNode` on a fully finished, fully bound frame), add any text, boolean, instance-swap, or slot properties to it individually, then combine into one set. Don't add properties after combining, and don't combine before every individual variant is internally correct.
+- If a state variant's content should stay fixed and distinct per state (a placeholder, an example, an overflow demo), don't expose it as a component property, that collapses every variant's content into one shared value the moment the property is edited anywhere. Reserve exposed text properties for content that's meant to vary independently of which variant is selected, the way `button`'s CTA text does.
+- Name each variant `axisName=Value` before combining (`state=Default`, `variant=Success`), matching the axis name the rest of the file already uses for that kind of distinction. After combining, immediately check the resulting set for duplicate variant names, a rename collision (two children sharing one variant value, or a missing one) breaks the whole set silently until something tries to read it.
+- After combining, the set won't be laid out readably by default. Set its own `layoutMode`, arrange the variants in a row, and bind that layout's spacing to a real token the same as any other property.
+- Write the finished description directly into the component's Description field in Figma, not just in chat. This file's own component entries above are transcribed from those descriptions rather than paraphrased, that's only possible because the description was written down at build time.
+
+## Never do this
+
+- Never invent a value that isn't in `tokens.json`. If something is missing, say so instead of filling the gap.
+- Never use a CSS fallback value like `var(--token, #333)`. A token that resolves to nothing is a bug to fix, not to hide.
+- Sentence case on every label, button, and heading. Capitals only for proper nouns.
+- Never put an appearance word in a semantic name. A word that describes how a color looks belongs in the primitive layer only.
+- Never read a primitive directly. Components consume the semantic layer, and the semantic layer references the primitives.
+- Never let two definitions of the same component exist in the file at once, one visible and one actually wired to real instances. If you find a split like that, reattach the real one to a page and delete the stale copy; don't document both as if they're equally valid.
