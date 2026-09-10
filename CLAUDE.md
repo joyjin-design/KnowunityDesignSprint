@@ -14,7 +14,7 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - Verdict is pass / partial / fail, never binary.
 - Transcript is always shown back to the student.
 - The recall engine (STT + judging) is mocked, not real.
-- Any color, size, weight, or line height comes from `tokens.json`. Never invent one.
+- Any color, size, weight, or line height comes from `tokens/tokens.json`. Never invent one.
 - Component usage, states, and naming follow `design-system.md` exactly.
 - Build from the components that already exist, and stop before making a new one. Only add a new component if `design-system.md` has no existing match for the need.
 - Append every new decision to `sprint-context.md` as it's made.
@@ -34,7 +34,9 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - `Voice-ux.md` — voice-UX principles and the states-to-design checklist. Read before designing the recall loop or any voice screen.
 - `sprint-context.md` — committed decisions log for this sprint. Read before changing exam-plan/toggle/node behavior.
 - `design-system.md` — component rules: which component to use, its states, and naming conventions. Read before building or editing any UI component.
-- `tokens.json` — all actual color/size/weight/line-height values. Read when a token name is needed.
+- `tokens/tokens.json` — all actual color/size/weight/line-height values. Read when a token name is needed.
+- `tokens/style-dictionary.config.mjs` — Style Dictionary config; turns `tokens/tokens.json` into `build/css/tokens.css`. Read only when changing how tokens build.
+- `build/css/tokens.css` — generated CSS variables. Never edit by hand; regenerate with `npm run tokens`.
 - `reference/` — screenshots of Knowunity's existing shipped beta. Read to see what exists today.
 - `app/page.tsx` — main screen entry point.
 - `app/layout.tsx` — root layout, fonts, metadata.

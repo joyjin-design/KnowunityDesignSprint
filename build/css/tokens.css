@@ -1,0 +1,179 @@
+/**
+ * GENERATED FILE — DO NOT EDIT BY HAND.
+ * Source of truth is tokens/tokens.json.
+ * Regenerate with `npm run tokens`.
+ */
+
+:root {
+  --color-navy-800: #22242f;
+  --color-navy-900: #1a1c26;
+  --color-navy-950: #090c18;
+  --color-neutral-0: #ffffff;
+  --color-neutral-950: #0a0a0a;
+  --color-violet-50: #f4f2ff;
+  --color-violet-100: #e4e0ff;
+  --color-violet-200: #d2ccfa;
+  --color-violet-300: #a78bfa;
+  --color-violet-400: #7b65e0;
+  --color-violet-500: #9178e6;
+  --color-violet-900: #15103a;
+  --color-violet-950: #0e0a18;
+  --color-green-300: #4ae5b0;
+  --color-green-500: #00c386;
+  --color-green-900: #0a2e22;
+  --color-green-950: #0a1f18;
+  --color-red-200: #fca5a5;
+  --color-red-300: #ff8585;
+  --color-red-400: #ff6b6b;
+  --color-red-500: #e85555;
+  --color-red-900: #532831;
+  --color-red-950: #2a0808;
+  --color-coral-200: #ffb59b;
+  --color-coral-400: #fb7e5b;
+  --color-coral-900: #512e2c;
+  --color-coral-950: #2e0f06;
+  --color-blue-300: #7ba8f2;
+  --color-blue-400: #5fa0fc;
+  --color-blue-900: #0a1635;
+  --color-blue-950: #06173b;
+  --color-magenta-200: #f7b5de;
+  --color-magenta-400: #e879c0;
+  --color-magenta-900: #380d29;
+  --color-magenta-950: #2c0a20;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #f5b53d;
+  --color-gold-900: #3a2d0b;
+  --color-gold-950: #2a1d04;
+  --color-alpha-light-10: rgba(255, 255, 255, 0.102);
+  --color-alpha-light-18: rgba(255, 255, 255, 0.1804);
+  --color-alpha-light-24: rgba(255, 255, 255, 0.2392);
+  --color-alpha-light-25: rgba(255, 255, 255, 0.251);
+  --color-alpha-light-40: rgba(255, 255, 255, 0.4);
+  --color-alpha-light-48: rgba(245, 243, 255, 0.4784);
+  --color-alpha-light-68: rgba(245, 243, 255, 0.6784);
+  --color-alpha-dark-10: rgba(10, 10, 10, 0.102);
+  --color-alpha-dark-50: rgba(10, 10, 10, 0.502);
+  --color-alpha-glass-60: rgba(61, 61, 61, 0.6);
+  --color-alpha-light-8: rgba(255, 255, 255, 0.08);
+  --color-black-100: rgba(12, 12, 13, 0.05);
+  --color-black-200: rgba(12, 12, 13, 0.1);
+  --color-black-400: rgba(12, 12, 13, 0.4);
+  --font-size-2xs: 11px;
+  --font-size-xs: 12px;
+  --font-size-sm: 15px;
+  --font-size-md: 18px;
+  --font-size-lg: 21px;
+  --font-size-xl: 28px;
+  --font-size-2xl: 33px;
+  --font-size-3xl: 44px;
+  --font-size-4xl: 59px;
+  --font-size-5xl: 76px;
+  --font-size-6xl: 103px;
+  --font-size-root: 16px;
+  --font-line-height-2xs: 12px;
+  --font-line-height-xs: 16px;
+  --font-line-height-sm: 20px;
+  --font-line-height-md: 24px;
+  --font-line-height-lg: 28px;
+  --font-line-height-xl: 36px;
+  --font-line-height-2xl: 44px;
+  --font-line-height-3xl: 60px;
+  --font-line-height-4xl: 76px;
+  --font-line-height-5xl: 104px;
+  --font-family-display: 'Greed Standard-TRIAL';
+  --font-family-default: 'Greed Standard-TRIAL';
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 900;
+  --color-background-page: var(--color-navy-950); /** Root screen canvas; use for every screen's base background. */
+  --color-background-surface: var(--color-navy-800); /** Elevated container fill; use for cards, bottom sheets, modals, dropdown menus, chat bubbles, toasts. */
+  --color-background-inverse: var(--color-violet-50); /** Dark block on a light screen; use for tooltips, toasts, snackbars on light backgrounds. */
+  --color-background-scrim: var(--color-alpha-dark-50); /** Semi-transparent overlay dimming content behind a modal; use for behind modals, dialogs, bottom sheets. */
+  --color-background-floating: var(--color-alpha-glass-60); /** Elevated floating surface with translucency; use for dropdown menus, tooltips, popovers that float above content with a frosted-glass effect. */
+  --color-background-stacking: var(--color-alpha-light-10); /** Additive white layer for stacking elevation on dark surfaces; use for toasts, snackbars, floating notifications that need subtle lift above dark backgrounds. */
+  --color-background-input: var(--color-navy-900); /** Fill of an editable field; use for text inputs, textareas, search fields at rest. */
+  --color-interactive-primary: var(--color-violet-50); /** Main call-to-action fill; use for continue, Check, Start practice buttons, progress bar fills. */
+  --color-interactive-secondary: var(--color-alpha-light-10); /** Supporting action fill; use for skip, Cancel, filter chips, outlined buttons, toggles. */
+  --color-interactive-destructive: var(--color-red-400); /** Irreversible harmful action fill; use for delete, remove, block buttons. */
+  --color-interactive-disabled: var(--color-alpha-light-8); /** Non-interactive control fill signaling unavailable; use for disabled buttons, toggles, sliders. */
+  --color-interactive-on-primary: var(--color-navy-950); /** Text and icons on interactive.primary fills; must contrast >= 4.5:1 against interactive.primary. */
+  --color-interactive-on-secondary: var(--color-violet-50); /** Text and icons on interactive.secondary fills; use for labels inside secondary buttons, toggle text, filter chip labels. */
+  --color-interactive-pressed: var(--color-alpha-light-10); /** Press overlay for light or vivid surfaces; use for tap feedback on primary buttons and elements sitting on accent fills. */
+  --color-interactive-pressed-inverse: var(--color-alpha-dark-10); /** Press overlay for dark surfaces; use for tap feedback on secondary buttons, icon buttons, list items and cards on background.page or background.surface. */
+  --color-interactive-primary-hover: var(--color-violet-100); /** Hover state of interactive.primary; use for pointer hover on primary buttons. */
+  --color-interactive-primary-active: var(--color-violet-200); /** Pressed state of interactive.primary; use for the moment of click or tap on a primary button. */
+  --color-interactive-secondary-hover: var(--color-alpha-light-18); /** Hover state of interactive.secondary; use for pointer hover on secondary buttons, chips and toggles. */
+  --color-interactive-secondary-active: var(--color-alpha-light-24); /** Pressed state of interactive.secondary. */
+  --color-interactive-destructive-hover: var(--color-red-300); /** Hover state of interactive.destructive; use for pointer hover on delete and remove buttons. */
+  --color-interactive-destructive-active: var(--color-red-500); /** Pressed state of interactive.destructive. */
+  --color-interactive-on-destructive: var(--color-red-950); /** Text and icons on interactive.destructive fills; must contrast >= 4.5:1 against interactive.destructive. */
+  --color-text-primary: var(--color-violet-50); /** Highest contrast text for maximum readability; use for headlines, body copy, titles, card labels. */
+  --color-text-secondary: var(--color-alpha-light-68); /** Reduced emphasis text for supporting content; use for subtitles, captions, timestamps, helper text, metadata. */
+  --color-text-inverse: var(--color-navy-950); /** Dark text on light or vivid surfaces; use for labels on background.inverse, text on bright accent fills. */
+  --color-text-link: var(--color-violet-500); /** Inline hyperlink text only; use for linked text in body copy, T&C links, Learn more inline links. */
+  --color-text-disabled: var(--color-alpha-light-40); /** Low-contrast text signaling unavailable or not yet filled; use for text on disabled controls, placeholder text in empty input fields. */
+  --color-text-tertiary: var(--color-alpha-light-48); /** Lowest emphasis readable text; use for timestamps, counts, inline hints beside a field. */
+  --color-text-link-hover: var(--color-violet-300); /** Hover state of text.link; use for pointer hover on inline hyperlinks. */
+  --color-text-success: var(--color-green-300); /** Confirmation text; use for correct, validation success messages. */
+  --color-text-error: var(--color-red-200); /** Validation message text; use for the line under a failed field. */
+  --color-text-warning: var(--color-gold-300); /** Caution text; use for limits, expiry notices, one attempt left. */
+  --color-text-on-accent: var(--color-violet-950); /** Text on any accent.*.bold fill; must contrast >= 4.5:1 against the accent it sits on. */
+  --color-border-default: var(--color-alpha-light-10); /** Standard container edge; use for card outlines, dividers, input borders at rest, separators. */
+  --color-border-strong: var(--color-alpha-light-25); /** Higher contrast container edge; use for dividers that must read at a glance, table rules, edges on busy surfaces. */
+  --color-border-focus: var(--color-violet-300); /** Keyboard focus ring; use for the visible focus indicator on any focusable element. */
+  --color-border-error: var(--color-red-400); /** Invalid input edge; use for text fields and selects that failed validation. */
+  --color-border-success: var(--color-green-500); /** Validated input edge; use for fields confirmed correct. */
+  --color-border-selected: var(--color-violet-500); /** Edge of a chosen element; use for selected cards, active tabs, chosen answer options. */
+  --color-mascot-body: var(--color-violet-500); /** Mascot signature violet, a character color rather than a UI one; use for mascot illustration fill, tip banners where the mascot is present, full-screen backgrounds for mascot-hero moments like onboarding and celebration. */
+  --color-mascot-eyes: var(--color-neutral-0); /** Homie eye whites; use for mascot illustration only. */
+  --color-mascot-pupils: var(--color-neutral-950); /** Homie pupils; use for mascot illustration only. */
+  --color-pro-bold: var(--color-gold-400); /** Solid PRO fill; use for PRO badges, upgrade banners. */
+  --color-pro-on-bold: var(--color-gold-950); /** Text and icons on pro.bold. */
+  --color-pro-subtle: var(--color-gold-900); /** Low emphasis PRO fill. */
+  --color-pro-on-subtle: var(--color-gold-300); /** Text and icons on pro.subtle. */
+  --color-accent-brand-bold: var(--color-violet-500); /** Solid brand violet fill; use for brand moments, onboarding hero panels. */
+  --color-accent-brand-on-bold: var(--color-violet-950); /** Text and icons on accent.brand.bold. */
+  --color-accent-brand-subtle: var(--color-violet-900); /** Low emphasis brand fill; use for tinted brand panels. */
+  --color-accent-brand-on-subtle: var(--color-violet-400); /** Text and icons on accent.brand.subtle. */
+  --color-accent-coral-bold: var(--color-coral-400); /** Solid coral accent fill; use for decorative emphasis, category tags, illustration accents. */
+  --color-accent-coral-on-bold: var(--color-coral-950); /** Text and icons on accent.coral.bold. */
+  --color-accent-coral-subtle: var(--color-coral-900); /** Low emphasis coral fill. */
+  --color-accent-coral-on-subtle: var(--color-coral-200); /** Text and icons on accent.coral.subtle. */
+  --color-accent-magenta-bold: var(--color-magenta-400); /** Solid magenta accent fill; use for decorative category tags. */
+  --color-accent-magenta-on-bold: var(--color-magenta-950); /** Text and icons on accent.magenta.bold. */
+  --color-accent-magenta-subtle: var(--color-magenta-900); /** Low emphasis magenta fill. */
+  --color-accent-magenta-on-subtle: var(--color-magenta-200); /** Text and icons on accent.magenta.subtle. */
+  --color-accent-blue-bold: var(--color-blue-400); /** Solid blue accent fill; use for informational chips, secondary category tags. */
+  --color-accent-blue-on-bold: var(--color-blue-950); /** Text and icons on accent.blue.bold. */
+  --color-accent-blue-subtle: var(--color-blue-900); /** Low emphasis blue fill. */
+  --color-accent-blue-on-subtle: var(--color-blue-300); /** Text and icons on accent.blue.subtle. */
+  --color-feedback-success-bold: var(--color-green-500); /** Solid success fill; use for correct answer banners, completion states. */
+  --color-feedback-success-on-bold: var(--color-green-950); /** Text and icons on feedback.success.bold. */
+  --color-feedback-success-subtle: var(--color-green-900); /** Tinted success background; use for the panel behind a correct result. */
+  --color-feedback-success-on-subtle: var(--color-green-300); /** Text and icons on feedback.success.subtle. */
+  --color-feedback-error-bold: var(--color-red-400); /** Solid error fill; use for incorrect answer banners, failed validation summaries. */
+  --color-feedback-error-on-bold: var(--color-red-950); /** Text and icons on feedback.error.bold. */
+  --color-feedback-error-subtle: var(--color-red-900); /** Tinted error background; use for the panel behind a wrong result. */
+  --color-feedback-error-on-subtle: var(--color-red-200); /** Text and icons on feedback.error.subtle. */
+  --color-highlight-surface: var(--color-violet-900); /** Fill of a chosen element; use for selected cards, active tabs, the answer a student picked. */
+  --font-greed-display-l: var(--font-weight-heavy) var(--font-size-6xl)/var(--font-line-height-5xl) var(--font-family-display);
+  --font-greed-display-m: var(--font-weight-bold) var(--font-size-5xl)/var(--font-line-height-4xl) var(--font-family-default);
+  --font-greed-display-s: var(--font-weight-bold) var(--font-size-4xl)/var(--font-line-height-3xl) var(--font-family-default);
+  --font-greed-headline-xl: var(--font-weight-bold) var(--font-size-3xl)/var(--font-line-height-2xl) var(--font-family-default);
+  --font-greed-headline-l: var(--font-weight-bold) var(--font-size-2xl)/var(--font-line-height-xl) var(--font-family-default);
+  --font-greed-headline-m: var(--font-weight-bold) var(--font-size-xl)/var(--font-line-height-lg) var(--font-family-default);
+  --font-greed-headline-s: var(--font-weight-bold) var(--font-size-lg)/var(--font-line-height-md) var(--font-family-default);
+  --font-greed-headline-xs-bold: var(--font-weight-semibold) var(--font-size-md)/var(--font-line-height-sm) var(--font-family-default);
+  --font-greed-headline-xs-regular: var(--font-weight-regular) var(--font-size-md)/var(--font-line-height-sm) var(--font-family-default);
+  --font-greed-headline-xxs-bold: var(--font-weight-semibold) var(--font-size-sm)/var(--font-line-height-xs) var(--font-family-default);
+  --font-greed-headline-xxs-regular: var(--font-weight-regular) var(--font-size-sm)/var(--font-line-height-xs) var(--font-family-default);
+  --font-greed-body-m-bold: var(--font-weight-semibold) var(--font-size-md)/var(--font-line-height-md) var(--font-family-default);
+  --font-greed-body-m-regular: var(--font-weight-regular) var(--font-size-md)/var(--font-line-height-md) var(--font-family-default);
+  --font-greed-body-s-bold: var(--font-weight-semibold) var(--font-size-sm)/var(--font-line-height-sm) var(--font-family-default);
+  --font-greed-body-s-regular: var(--font-weight-regular) var(--font-size-sm)/var(--font-line-height-sm) var(--font-family-default);
+  --font-greed-caption-m-bold: var(--font-weight-semibold) var(--font-size-xs)/var(--font-line-height-xs) var(--font-family-default);
+  --font-greed-caption-m-regular: var(--font-weight-regular) var(--font-size-xs)/var(--font-line-height-xs) var(--font-family-default);
+  --font-greed-caption-s-bold: var(--font-weight-semibold) var(--font-size-2xs)/var(--font-line-height-2xs) var(--font-family-default);
+  --font-greed-caption-s-regular: var(--font-weight-regular) var(--font-size-2xs)/var(--font-line-height-2xs) var(--font-family-default);
+}

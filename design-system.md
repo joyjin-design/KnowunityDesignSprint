@@ -1,6 +1,6 @@
 # Design system rules
 
-This file is rules, not values. For any actual color, size, weight, or line height, look in `tokens.json`. Nothing here repeats a value that lives there.
+This file is rules, not values. For any actual color, size, weight, or line height, look in `tokens/tokens.json`. Nothing here repeats a value that lives there.
 
 Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below assume that scope unless noted.
 
@@ -91,7 +91,7 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 
 ## Never do this
 
-- Never invent a value that isn't in `tokens.json`. If something is missing, say so instead of filling the gap.
+- Never invent a value that isn't in `tokens/tokens.json`. If something is missing, say so instead of filling the gap.
 - Never use a CSS fallback value like `var(--token, #333)`. A token that resolves to nothing is a bug to fix, not to hide.
 - Sentence case on every label, button, and heading. Capitals only for proper nouns.
 - Never put an appearance word in a semantic name. A word that describes how a color looks belongs in the primitive layer only.
