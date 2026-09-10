@@ -36,7 +36,7 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - `design-system.md` — component rules: which component to use, its states, and naming conventions. Read before building or editing any UI component.
 - `tokens/tokens.json` — all actual color/size/weight/line-height values. Read when a token name is needed.
 - `tokens/style-dictionary.config.mjs` — Style Dictionary config; turns `tokens/tokens.json` into `build/css/tokens.css`. Read only when changing how tokens build.
-- `build/css/tokens.css` — generated CSS variables. Never edit by hand; regenerate with `npm run tokens`.
+- `build/css/tokens.css` — generated CSS variables, imported by `app/globals.css`. Never edit it by hand; edit `tokens/tokens.json` and run `npm run tokens` instead.
 - `reference/` — screenshots of Knowunity's existing shipped beta. Read to see what exists today.
 - `app/page.tsx` — main screen entry point.
 - `app/layout.tsx` — root layout, fonts, metadata.
