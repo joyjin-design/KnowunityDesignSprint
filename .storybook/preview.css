@@ -1,0 +1,5 @@
+/* Storybook's autodocs page wraps content in an article capped at 1000px.
+   A token/swatch page needs the full window, so remove that cap here. */
+.sbdocs-content {
+  max-width: none;
+}
