@@ -47,6 +47,13 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 - No variant axis, no other properties. One fixed component, single text layer.
 - What not to do with it: don't expose its copy as an editable property, and don't reach for `text/tertiary` for it or anything like it, `text/tertiary`'s own description already rules that out.
 
+**badge** — a small unread-style indicator, dot only, no count and no label slot, fixed at 7x7 with a 2px outside stroke. Fill bound to `accent/coral/bold`, stroke bound to `accent/coral/onBold`. Reserve `feedback/error/bold` for actual errors, not for "something new" signals like this one. The 7px fill diameter is sized off a real dot already shipping on the timer icon elsewhere in the app (roughly 29% of a 24px icon's width). The 2px outside stroke is a deliberate departure from that reference, which has no stroke, added for separation from whatever the badge sits on, confirmed as intentional, understanding it reads more prominent than the reference (about 11px effective diameter, not 7px).
+- No variant axis. Dot-only, decided for this sprint: no plan to add a count or label variant now.
+- Current real use: the exam-node tab icon in the bottom nav (`Navigation Button`, `target-04` icon). Signals that voice recall is newly available at that node. Clears the moment the student taps the icon and enters exam mode, not on merely viewing the tab. Supplements the exam-node placement already validated in research, appears before the student reaches the node rather than replacing the in-node signal.
+- Not wired as a component property yet: `Navigation Button`'s own component set has no badge-related property (only Icon instance-swap, Has Label boolean, Label text, and State variant), so `badge` is placed by hand per screen for now, an ABSOLUTE-positioned sibling instance overlapping the icon's corner, not a child of the `Navigation Button` instance itself, which has no slot for it. Same starting point `buttonVoice` had before any decision to fold it into a shared master.
+- Accessibility gap, still open: nothing at the design layer carries this badge's meaning besides color and position. Needs a VoiceOver label on the underlying tab (e.g. "New: voice recall available") at build time to satisfy the platform constraint against color-only meaning; this can't be resolved in Figma alone.
+- What not to do with it: don't reuse for a numeric unread count, there's no text slot, that needs a new variant, not an override of this one. Don't attach it inside the `Navigation Button` instance, place it in the parent row instead with `layoutPositioning` set to `ABSOLUTE`.
+
 **scaffold** — the device frame every screen is built inside. See slot composition below.
 
 ## Scaffold composition

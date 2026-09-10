@@ -29,3 +29,8 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
 - Auto-endpointing or continuous listening
 - Tutoring or open conversation branch if the student asks Knowie something
 - Real speech-to-text or real judging (mocked)
+
+## Leftover from setup (not yet cleaned up)
+- `app/page.tsx` is still the unedited create-next-app scaffold
+- `public/next.svg`, `vercel.svg`, `window.svg`, `globe.svg`, `file.svg` are unused create-next-app defaults
+- `README.md` is still the unedited create-next-app default
