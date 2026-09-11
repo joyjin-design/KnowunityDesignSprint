@@ -1,0 +1,92 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--size-space-1600);
+}
+
+/* Absolutely positioned in Figma too, so the app bar's own vertical gap has
+   no flow child to act on and isn't reproduced. */
+.handle {
+  position: absolute;
+  top: var(--size-space-150);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--size-space-800);
+  height: var(--size-space-100);
+  border-radius: var(--size-stroke-heavy-border);
+  background: var(--color-background-stacking);
+}
+
+.topNav {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  padding-block: var(--size-space-300);
+  background: linear-gradient(to bottom, var(--color-background-surface), transparent);
+}
+
+/* Inline padding shrinks to space-100 on whichever edge carries a 48px icon
+   button, so the glyph still lines up with the 16px content margin. */
+.topNav[data-variant='Default'] {
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-300);
+}
+
+.topNav[data-variant='withTitle'] {
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-400);
+}
+
+.topNav[data-variant='dismissOnly'] {
+  gap: var(--size-space-300);
+  padding-left: var(--size-space-100);
+  padding-right: var(--size-space-400);
+}
+
+.topNav[data-variant='dismissAndAction'] {
+  gap: var(--size-space-300);
+  padding-inline: var(--size-space-100);
+}
+
+.textSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-space-0);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--size-space-1200);
+}
+
+.title {
+  max-width: 100%;
+  font: var(--font-greed-body-m-bold);
+  color: var(--color-text-primary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caption {
+  max-width: 100%;
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-text-secondary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholderIcon {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--size-stroke-heavy-border);
+}
