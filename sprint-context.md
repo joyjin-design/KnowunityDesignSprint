@@ -24,6 +24,9 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
 - transcriptDisplay's four states (Empty, Filled, Overflow, Silence) each have fixed content, not one shared property
 - buttonVoice's Recording state is a CTA-text-only swap, no mic/waveform icon exists yet to animate
 - bottomSheetVerdict's Partial state uses accent/blue as a placeholder, no real Partial token exists yet
+- Button component (app/components/Button.tsx) built from the real Figma `button` component set. Its inner-shadow bezel (black @15%, −2px/−4px offset) had no matching token, so `color.alpha.dark-15` and `size.depth.Negative 050` were added to tokens.json to cover it rather than approximate. Letter-spacing (1%/0% by size) is still skipped: tokens.json has no letter-spacing group, and CSS doesn't support `%` for it anyway.
+- Button's `state` variant (Pressed) is not exposed as a prop; Pressed is CSS `:active`, Disabled/Loading are real `disabled`/`loading` props, so real interaction and accessibility semantics stay correct
+- Secondary button built borderless: Figma sets strokeWeight=3 but its `strokes` array is empty, so there's no real border to reproduce
 
 ## Not building
 - Auto-endpointing or continuous listening

@@ -52,6 +52,7 @@
   --color-alpha-light-48: rgba(245, 243, 255, 0.4784);
   --color-alpha-light-68: rgba(245, 243, 255, 0.6784);
   --color-alpha-dark-10: rgba(10, 10, 10, 0.102);
+  --color-alpha-dark-15: rgba(10, 10, 10, 0.15); /** Added for button's inner-shadow bezel (black @15% in Figma); normalized to this family's existing #0a0a0a base rather than introducing a second pure-black primitive. */
   --color-alpha-dark-50: rgba(10, 10, 10, 0.502);
   --color-alpha-glass-60: rgba(61, 61, 61, 0.6);
   --color-alpha-light-8: rgba(255, 255, 255, 0.08);
@@ -92,6 +93,7 @@
   --size-depth-800: 32px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
   --size-depth-025: 1px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
   --size-depth-negative-025: -1px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-negative-050: -2px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Added for button's inner-shadow bezel offset at S/M size. */
   --size-depth-negative-100: -4px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
   --size-depth-negative-200: -8px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
   --size-icon-100: 8px; /** 8px icon box. USE: width and height of an icon frame. */
