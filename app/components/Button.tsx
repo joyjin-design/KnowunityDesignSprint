@@ -50,7 +50,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     >
       {loading ? (
         <>
-          <Spinner size={size} variant={variant} />
+          <Spinner size={size} colorVar={spinnerColorVar(variant)} />
           <span className={styles.visuallyHidden}>{children}</span>
         </>
       ) : (
@@ -64,21 +64,37 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   );
 });
 
-function Spinner({ size, variant }: { size: ButtonSize; variant: ButtonVariant }) {
-  const colorVar =
-    variant === 'Tertiary'
-      ? 'var(--color-text-link)'
-      : variant === 'Secondary'
-        ? 'var(--color-text-primary)'
-        : 'var(--color-interactive-on-primary)';
+/** Button's own spinner tint per variant (Tertiary uses text/link here). */
+function spinnerColorVar(variant: ButtonVariant): string {
+  return variant === 'Tertiary'
+    ? 'var(--color-text-link)'
+    : variant === 'Secondary'
+      ? 'var(--color-text-primary)'
+      : 'var(--color-interactive-on-primary)';
+}
+
+const SPINNER_SIZE_VAR: Record<ButtonSize, string> = {
+  S: 'var(--size-icon-200)',
+  M: 'var(--size-icon-250)',
+  L: 'var(--size-icon-300)',
+};
+
+/**
+ * Shared loading spinner, reused by ButtonIcon. Sized via an explicit inline
+ * style (rather than an ancestor `[data-size]` selector) so it renders
+ * correctly regardless of which component's CSS module wraps it. Color is
+ * also explicit since Button and ButtonIcon tint it differently.
+ */
+export function Spinner({ size, colorVar }: { size: ButtonSize; colorVar: string }) {
+  const dimension = SPINNER_SIZE_VAR[size];
   return (
     <svg
-      className={`${styles.icon} ${styles.spinner}`}
+      className={styles.spinner}
+      style={{ width: dimension, height: dimension, flexShrink: 0 }}
       viewBox="0 0 24 24"
       fill="none"
       role="presentation"
       aria-hidden="true"
-      data-size={size}
     >
       <circle cx="12" cy="12" r="9" stroke={colorVar} strokeWidth="3" strokeOpacity="0.25" />
       <path d="M21 12a9 9 0 0 0-9-9" stroke={colorVar} strokeWidth="3" strokeLinecap="round" />

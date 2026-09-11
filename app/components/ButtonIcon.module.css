@@ -1,0 +1,133 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  min-width: var(--size-space-1200);
+  min-height: var(--size-space-1200);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.button[data-disabled='true'] {
+  cursor: not-allowed;
+}
+
+/* The circle is a second element (not just the <button> itself) because S/M
+   need a visible circle smaller than the 48px tap target, centered inside it
+   -- same two-layer structure Figma uses (outer tap frame, inner "Button"
+   circle). None of the three diameters are derived from padding tokens; like
+   the 48px tap target, Figma fixes them directly. 32px and 40px happen to
+   match existing tokens (space.800, illustration.500); 56px did not, so
+   illustration.700 was added for it. */
+.circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: var(--size-radius-full);
+}
+
+.button[data-size='S'] .circle {
+  width: var(--size-space-800);
+  height: var(--size-space-800);
+  padding-bottom: var(--size-space-050);
+  --bezel-offset: var(--size-depth-negative-050);
+}
+
+.button[data-size='M'] .circle {
+  width: var(--size-illustration-500);
+  height: var(--size-illustration-500);
+  padding-bottom: var(--size-space-050);
+  --bezel-offset: var(--size-depth-negative-050);
+}
+
+.button[data-size='L'] .circle {
+  width: var(--size-illustration-700);
+  height: var(--size-illustration-700);
+  padding-bottom: var(--size-space-100);
+  --bezel-offset: var(--size-depth-negative-100);
+}
+
+/* Tertiary has no baseline nudge in the real component (no padding-bottom
+   bound to it at all), unlike Primary/Secondary. Placed after the size rules
+   above so it wins the cascade for this one property. */
+.button[data-variant='Tertiary'] .circle {
+  padding-bottom: 0;
+}
+
+/* Primary is the only variant with a real border in the real component. */
+.button[data-variant='Primary'] .circle {
+  background: var(--color-interactive-primary);
+  border: 1px solid var(--color-border-default);
+  box-shadow: inset 0 var(--bezel-offset) 0 0 var(--color-alpha-dark-15);
+  color: var(--color-interactive-on-primary);
+}
+
+.button[data-variant='Primary']:active .circle {
+  box-shadow:
+    inset 0 0 0 9999px var(--color-interactive-pressed),
+    inset 0 var(--bezel-offset) 0 0 var(--color-alpha-dark-15);
+}
+
+.button[data-variant='Primary'][data-disabled='true'] .circle {
+  background: var(--color-background-surface);
+  border: none;
+  box-shadow: none;
+  color: var(--color-text-disabled);
+}
+
+.button[data-variant='Secondary'] .circle {
+  background: var(--color-background-surface);
+  box-shadow: inset 0 var(--bezel-offset) 0 0 var(--color-alpha-dark-15);
+  color: var(--color-text-primary);
+}
+
+.button[data-variant='Secondary']:active .circle {
+  box-shadow:
+    inset 0 0 0 9999px var(--color-background-stacking),
+    inset 0 var(--bezel-offset) 0 0 var(--color-alpha-dark-15);
+}
+
+.button[data-variant='Secondary'][data-disabled='true'] .circle {
+  color: var(--color-text-disabled);
+}
+
+.button[data-variant='Tertiary'] .circle {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.button[data-variant='Tertiary'][data-disabled='true'] .circle {
+  color: var(--color-text-disabled);
+}
+
+/* The icon itself: sized to the same icon.* scale Button uses, and expected
+   to paint with `currentColor` so the .circle's `color` above tints it. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.button[data-size='S'] .icon {
+  width: var(--size-icon-200);
+  height: var(--size-icon-200);
+}
+
+.button[data-size='M'] .icon {
+  width: var(--size-icon-250);
+  height: var(--size-icon-250);
+}
+
+.button[data-size='L'] .icon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}

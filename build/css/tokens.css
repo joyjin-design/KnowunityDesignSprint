@@ -103,6 +103,7 @@
   --size-icon-300: 24px; /** 24px icon box. USE: width and height of an icon frame. */
   --size-icon-400: 32px; /** 32px icon box. USE: width and height of an icon frame. */
   --size-illustration-500: 40px; /** 40px illustration box. USE: mascot and spot illustration sizing. */
+  --size-illustration-700: 56px; /** 56px illustration box. Added for buttonIcon's L-size circle diameter, which has no matching padding-derived token, same as the 48px tap-target minimum. */
   --size-illustration-800: 64px; /** 64px illustration box. USE: mascot and spot illustration sizing. */
   --size-illustration-1500: 120px; /** 120px illustration box. USE: mascot and spot illustration sizing. */
   --size-illustration-2500: 200px; /** 200px illustration box. USE: mascot and spot illustration sizing. */
