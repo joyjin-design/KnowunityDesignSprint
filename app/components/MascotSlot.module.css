@@ -1,0 +1,34 @@
+.mascotSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: var(--size-space-300);
+  flex-shrink: 0;
+}
+
+.mascotSlot[data-size='XL'] {
+  width: var(--size-illustration-800);
+  height: var(--size-illustration-800);
+}
+
+.mascotSlot[data-size='2XL'] {
+  width: var(--size-illustration-1500);
+  height: var(--size-illustration-1500);
+}
+
+.mascotSlot[data-size='3XL'] {
+  width: var(--size-illustration-2500);
+  height: var(--size-illustration-2500);
+}
+
+.mascotSlot[data-size='4XL'] {
+  width: var(--size-illustration-4000);
+  height: var(--size-illustration-4000);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

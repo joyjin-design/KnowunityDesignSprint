@@ -1,0 +1,146 @@
+.sheet {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--size-stroke-border) solid var(--color-border-default);
+  border-top-left-radius: var(--size-radius-900);
+  border-top-right-radius: var(--size-radius-900);
+}
+
+.sheet[data-variant='Error'],
+.sheet[data-variant='Silence'] {
+  background: var(--color-background-surface);
+}
+
+.sheet[data-variant='Partial'] {
+  background: var(--color-accent-blue-subtle);
+}
+
+.sheet[data-variant='Success'] {
+  background: var(--color-feedback-success-subtle);
+}
+
+.handle {
+  position: absolute;
+  top: var(--size-space-150);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--size-space-800);
+  height: var(--size-space-100);
+  border-radius: var(--size-stroke-heavy-border);
+  background: var(--color-background-stacking);
+}
+
+.appBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-100);
+}
+
+.topNav {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+  padding-top: var(--size-space-300);
+  padding-inline: var(--size-space-700);
+}
+
+.textSection {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.iconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-icon-400);
+  height: var(--size-icon-400);
+}
+
+.iconBox[data-variant='Partial'] {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+.icon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+.iconBox[data-variant='Partial'] .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.title {
+  margin: 0;
+  font: var(--font-greed-headline-m);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet[data-variant='Error'] .title,
+.sheet[data-variant='Silence'] .title {
+  color: var(--color-feedback-error-bold);
+}
+
+.sheet[data-variant='Partial'] .title {
+  color: var(--color-accent-blue-bold);
+}
+
+.sheet[data-variant='Success'] .title {
+  color: var(--color-feedback-success-bold);
+}
+
+.thumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-400);
+  flex-shrink: 0;
+}
+
+.thumbButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.thumbButton svg {
+  width: 100%;
+  height: 100%;
+}
+
+.supportText {
+  margin: 0;
+  padding-inline: var(--size-space-700);
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-primary);
+}
+
+.bottomCta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  padding: var(--size-space-700);
+}

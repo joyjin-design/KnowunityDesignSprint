@@ -1,0 +1,33 @@
+.transcript {
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  font: var(--font-greed-headline-xs-regular);
+}
+
+.transcript[data-state='Empty'],
+.transcript[data-state='Silence'] {
+  color: var(--color-text-tertiary);
+}
+
+.transcript[data-state='Filled'] {
+  color: var(--color-text-primary);
+}
+
+/* Overflow now wraps its text in a padded outer box (96px top/bottom), read
+   straight off the real component's own bound padding variable, rather than
+   the text sitting flush against the clip edges. */
+.overflowWrapper {
+  width: 100%;
+  box-sizing: border-box;
+  padding-block: var(--size-space-2400);
+}
+
+/* The clip window itself is unchanged: content past it is hard clipped, no
+   ellipsis, no fade, no scroll — that's a deliberate open gap, not an
+   oversight (see the component's Storybook docs). */
+.transcript[data-state='Overflow'] {
+  color: var(--color-text-primary);
+  height: var(--size-illustration-4000);
+  overflow: hidden;
+}

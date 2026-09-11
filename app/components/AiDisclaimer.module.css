@@ -1,0 +1,7 @@
+.disclaimer {
+  margin: 0;
+  padding-top: var(--size-space-100);
+  padding-bottom: var(--size-space-800);
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-text-secondary);
+}

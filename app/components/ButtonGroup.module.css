@@ -1,0 +1,49 @@
+.buttonGroup {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.buttonGroup[data-variant='Horizontal'] {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.buttonGroup[data-variant='Vertical'] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.buttonGroup[data-variant='Horizontal'][data-size='M'] {
+  gap: var(--size-space-100);
+}
+
+.buttonGroup[data-variant='Horizontal'][data-size='L'] {
+  gap: var(--size-space-200);
+}
+
+.buttonGroup[data-variant='Vertical'][data-size='M'] {
+  gap: var(--size-space-0);
+}
+
+.buttonGroup[data-variant='Vertical'][data-size='L'] {
+  gap: var(--size-space-200);
+}
+
+/* Horizontal: first slot hugs its own content, second fills the remaining
+   row width — read straight off the real component's bound child sizing
+   (buttonIcon hug + button fill), not assumed. */
+.buttonGroup[data-variant='Horizontal'] > :first-child {
+  flex: 0 0 auto;
+}
+
+.buttonGroup[data-variant='Horizontal'] > :last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Vertical: both slots stack full-width. */
+.buttonGroup[data-variant='Vertical'] > * {
+  flex: 0 0 auto;
+  width: 100%;
+}
