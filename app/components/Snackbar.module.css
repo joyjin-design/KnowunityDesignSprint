@@ -1,0 +1,73 @@
+.wrapper {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--size-space-200);
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--size-illustration-700);
+  gap: var(--size-space-400);
+  padding: var(--size-space-200) var(--size-space-400);
+  border-radius: var(--size-radius-800);
+}
+
+.pill[data-variant='Default'] {
+  background: var(--color-background-surface);
+}
+
+.pill[data-variant='Success'],
+.pill[data-variant='Error'] {
+  background: var(--color-background-inverse);
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+.pill[data-variant='Default'] .icon {
+  color: var(--color-accent-blue-bold);
+}
+
+.pill[data-variant='Success'] .icon {
+  color: var(--color-feedback-success-bold);
+}
+
+.pill[data-variant='Error'] .icon {
+  color: var(--color-feedback-error-bold);
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  gap: var(--size-space-100);
+  padding: var(--size-space-100) var(--size-space-100) var(--size-space-100) 0;
+}
+
+.message {
+  margin: 0;
+  /* "Body S Regular" is the composite that actually matches the real Label
+     (weight regular, font-size sm/15px, line-height sm/20px) -- "Body M
+     Regular" uses the md/18px step instead, a naming mix-up caught after
+     checking the rendered computed style. */
+  font: var(--font-greed-body-s-regular);
+}
+
+.pill[data-variant='Default'] .message {
+  color: var(--color-text-primary);
+}
+
+.pill[data-variant='Success'] .message,
+.pill[data-variant='Error'] .message {
+  color: var(--color-text-inverse);
+}

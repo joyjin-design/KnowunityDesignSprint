@@ -1,0 +1,97 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: none;
+  background: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: var(--size-radius-full);
+}
+
+button.chip {
+  cursor: pointer;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* Sizes: none of these heights are derived from padding (Figma fixes them
+   directly, like Button's own tap-target minimums), hence size.control.* --
+   XXS and XS share the same icon/text size, only padding and gap grow. */
+.chip[data-size='XXS'] {
+  height: var(--size-control-xxs);
+  padding-inline: var(--size-space-150);
+  gap: var(--size-space-050);
+  font: var(--font-greed-caption-s-bold);
+}
+
+.chip[data-size='XS'] {
+  height: var(--size-control-xs);
+  padding-inline: var(--size-space-200);
+  gap: var(--size-space-100);
+  font: var(--font-greed-caption-s-bold);
+}
+
+.chip[data-size='S'] {
+  height: var(--size-control-s);
+  padding-inline: var(--size-space-300);
+  gap: var(--size-space-100);
+  font: var(--font-greed-caption-m-bold);
+}
+
+.chip[data-size='M'] {
+  height: var(--size-control-m);
+  padding-inline: var(--size-space-400);
+  gap: var(--size-space-150);
+  font: var(--font-greed-body-m-bold);
+}
+
+/* Color only visually matters once active; inactive always reads neutral,
+   confirmed identical for both Primary and pro in the real file. */
+.chip:not([data-active='true']) {
+  background: var(--color-background-surface);
+  color: var(--color-text-primary);
+}
+
+.chip[data-active='true'][data-color='Primary'] {
+  background: var(--color-interactive-primary);
+  color: var(--color-interactive-on-primary);
+}
+
+.chip[data-active='true'][data-color='pro'] {
+  background: var(--color-pro-bold);
+  color: var(--color-pro-on-bold);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* Icons are expected to paint with currentColor, so they inherit the color
+   rules above automatically. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chip[data-size='XXS'] .icon,
+.chip[data-size='XS'] .icon {
+  width: var(--size-icon-150);
+  height: var(--size-icon-150);
+}
+
+.chip[data-size='S'] .icon {
+  width: var(--size-icon-200);
+  height: var(--size-icon-200);
+}
+
+.chip[data-size='M'] .icon {
+  width: var(--size-icon-250);
+  height: var(--size-icon-250);
+}

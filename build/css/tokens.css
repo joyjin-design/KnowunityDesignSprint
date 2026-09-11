@@ -137,6 +137,10 @@
   --size-space-negative-600: -24px; /** -24px spacing step. USE: gaps and padding in auto layout. */
   --size-stroke-border: 1px; /** 1px stroke weight. */
   --size-stroke-heavy-border: 2px; /** 2px stroke weight. */
+  --size-control-xxs: 20px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' XXS size. */
+  --size-control-xs: 24px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' XS size. */
+  --size-control-s: 32px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' S size. */
+  --size-control-m: 40px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' M size. */
   --effect-blur-100: 4px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
   --effect-blur-800: 32px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
   --color-background-page: var(--color-navy-950); /** Root screen canvas; use for every screen's base background. */
