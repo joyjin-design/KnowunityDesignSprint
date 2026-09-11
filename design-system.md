@@ -2,6 +2,8 @@
 
 This file is rules, not values. For any actual color, size, weight, or line height, look in `tokens/tokens.json`. Nothing here repeats a value that lives there.
 
+`tokens/tokens.json` groups: `color` (primitives and semantic tokens), `font` (size, lineHeight, family, weight, and the named text styles), `size` (`space`, `radius`, `icon`, `illustration`, `stroke`, `depth`, spacing/radius/icon-box/illustration-box/stroke-weight/shadow-distance primitives), and `effect` (`blur`, shadow blur radius primitives). The `size` and `effect` groups mirror Figma's `Size` variable collection exactly, they weren't in earlier exports of this file, if a value you're looking for isn't under `color` or `font`, check there before assuming it's missing.
+
 Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below assume that scope unless noted.
 
 ## Which component to reach for

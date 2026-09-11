@@ -27,6 +27,10 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - Never trap the student with no way forward.
 - Never touch `AGENTS.md` or remove the block inside it.
 
+## Storybook
+
+When working on UI, use the storybook tools to read the component library before answering or writing anything. Never assume a component prop exists. Query the documentation, and use only props that are documented or shown in a story. If a prop isn't there, stop and ask me.
+
 ## File map
 
 - `AGENTS.md` — Next.js version/agent rules.

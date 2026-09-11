@@ -86,6 +86,56 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-heavy: 900;
+  --size-depth-0: 0px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-100: 4px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-400: 16px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-800: 32px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-025: 1px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-negative-025: -1px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-negative-100: -4px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-depth-negative-200: -8px; /** Effect distance primitive (blur radius, spread, or y-offset depending on which shadow style consumes it). Recreated to replace an orphaned variable of the same name. */
+  --size-icon-100: 8px; /** 8px icon box. USE: width and height of an icon frame. */
+  --size-icon-150: 12px; /** 12px icon box. USE: width and height of an icon frame. */
+  --size-icon-200: 16px; /** 16px icon box. USE: width and height of an icon frame. */
+  --size-icon-250: 20px; /** 20px icon box. USE: width and height of an icon frame. */
+  --size-icon-300: 24px; /** 24px icon box. USE: width and height of an icon frame. */
+  --size-icon-400: 32px; /** 32px icon box. USE: width and height of an icon frame. */
+  --size-illustration-500: 40px; /** 40px illustration box. USE: mascot and spot illustration sizing. */
+  --size-illustration-800: 64px; /** 64px illustration box. USE: mascot and spot illustration sizing. */
+  --size-illustration-1500: 120px; /** 120px illustration box. USE: mascot and spot illustration sizing. */
+  --size-illustration-2500: 200px; /** 200px illustration box. USE: mascot and spot illustration sizing. */
+  --size-illustration-4000: 320px; /** 320px illustration box. USE: mascot and spot illustration sizing. */
+  --size-radius-100: 4px; /** 4px corner radius. */
+  --size-radius-150: 6px; /** 6px corner radius. */
+  --size-radius-200: 8px; /** 8px corner radius. */
+  --size-radius-400: 16px; /** 16px corner radius. */
+  --size-radius-600: 24px; /** 24px corner radius. */
+  --size-radius-800: 32px; /** 32px corner radius. */
+  --size-radius-900: 36px; /** 36px corner radius. */
+  --size-radius-full: 9999px; /** Fully rounded corner radius. */
+  --size-space-0: 0px; /** 0px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-100: 4px; /** 4px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-150: 6px; /** 6px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-200: 8px; /** 8px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-300: 12px; /** 12px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-400: 16px; /** 16px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-600: 24px; /** 24px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-700: 28px; /** 28px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-800: 32px; /** 32px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-1200: 48px; /** 48px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-1600: 64px; /** 64px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-2400: 96px; /** 96px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-4000: 160px; /** 160px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-050: 2px; /** 2px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-negative-100: -4px; /** -4px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-negative-200: -8px; /** -8px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-negative-300: -12px; /** -12px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-negative-400: -16px; /** -16px spacing step. USE: gaps and padding in auto layout. */
+  --size-space-negative-600: -24px; /** -24px spacing step. USE: gaps and padding in auto layout. */
+  --size-stroke-border: 1px; /** 1px stroke weight. */
+  --size-stroke-heavy-border: 2px; /** 2px stroke weight. */
+  --effect-blur-100: 4px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
+  --effect-blur-800: 32px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
   --color-background-page: var(--color-navy-950); /** Root screen canvas; use for every screen's base background. */
   --color-background-surface: var(--color-navy-800); /** Elevated container fill; use for cards, bottom sheets, modals, dropdown menus, chat bubbles, toasts. */
   --color-background-inverse: var(--color-violet-50); /** Dark block on a light screen; use for tooltips, toasts, snackbars on light backgrounds. */
