@@ -1,0 +1,74 @@
+.root {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--size-radius-full);
+  background: var(--color-background-stacking);
+  overflow: hidden;
+}
+
+.root[data-thickness='24'] {
+  height: var(--size-icon-300);
+  padding: var(--size-space-050);
+}
+
+.root[data-thickness='16'] {
+  height: var(--size-icon-200);
+  padding: var(--size-space-0);
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--size-radius-full);
+}
+
+/* min-width matches the fill's own rendered height (thickness minus the
+   track's inset), not the raw thickness token, so the progress=0 "nub" is a
+   circle, not a stadium — 24px thickness has a 2px inset on every side
+   (space-050), leaving 20px (icon-250) of content height. */
+.fill[data-thickness='24'] {
+  min-width: var(--size-icon-250);
+}
+
+.fill[data-thickness='16'] {
+  min-width: var(--size-icon-200);
+}
+
+.fill[data-variant='Primary'] {
+  background: var(--color-accent-brand-bold);
+}
+
+.fill[data-variant='Coral'] {
+  background: var(--color-accent-coral-bold);
+}
+
+.fill[data-progress='0'] {
+  width: 0%;
+}
+
+.fill[data-progress='25'] {
+  width: 25%;
+}
+
+.fill[data-progress='50'] {
+  width: 50%;
+}
+
+.fill[data-progress='75'] {
+  width: 75%;
+}
+
+.fill[data-progress='100'] {
+  width: 100%;
+}
+
+.label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font: var(--font-greed-caption-s-bold);
+  color: var(--color-interactive-on-secondary);
+  white-space: nowrap;
+  pointer-events: none;
+}
