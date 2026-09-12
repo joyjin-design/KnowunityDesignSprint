@@ -1,0 +1,187 @@
+/* ---------------------------------------------------------------------------
+   QUARANTINE: Apple iOS system values. NOT design tokens. Do not copy out.
+
+   Every number and colour below is transcribed from the `Keyboard` component
+   set (3086:16936) in the Figma file, which is Apple's stock iOS keyboard
+   dropped in as a mockup prop. Its own bound variables all come from remote
+   collections named "Kit" and "Colors" (`Liquid Glass/*`, `Labels - Vibrant/
+   Primary`, `Miscellaneous/Keyboards/Glyphs - Primary`) — none of them is a
+   Yummy-Knowie token, and none of these values exists in tokens.json.
+
+   They are hardcoded here, and ONLY here, on purpose: this component stands in
+   for a surface the app does not own, cannot theme, and never ships. On a real
+   device iOS draws this itself. Adding these to tokens.json would import
+   Apple's palette into a design system that deliberately doesn't contain it.
+
+   So: never reference these variables from another component, and never
+   promote one into tokens.json. If you need a colour for real product UI, it
+   is in tokens.json — not in this file.
+   --------------------------------------------------------------------------- */
+.keyboard {
+  --kb-surface: rgba(0, 0, 0, 0.25);
+  --kb-key: rgba(153, 153, 153, 0.15);
+  --kb-glyph: #a6a6a6;
+  --kb-suggestion: #f5f5f5;
+  --kb-separator: #333333;
+  --kb-return: #0091ff;
+  --kb-on-return: #ffffff;
+  --kb-accessory: rgba(255, 255, 255, 0.73);
+
+  --kb-key-radius: 8.5px;
+  --kb-key-height: 45px;
+  --kb-key-gap: 6px;
+  --kb-row-gap: 11px;
+
+  /* The system UI stack, not `font-family/default`. This surface is drawn by
+     iOS in SF Pro, so it must not pick up Greed — and there is deliberately
+     no token for a platform font. Part of the quarantine above. */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: 12px;
+  padding-bottom: 10px;
+  border-radius: 27px 27px 0 0;
+  background: var(--kb-surface);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.keyboard * {
+  box-sizing: border-box;
+}
+
+/* Autocorrection bar. Present on Default and Search only — Figma's Numbers
+   variant is 318px to Default's 342px, exactly this row's 25px plus the 12px
+   that follows it. */
+.suggestions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 25px;
+  padding-inline: 22px;
+}
+
+.suggestion {
+  flex: 1 1 0;
+  text-align: center;
+  font-size: 17px;
+  line-height: 25px;
+  color: var(--kb-suggestion);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.separator {
+  flex: 0 0 1px;
+  width: 1px;
+  height: 25px;
+  background: var(--kb-separator);
+}
+
+.keys {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-row-gap);
+  padding-top: 12px;
+  padding-inline: 8.5px;
+}
+
+.row {
+  display: flex;
+  gap: var(--kb-key-gap);
+  height: var(--kb-key-height);
+}
+
+/* Figma insets the home row by 20px of a 379px content width. Kept
+   proportional so the keyboard tracks a 390px screen rather than Figma's
+   own 396px artboard. */
+.row[data-row='home'] {
+  padding-inline: 5.3%;
+}
+
+.key {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--kb-key-radius);
+  background: var(--kb-key);
+  color: var(--kb-glyph);
+  font-size: 25px;
+  line-height: 1;
+  padding: 0;
+}
+
+/* Shift and delete are 45px of a 379px row in Figma; the seven letters between
+   them share what's left. */
+.key[data-key='wide'] {
+  flex: 0 0 11.9%;
+  font-size: 23px;
+}
+
+/* Bottom row proportions are measured off the real screen, not Figma's kit:
+   123 / emoji / space / send, where Figma's Apple copy has only three keys. */
+.key[data-key='switch'] {
+  flex: 0 0 11.3%;
+  font-size: 18px;
+}
+
+.key[data-key='smiley'] {
+  flex: 0 0 10.6%;
+}
+
+.key[data-key='space'] {
+  flex: 1 1 auto;
+  font-size: 18px;
+}
+
+.key[data-key='send'] {
+  flex: 0 0 22.8%;
+  font-size: 18px;
+  background: var(--kb-return);
+  color: var(--kb-on-return);
+}
+
+.glyph {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+}
+
+/* Emoji + mic strip. Figma pads it 27/39/15/36 inside a 70px row. */
+.accessoryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  padding: 27px 39px 15px 36px;
+  color: var(--kb-accessory);
+}
+
+.accessoryIcon {
+  width: 27px;
+  height: 27px;
+  fill: currentColor;
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: var(--kb-key-gap) 0;
+  padding-top: 12px;
+  padding-inline: 8.5px;
+}
+
+.emojiCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  font-size: 30px;
+  line-height: 1;
+}

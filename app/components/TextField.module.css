@@ -1,0 +1,109 @@
+.root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-150);
+  width: 100%;
+}
+
+/* Figma sets the title and the input in Inter Variable 14px SemiBold, which is
+   neither this system's typeface nor on its size scale, with no text style
+   applied. `Body S Bold` (Greed, 15px, semibold) is the nearest real style. */
+.title {
+  margin: 0;
+  font: var(--font-greed-body-s-bold);
+  color: var(--color-text-primary);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-050);
+}
+
+/* Fill uses the live `background/input`. Figma's field binds an older variable
+   of the same name that's no longer in the token collections and still
+   renders as 10% white. The 1px stroke weight is unbound in Figma;
+   `size.stroke.border` matches it exactly.
+
+   The stroke is an inset shadow rather than a `border` because Figma draws it
+   inside the frame: a real border sits outside the content, so the 48px clear
+   button plus a 1px border top and bottom made the field 50px against Figma's
+   48px. `--field-edge` is swapped per state below. */
+.field {
+  --field-edge: var(--color-border-default);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-150);
+  padding-inline: var(--size-space-300);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-input);
+  box-shadow: inset 0 0 0 var(--size-stroke-border) var(--field-edge);
+}
+
+/* Figma has no focus state. Added so keyboard and screen-reader users can see
+   where they are; Error keeps its red edge while focused, since that edge is
+   the only non-text signal that the field failed. */
+.root:not([data-variant='Error']) .field:focus-within {
+  --field-edge: var(--color-border-focus);
+}
+
+/* `border/error`, whose own description is "invalid input edge; use for text
+   fields". Figma binds a stale `feedback/error` that no longer exists. */
+.root[data-variant='Error'] .field {
+  --field-edge: var(--color-border-error);
+}
+
+/* `text/primary`, not the `background/inverse` Figma binds to the search icon:
+   same colour, but that token is a surface fill, not an icon colour. */
+.leading {
+  display: flex;
+  color: var(--color-text-primary);
+}
+
+/* The input's own vertical padding, bound to `Space/300` in Figma, is what
+   gives the field its height when the trailing button is hidden. */
+.inputWrap {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-block: var(--size-space-300);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: var(--font-greed-body-s-bold);
+  color: var(--color-text-primary);
+}
+
+/* The field owns the focus indicator (see `.field:focus-within`), so the bare
+   input must not paint a second one. */
+.input:focus-visible {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Figma: Inter Variable 11px Regular. `Caption S Regular` (Greed, 11px) keeps
+   the size. */
+.caption {
+  margin: 0;
+  font: var(--font-greed-caption-s-regular);
+  color: var(--color-text-secondary);
+}
+
+/* `text/error`, whose own description is "the line under a failed field".
+   Figma binds the same stale `feedback/error` as the stroke. */
+.root[data-variant='Error'] .caption {
+  color: var(--color-text-error);
+}
