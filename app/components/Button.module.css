@@ -38,11 +38,17 @@
   --bezel-offset: var(--size-depth-negative-050);
 }
 
+/* Every `size=L` variant in Figma's button set is a fixed 56px; the base
+   `min-height` above is the 48px tap-target floor, which L must clear. Without
+   this an L button hugs to 48 and only looks right inside `buttonGroup`, where
+   a 56px sibling stretches the row. Borrows `size.illustration.700`, the same
+   token buttonIcon's L circle already uses for its 56px diameter. */
 .button[data-size='L'] {
   gap: var(--size-space-200);
   padding-inline: var(--size-space-600);
   padding-bottom: var(--size-space-100);
   font: var(--font-greed-headline-s);
+  min-height: var(--size-illustration-700);
   --bezel-offset: var(--size-depth-negative-100);
 }
 

@@ -33,10 +33,16 @@
   background: var(--color-background-stacking);
 }
 
+/* Figma's app bar measures 64px around a 60px nav. The extra 4px is its
+   auto-layout gap, which Figma counts even though the handle inside is
+   ABSOLUTE. Here the handle is `position: absolute` and the nav is the only
+   flow child, so that `gap` renders nothing — the 4px is carried as
+   padding-bottom instead, or the support text below rides 4px too high. */
 .appBar {
   display: flex;
   flex-direction: column;
   gap: var(--size-space-100);
+  padding-bottom: var(--size-space-100);
 }
 
 .topNav {
@@ -47,12 +53,17 @@
   padding-inline: var(--size-space-700);
 }
 
+/* Fixed 48px, not hug. Figma's `Text section` is FILL/FIXED at 48 so it can
+   hold the title plus the `Sub-title (optional)` descriptor, which every
+   verdict variant hides but still reserves room for. Hugging instead collapses
+   it to the 32px iconBox and steals 8px from the gap below the title. */
 .textSection {
   display: flex;
   align-items: center;
   gap: var(--size-space-200);
   flex: 1 1 auto;
   min-width: 0;
+  height: var(--size-space-1200);
 }
 
 .iconBox {

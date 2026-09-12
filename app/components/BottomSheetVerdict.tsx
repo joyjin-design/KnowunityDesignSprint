@@ -52,7 +52,7 @@ const SECONDARY_COLOR: CSSProperties = {
 
 // Silence's re-record action alone is overridden to the error red in Figma
 // (`feedback/error/bold` + `text/inverse`). Its siblings — the skip icon
-// button and "Type instead" — stay `interactive/secondary`.
+// button and "Try typing instead" — stay `interactive/secondary`.
 const SILENCE_ACTION_COLOR: CSSProperties = {
   background: 'var(--color-feedback-error-bold)',
   color: 'var(--color-text-inverse)',
@@ -210,7 +210,7 @@ export function BottomSheetVerdict({
               />
             </ButtonGroup>
             <Button variant="Secondary" size="L" style={SECONDARY_COLOR} onClick={onTypeInstead}>
-              Type instead
+              Try typing instead
             </Button>
           </>
         ) : (
