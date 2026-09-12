@@ -1,0 +1,139 @@
+/* Figma binds Space/0 for the frame's own top and bottom padding, and leaves
+   an itemSpacing of 10 that never renders: the root is SPACE_BETWEEN with a
+   FILL child (middleContent), so Figma ignores itemSpacing entirely and the
+   four sections stack flush (48 + 60 + 702 + 34 = 844, no gaps). Both are
+   recorded here rather than declared — 10 isn't a token anyway. */
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  /* Figma's frame is a fixed 390×844 device rectangle. Neither number is a
+     token, and this prototype is 390-only, so the frame fills the viewport
+     instead — same call every other component here made (BottomSheet,
+     TranscriptDisplay, ProgressIndicator all went fluid rather than
+     hardcoding an unbound pixel width). */
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-background-page);
+  border-radius: var(--size-radius-600);
+}
+
+/* Device chrome. Figma's fill binds Core/BG/Secondary Transparent but the
+   fill is switched off, so nothing paints. The bottom hairline binds
+   Core/Grayscale/Dividers — a remote primitive (rgba 255,255,255,0.15) that
+   isn't in tokens.json — substituted with border/default, the semantic token
+   for exactly this role. See the Storybook docs for the 0.15 → 0.102 drift.
+
+   The hairline is an inset shadow rather than a border-bottom: Figma's stroke
+   is INSIDE, so the Panel Header measures 48 in total with the hairline drawn
+   over the status bar's last pixel row. A border would have added its 1px
+   outside that, making the header 49 and pushing every screen down a pixel. */
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: inset 0 calc(-1 * var(--size-stroke-border)) 0 var(--color-border-default);
+}
+
+/* Figma's Status Bar is an iOS device-kit instance (Mode=Night): a 48px bar
+   holding the time plus wifi / cellular / battery vectors. The glyphs are
+   raw kit geometry (15×11, 16×11, 24×11 on absolute offsets) with no tokens
+   behind them, so by decision only the time is rendered. Its 15px matches
+   --font-size-sm exactly via Body S Regular; the kit's -0.3px tracking is
+   dropped. The 23px text offset resolves to the nearest real token, 24px. */
+.statusBar {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--size-space-1200);
+  padding-inline: var(--size-space-600);
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-primary);
+}
+
+/* Figma sets the time in a fixed 54px box starting at x=23, with the text
+   centred inside it — so the glyph centre sits at x=50 no matter how wide the
+   numerals render. Reproduced as a fixed box rather than left-aligned text,
+   which would drift with the font's own metrics. Both numbers resolve to the
+   nearest real tokens: 23 → space/600 (24, on .statusBar's padding) and
+   54 → illustration/700 (56), putting the centre at 52 against Figma's 50.
+   Borrowing illustration/700 for a text box is the same cross-category
+   token reuse ProgressIndicator's thickness and Chip's control heights use. */
+.time {
+  width: var(--size-illustration-700);
+  text-align: center;
+}
+
+.topNavigation {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  width: 100%;
+  overflow: hidden;
+}
+
+.middleContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  box-sizing: border-box;
+  padding: var(--size-space-200) var(--size-space-400);
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Figma's slot is clipsContent with no scroll behaviour designed — the same
+     open question transcriptDisplay's Overflow state already flags. Matched
+     rather than invented: the screen's actions live in bottomContent, outside
+     this box, so clipping here can't strand a student. */
+  overflow: hidden;
+}
+
+/* Figma's Scrim layer: a bottom-anchored linear gradient from transparent to
+   background/page — a content fade-out, not a modal dim (that's the separate
+   Bottom-sheet background below, which is the one bound to background/scrim).
+   Hidden by default there, and wired to no component property at all, so
+   showScrim is this build's addition. Figma's 151px height has no token;
+   --size-space-4000 (160px) is the nearest real one. */
+.scrim {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: var(--size-space-4000);
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-background-page));
+}
+
+.bottomContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--size-space-400);
+}
+
+/* Figma draws this 440×956 and centred so it overhangs the rounded frame on
+   every side; inset:0 inside an already-clipped frame covers the same area. */
+.bottomSheetBackground {
+  position: absolute;
+  inset: 0;
+  background: var(--color-background-scrim);
+}
+
+.bottomSheetOnly {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--size-space-100);
+}
