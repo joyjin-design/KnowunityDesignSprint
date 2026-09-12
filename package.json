@@ -9,7 +9,8 @@
     "lint": "eslint",
     "tokens": "style-dictionary build --config tokens/style-dictionary.config.mjs",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "node --env-file-if-exists=.env.local node_modules/chromatic/dist/bin.cjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^19",
     "@vitest/browser-playwright": "latest",
     "@vitest/coverage-v8": "latest",
+    "chromatic": "^18.8.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "eslint-plugin-storybook": "^10.6.0",

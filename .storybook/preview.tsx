@@ -15,7 +15,12 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: 'todo'
+      // Set to 'error' once the suite was verified clean, so any violation
+      // introduced from here on fails the run instead of being a warning
+      // nobody reads. Note axe returns 'incomplete' rather than a violation
+      // for contrast on alpha text tokens (text/secondary, tertiary,
+      // disabled), so this does not cover contrast — see sprint-context.md.
+      test: 'error'
     },
 
     // Only one background on offer, on purpose: this prototype is dark mode
