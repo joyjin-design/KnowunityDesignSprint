@@ -69,18 +69,21 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 - Accessibility gap, still open: nothing at the design layer carries this badge's meaning besides color and position. Needs a VoiceOver label on the underlying tab (e.g. "New: voice recall available") at build time to satisfy the platform constraint against color-only meaning; this can't be resolved in Figma alone.
 - What not to do with it: don't reuse for a numeric unread count, there's no text slot, that needs a new variant, not an override of this one. Don't attach it inside the `Navigation Button` instance, place it in the parent row instead with `layoutPositioning` set to `ABSOLUTE`.
 
-**scaffold** — the device frame every screen is built inside. See slot composition below.
+**scaffold** — the device frame every screen is built inside. Its own description: "Used to quickly create screens using our components, making use of Figma Slots. Allows for quickly testing how designs look on different device types." See slot composition below.
+- Sizes (`size` axis): `iPhone 13` (390x844, the default, described as "Default mobile screen size used for most designs"), `L - 17 Pro Max`, `XS - iPhone SE`, `Tablet S - iPad Mini`, `Tablet S Landscape- iPad Mini`, `Tablet M Portrait - iPad 13`, `Tablet M Landscape - iPad 13`, `MacBook Air 13'`. Only `iPhone 13` is in scope here.
+- A stale duplicate exists and should be deleted: `Screen/S - Pixel 2` (411x731, Android, no variant axis) is orphaned off-canvas with `parent === null` and has exactly one instance in the file, on the Mascot & components page, confusingly named `scaffold`. It is an older copy of this component, not a variant of it, and it's the split the never-list below forbids. It carries a `Show nav scrim` boolean wired to no layer at all, which appears to be where the scrim-toggle claim below originally came from.
+- What not to do with it: don't build a screen by hand when this exists. Don't put content outside the four slots. Don't pull a tablet or MacBook variant into a mobile-iOS screen.
 
 ## Scaffold composition
 
 `scaffold` has a fixed frame plus four content areas. Don't put arbitrary content directly on the scaffold outside these slots.
 
-- **Panel Header → Status Bar**: fixed device chrome. Not a slot, not something a screen design touches.
-- **topNavigation** (slot): navigation items — back buttons, the home top nav with streaks, and similar. Toggle with `showTopNavSlot` when a screen has no top nav.
-- **middleContent** (slot): the screen's actual content. Carries an internal `Scrim` layer for dimming this content when a bottom sheet is showing over it.
-- **bottomContent** (slot): bottom navigation bar, chat input field, and similar persistent bottom elements. Toggle with `showBottomNavSlot`.
-- **Bottom-sheet background**: fixed dimming rectangle behind a bottom sheet. Controlled by `showBottomSheetBackground`, not placed by hand.
-- **bottomSheetOnly** (slot): content that appears only when the bottom sheet is showing. Don't put persistent screen content here, it disappears with the sheet.
+- **Panel Header → Status Bar**: fixed device chrome. Not a slot, not something a screen design touches. The Status Bar is an iOS device-kit instance (`Mode=Night`); its colors are bound (`text/primary`, `background/inverse`) and its 48px height is `space/1200`, but the wifi/cellular/battery glyph geometry and the time's -0.3px tracking have no tokens. The Panel Header's own fill is switched off, and its 1px bottom hairline binds `Core/Grayscale/Dividers`, a remote primitive from another library that isn't in `tokens/tokens.json`; `border/default` is the semantic token for that role.
+- **topNavigation** (slot): navigation items — back buttons, the home top nav with streaks, and similar ("Placeholder for navigation items, such as back buttons, home top nav with streaks & similar"). Toggle with `showTopNavSlot` when a screen has no top nav.
+- **middleContent** (slot): the screen's actual content. Carries an internal `Scrim` layer, which is a bottom-anchored gradient from transparent to `background/page`, a content fade-out rather than a dim. The modal dim is the separate Bottom-sheet background below, and it is the one bound to `background/scrim`. The Scrim is hidden by default and wired to no component property, so it can only be toggled by hand on an instance.
+- **bottomContent** (slot): bottom navigation bar, chat input field, and similar persistent bottom elements ("Placeholder for bottom navigation bar, chat input field & similar"). Toggle with `showBottomNavSlot`.
+- **Bottom-sheet background**: fixed dimming rectangle behind a bottom sheet. Controlled by `showBottomSheetBackground`, not placed by hand. It paints the dim only — nothing in the design layer traps focus, marks content behind it inert, or handles Esc.
+- **bottomSheetOnly** (slot): content that appears only when the bottom sheet is showing. Don't put persistent screen content here, it disappears with the sheet. Known wiring bug: its visibility is bound to `showBottomNavSlot`, the same boolean as the bottom nav, so hiding the bottom nav also hides the sheet. It needs its own boolean or none.
 
 `scaffold` also carries a `size` variant with tablet and desktop options. Everything except the phone sizes is out of scope for this project; don't pull a tablet or MacBook variant into a mobile-iOS screen.
 
