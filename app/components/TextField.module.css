@@ -6,12 +6,12 @@
   width: 100%;
 }
 
-/* Figma sets the title and the input in Inter Variable 14px SemiBold, which is
-   neither this system's typeface nor on its size scale, with no text style
-   applied. `Body S Bold` (Greed, 15px, semibold) is the nearest real style. */
+/* Title, input and placeholder are `Body S Regular`, by decision on
+   2026-09-12. Figma sets them in unstyled Inter Variable 14px SemiBold, which
+   is neither this system's typeface nor on its size scale. */
 .title {
   margin: 0;
-  font: var(--font-greed-body-s-bold);
+  font: var(--font-greed-body-s-regular);
   color: var(--color-text-primary);
 }
 
@@ -80,7 +80,7 @@
   border: none;
   outline: none;
   background: none;
-  font: var(--font-greed-body-s-bold);
+  font: var(--font-greed-body-s-regular);
   color: var(--color-text-primary);
 }
 
