@@ -41,9 +41,26 @@ const meta = {
   args: {
     variant: 'Error',
   },
+  // A verdict sheet rises from the bottom edge — in real use scaffold's
+  // bottomSheetOnly slot pins it there. This wrapper stands in for that slot
+  // so the sheet is previewed where it actually sits, rather than floating at
+  // the top of the canvas. Same wrapper BottomSheet's stories already use.
   decorators: [
     (Story) => (
-      <div style={{ width: '390px', background: 'var(--color-background-page)' }}>
+      <div
+        style={{
+          width: '390px',
+          // 100dvh, not a hardcoded 844: that only lined up with the bottom
+          // of the viewport because the configured mobile390 viewport is also
+          // 844 tall. This tracks the real viewport, so the sheet stays
+          // bottom-flush at any window size. Same call Screen.module.css makes.
+          height: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          background: 'var(--color-background-page)',
+        }}
+      >
         <Story />
       </div>
     ),

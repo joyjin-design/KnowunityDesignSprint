@@ -74,6 +74,22 @@
   height: var(--size-icon-300);
 }
 
+/* The header icon binds the same token as the title in every Figma variant.
+   Without this the SVGs' `currentColor` fell through to the browser default
+   and rendered black on all four sheets. */
+.sheet[data-variant='Error'] .iconBox,
+.sheet[data-variant='Silence'] .iconBox {
+  color: var(--color-feedback-error-bold);
+}
+
+.sheet[data-variant='Partial'] .iconBox {
+  color: var(--color-accent-blue-bold);
+}
+
+.sheet[data-variant='Success'] .iconBox {
+  color: var(--color-feedback-success-bold);
+}
+
 .iconBox[data-variant='Partial'] .icon {
   width: 100%;
   height: 100%;
@@ -135,7 +151,7 @@
   margin: 0;
   padding-inline: var(--size-space-700);
   font: var(--font-greed-body-s-regular);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
 }
 
 .bottomCta {
@@ -143,4 +159,21 @@
   flex-direction: column;
   gap: var(--size-space-200);
   padding: var(--size-space-700);
+}
+
+/* ButtonIcon paints its visible circle on an inner <span>; the root <button>
+   is only the tap target and carries no border-radius. Putting the sheet's
+   Secondary tint on that root (which a plain `style` override does) paints a
+   56x56 square behind the round button. So the root stays transparent and the
+   tint goes on the circle. The [data-variant][data-size] qualifiers are here
+   to out-specify ButtonIcon's own `.button[data-variant='Secondary'] .circle`
+   rule (0,3,0) — a bare `.skipButton > span` would lose the cascade. Only
+   background and color are overridden, so the circle keeps its bezel. */
+.skipButton {
+  background: none;
+}
+
+.skipButton[data-variant='Secondary'][data-size='L'] > span {
+  background: var(--color-interactive-secondary);
+  color: var(--color-interactive-on-secondary);
 }

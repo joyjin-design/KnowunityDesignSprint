@@ -40,6 +40,24 @@ const ACTION_COLOR: Record<Exclude<BottomSheetVerdictVariant, 'Silence'>, CSSPro
   Success: { background: 'var(--color-feedback-success-bold)', color: 'var(--color-feedback-success-on-bold)' },
 };
 
+// This sheet's Secondary actions paint `interactive/secondary`, not the
+// `button` master's own `background/surface`. Matching the master here made
+// the button invisible on the Error and Silence sheets, which are themselves
+// `background/surface` — a 10%-white overlay reads on every variant instead.
+// Same local-override mechanism as ACTION_COLOR above.
+const SECONDARY_COLOR: CSSProperties = {
+  background: 'var(--color-interactive-secondary)',
+  color: 'var(--color-interactive-on-secondary)',
+};
+
+// Silence's re-record action alone is overridden to the error red in Figma
+// (`feedback/error/bold` + `text/inverse`). Its siblings — the skip icon
+// button and "Type instead" — stay `interactive/secondary`.
+const SILENCE_ACTION_COLOR: CSSProperties = {
+  background: 'var(--color-feedback-error-bold)',
+  color: 'var(--color-text-inverse)',
+};
+
 function CloseIcon() {
   return (
     <svg className={styles.icon} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -77,10 +95,15 @@ function InfoCircleIcon() {
   );
 }
 
+/* Figma's real `skip-forward` glyph: a filled 16x16 vector inset 4px inside a
+   24px iconSlot, transcribed from the Silence variant's own instance. What was
+   here before drew an X, which is a close/dismiss glyph, not a skip one. */
 function SkipIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" width="100%" height="100%" aria-hidden="true">
-      <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <g transform="translate(4, 4)">
+        <path d="M 14 15 L 14 1 C 14 0.45 14.45 0 15 0 C 15.55 0 16 0.45 16 1 L 16 15 C 16 15.55 15.55 16 15 16 C 14.45 16 14 15.55 14 15 Z M 2 0.08 C 2.49 0.08 2.89 0.31 3.17 0.5 C 3.47 0.69 3.82 0.98 4.22 1.3 L 10.06 5.97 C 10.32 6.17 10.56 6.36 10.74 6.54 C 10.93 6.72 11.15 6.96 11.27 7.3 C 11.44 7.75 11.44 8.25 11.27 8.7 C 11.15 9.04 10.93 9.28 10.74 9.46 C 10.56 9.64 10.32 9.83 10.06 10.03 L 4.22 14.7 C 3.82 15.02 3.47 15.31 3.17 15.5 C 2.89 15.69 2.49 15.92 2 15.92 C 1.39 15.92 0.82 15.64 0.44 15.17 C 0.13 14.79 0.06 14.33 0.03 13.99 C -0 13.64 0 13.18 0 12.67 L 0 3.33 C 0 2.82 -0 2.36 0.03 2.01 C 0.06 1.67 0.13 1.21 0.44 0.83 C 0.82 0.36 1.39 0.08 2 0.08 Z M 2 12.67 C 2 13.22 2 13.57 2.02 13.81 C 2.02 13.83 2.03 13.84 2.03 13.86 C 2.04 13.85 2.06 13.84 2.07 13.83 C 2.27 13.7 2.54 13.48 2.97 13.14 L 8.81 8.47 C 9.09 8.24 9.25 8.12 9.36 8.01 C 9.37 8.01 9.37 8 9.37 8 C 9.37 8 9.37 7.99 9.36 7.99 C 9.25 7.88 9.09 7.76 8.81 7.53 L 2.97 2.86 C 2.54 2.52 2.27 2.3 2.07 2.17 C 2.06 2.16 2.04 2.15 2.03 2.14 C 2.03 2.16 2.02 2.17 2.02 2.19 C 2 2.43 2 2.78 2 3.33 L 2 12.67 Z" fill="currentColor" fillRule="nonzero" />
+      </g>
     </svg>
   );
 }
@@ -171,16 +194,28 @@ export function BottomSheetVerdict({
         {variant === 'Silence' ? (
           <>
             <ButtonGroup variant="Horizontal" size="L">
-              <ButtonIcon variant="Secondary" size="L" icon={<SkipIcon />} aria-label="Skip" onClick={onSkip} />
-              <ButtonVoice state={voiceState} ctaText="Re-record" onClick={onReRecord} />
+              <ButtonIcon
+                variant="Secondary"
+                size="L"
+                icon={<SkipIcon />}
+                aria-label="Skip"
+                className={styles.skipButton}
+                onClick={onSkip}
+              />
+              <ButtonVoice
+                state={voiceState}
+                ctaText="Re-record"
+                style={SILENCE_ACTION_COLOR}
+                onClick={onReRecord}
+              />
             </ButtonGroup>
-            <Button variant="Secondary" size="L" onClick={onTypeInstead}>
+            <Button variant="Secondary" size="L" style={SECONDARY_COLOR} onClick={onTypeInstead}>
               Type instead
             </Button>
           </>
         ) : (
           <ButtonGroup variant="Horizontal" size="L">
-            <Button variant="Secondary" size="L" onClick={onWhy}>
+            <Button variant="Secondary" size="L" style={SECONDARY_COLOR} onClick={onWhy}>
               Why?
             </Button>
             <Button variant="Primary" size="L" style={ACTION_COLOR[variant]} onClick={onContinue}>
