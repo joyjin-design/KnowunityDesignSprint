@@ -1,16 +1,16 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import styles from './BottomSheetVerdict.module.css';
+import styles from './ResultBtm.module.css';
 import { Button } from './Button';
 import { ButtonIcon } from './ButtonIcon';
 import { ButtonGroup } from './ButtonGroup';
 import { ButtonVoice, type ButtonVoiceState } from './ButtonVoice';
 
-export type BottomSheetVerdictVariant = 'Success' | 'Partial' | 'Error' | 'Silence';
+export type ResultBtmVariant = 'Success' | 'Partial' | 'Error' | 'Silence';
 
-export interface BottomSheetVerdictProps {
-  variant?: BottomSheetVerdictVariant;
+export interface ResultBtmProps {
+  variant?: ResultBtmVariant;
   onWhy?: () => void;
   onContinue?: () => void;
   onThumbsUp?: () => void;
@@ -24,7 +24,7 @@ export interface BottomSheetVerdictProps {
   style?: CSSProperties;
 }
 
-const TITLE: Record<BottomSheetVerdictVariant, string> = {
+const TITLE: Record<ResultBtmVariant, string> = {
   Error: 'Incorrect',
   Partial: 'Partial right',
   Success: 'Nice!',
@@ -34,7 +34,7 @@ const TITLE: Record<BottomSheetVerdictVariant, string> = {
 // Action button color per variant — a local override on top of the real
 // `button` component's own Primary look, not a formal Button variant. See
 // the Storybook docs for why.
-const ACTION_COLOR: Record<Exclude<BottomSheetVerdictVariant, 'Silence'>, CSSProperties> = {
+const ACTION_COLOR: Record<Exclude<ResultBtmVariant, 'Silence'>, CSSProperties> = {
   Error: { background: 'var(--color-feedback-error-bold)', color: 'var(--color-feedback-error-on-bold)' },
   Partial: { background: 'var(--color-accent-blue-bold)', color: 'var(--color-accent-blue-on-bold)' },
   Success: { background: 'var(--color-feedback-success-bold)', color: 'var(--color-feedback-success-on-bold)' },
@@ -136,7 +136,7 @@ function ThumbsUpIcon() {
   );
 }
 
-const HEADER_ICON: Record<BottomSheetVerdictVariant, () => React.JSX.Element> = {
+const HEADER_ICON: Record<ResultBtmVariant, () => React.JSX.Element> = {
   Error: CloseIcon,
   Silence: CloseIcon,
   Success: CheckIcon,
@@ -144,11 +144,11 @@ const HEADER_ICON: Record<BottomSheetVerdictVariant, () => React.JSX.Element> = 
 };
 
 /**
- * Figma `bottomSheetVerdict` component set (variant: Success/Partial/Error/
+ * Figma `resultBtm` component set (variant: Success/Partial/Error/
  * Silence). The result sheet shown after a student answers — see the
  * component's Storybook docs for the full brief and known gaps.
  */
-export function BottomSheetVerdict({
+export function ResultBtm({
   variant = 'Error',
   onWhy,
   onContinue,
@@ -160,7 +160,7 @@ export function BottomSheetVerdict({
   voiceState = 'Default',
   className,
   style,
-}: BottomSheetVerdictProps) {
+}: ResultBtmProps) {
   const classes = className ? `${styles.sheet} ${className}` : styles.sheet;
   const HeaderIcon = HEADER_ICON[variant];
 

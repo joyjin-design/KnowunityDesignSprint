@@ -14,7 +14,7 @@ Built as a local override, not a shared master edit: each state variant wraps a 
 
 Notes from the React build, for anything the Figma description above doesn't cover:
 - \`state\` is the only real exposed property (confirmed by instantiating the real component and reading back its \`componentProperties\`) — CTA text is not formally exposed either, even though real usage already overrides it.
-- \`ctaText\` is **not** a real exposed Figma property, added here ahead of Figma's own interface: the real component's own placed instance inside \`bottomSheetVerdict\`'s Silence variant overrides the Default state's text to "Re-record" instead of "Start", proving the real file already needs this override even though it isn't formally exposed. Default text per state (Start/Stop/Analyzing/Start) comes straight from the real component's own bound CTA values.
+- \`ctaText\` is **not** a real exposed Figma property, added here ahead of Figma's own interface: the real component's own placed instance inside \`resultBtm\`'s Silence variant overrides the Default state's text to "Re-record" instead of "Start", proving the real file already needs this override even though it isn't formally exposed. Default text per state (Start/Stop/Analyzing/Start) comes straight from the real component's own bound CTA values.
 `;
 
 const meta = {

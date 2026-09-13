@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { BottomSheetVerdict } from './BottomSheetVerdict';
+import { ResultBtm } from './ResultBtm';
 
 const FIGMA_DESCRIPTION = `
 The result sheet shown after a student answers: Success, Partial, Error, or Silence (nothing was heard). Variant axis reused from the same Success/Error vocabulary already established on \`snackbar\`, extended with Partial and Silence. Success and Error backgrounds/titles bind to \`feedback/success\` and \`feedback/error\` tokens. Partial has no dedicated feedback token in this file, its background and title currently reuse \`accent/blue\` as a stand-in (this was already in place before this build, not invented here). Silence reuses \`feedback/error\` for its title and icon, no dedicated 'neutral recovery' token exists either, same kind of stand-in as Partial.
@@ -24,8 +24,8 @@ Notes from the React build, for anything the Figma description above doesn't cov
 `;
 
 const meta = {
-  title: 'Components/BottomSheetVerdict',
-  component: BottomSheetVerdict,
+  title: 'Components/ResultBtm',
+  component: ResultBtm,
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
@@ -65,7 +65,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof BottomSheetVerdict>;
+} satisfies Meta<typeof ResultBtm>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

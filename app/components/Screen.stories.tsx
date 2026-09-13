@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent } from 'storybook/test';
 import { Screen } from './Screen';
 import { AiDisclaimer } from './AiDisclaimer';
-import { BottomSheetVerdict } from './BottomSheetVerdict';
+import { ResultBtm } from './ResultBtm';
 import { ButtonVoice } from './ButtonVoice';
 import { ProgressIndicator } from './ProgressIndicator';
 import { TranscriptDisplay } from './TranscriptDisplay';
@@ -117,7 +117,7 @@ export const WithBottomSheet: Story = {
   args: {
     showBottomSheetBackground: true,
     showBottomNavSlot: false,
-    bottomSheetOnly: <BottomSheetVerdict variant="Partial" onContinue={onContinue} />,
+    bottomSheetOnly: <ResultBtm variant="Partial" onContinue={onContinue} />,
   },
   play: async ({ canvas }) => {
     onContinue.mockClear();
