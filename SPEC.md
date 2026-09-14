@@ -112,6 +112,8 @@ A `BottomSheet` at `height="L"` over the last question's screen, with rows scrol
 
 ### 9. appBar (component, built before screen 10)
 
+✅ Built 2026-09-14 as `AppBar` (`app/components/AppBar.tsx`, Storybook `Components/AppBar`). In the loop: `variant="leftIconButtonOnly"` with a close icon, and `ProgressIndicator` plus the XP chip passed together in `slot`.
+
 Built from Figma's `appBar` set (9003:8606: variants default / leftIconButtonOnly / leftAndRightIconButton / leftAndRightButton / leftAndTwoRightIconButtons / leftAnd2RightButtons, plus a `Slot`) after this Open list is closed. It goes through the usual process: Storybook, stories and a design-system.md entry.
 
 - **In the loop it holds:** a close icon button, `ProgressIndicator` (`thickness="16"`) in the Slot, and a static XP chip ("⚡2", never counts).
@@ -133,7 +135,7 @@ Figma: Starting04 13548:6327, Talking05 13548:6328, Talking06 13568:5231, Talkin
 | State | What's on screen | What the student can do |
 | --- | --- | --- |
 | Idle | Mascot `expression="standby"`, bubble shows the question, `TranscriptDisplay state="Empty"`, `ButtonVoice state="Default"` with mic icon + "Start", Skip, Can't talk right now | **Start**. **Skip** → next question. **Can't talk right now** → Exam00 (leaves the session). **Close** → Exam00 |
-| Recording | `ButtonVoice state="Recording"` with waveform + "Send"; the `ButtonIcon` beside it swaps from Skip to a cancel icon; Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → Exam00 |
+| Recording | `ButtonVoice state="Recording"` with waveform + "Send" (Figma still says "Stop"; deferred); the `ButtonIcon` beside it swaps from Skip to a discard icon (Phosphor `ArrowCounterClockwise`); Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → Exam00 |
 | Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript for ~1.5s when iOS restarts recognition | Same as Recording |
 | Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays | **Close** → Exam00, answer thrown away |
 | Verdict | Screen 1 over this one | See screen 1 |
@@ -247,7 +249,7 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 **Screens**
 
 8. `appBar`: which variant fits the loop's top nav, and whether the XP chip is the `Chip` component (Figma draws it as a plain frame).
-9. Mascot expression while recording (idle is standby, processing is thinking).
+9. Mascot expression while recording (idle is standby, processing is thinking). Also: Skip stays visible during processing in Figma (Thinking, Loading08). What does tapping it do while an answer is being judged?
 10. Summary: headline copy; whether Try again and its caption are hidden when everything passed; whether the summary has a mascot; how long a transcript snippet is before truncating; what a Skipped row shows in place of a snippet.
 11. Continue from the summary lands on the exam plan image, which can't show the node as completed.
 
@@ -260,14 +262,16 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 13. `Partial` still uses `accent/blue` as a stand-in colour.
 14. The Phosphor icons (already used in code by `Snackbar`) differ from the Figma library's icon family (for Harry).
 
-## Figma follow-ups (decided, not yet done in Figma)
+## Figma follow-ups
 
-- Loop screens: set `mascotSlot` to XL (currently a 2XL instance resized to 84px).
-- Recording frames (Talking05/06/07a): the left `buttonIcon` shows a cancel icon, not Skip.
-- Thinking (13642:7889) and Loading/AnimateHowie08 (13568:5451): hide `buttonVoice`.
-- `transcriptDisplay` Overflow (13563:1611): anchor to the newest text.
-- `buttonVoice`: set real icons (mic at Default, waveform at Recording) in place of the `square` placeholder.
-- The orphaned `bottomCta` set (5101:6963, no page, no description): delete it or reattach it.
+- ✅ Loop screens: `mascotSlot` set to XL on 12 screens.
+- ✅ Recording frames (Talking05/06/07a): discard `buttonIcon` shows Phosphor ArrowCounterClockwise.
+- ✅ Thinking (13642:7889) and Loading/AnimateHowie08 (13568:5451): `buttonVoice` hidden.
+- ✅ `transcriptDisplay` Overflow (13563:1611): anchored to the newest text.
+- ✅ `buttonVoice`: Phosphor mic at Default, waveform at Recording.
+- ✅ Phosphor icon components added in section "Phosphor icons (voice recall)" (13646:8537).
+- 🟡 `bottomCta` (5101:6963): swapped out of all 9 flow screens. Deleting the set is deferred (uses remain on Example Screens, TrashCan, and a loose instance on the components page).
+- ⏸ Deferred: "Stop" → "Send" on `buttonVoice` Recording, and setting Talking05/06/07a to state=Recording (they show the mic icon until then).
 
 ## Hosting
 
