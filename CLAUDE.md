@@ -10,7 +10,7 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - Voice in, text out. Knowie never speaks.
 - Push-to-talk with explicit send. No auto-endpointing.
 - Every required action has a way out (skip, text fallback, or cancel/re-record).
-- Text fallback reachable in one tap on every idle voice turn. While recording it's hidden; cancel returns to idle in one tap.
+- Every idle voice turn has a one-tap way out: Skip (next question), or "Can't talk right now" (back to the exam plan). While recording those are hidden; cancel returns to idle in one tap. The typing turn is out of scope this sprint.
 - Verdict is pass / partial / fail, never binary.
 - Transcript is always shown back to the student.
 - Judging is mocked (an on-device keyword judge). Transcripts come from the browser's built-in recognizer (`webkitSpeechRecognition`); no custom STT engine.
@@ -36,6 +36,8 @@ When working on UI, use the storybook tools to read the component library before
 - `AGENTS.md` — Next.js version/agent rules.
 - `Design Brief.md` — the feature brief: problem, bet, hard constraints, what's open vs. fixed. Read before any product/UX decision.
 - `Voice-ux.md` — voice-UX principles and the states-to-design checklist. Read before designing the recall loop or any voice screen.
+- `SPEC.md` — build spec for the voice recall prototype: screens in build order, states, components, mock behaviour, verification, open items. Read before building any recall screen.
+- `content/voice-recall-questions.md` — the 8 draft biology questions: concepts, synonyms, mis-hearings, explanations and sample answers the mock judge and verification use.
 - `sprint-context.md` — committed decisions log for this sprint. Read before changing exam-plan/toggle/node behavior.
 - `voice-recall-interview-2026-09-14.csv` — every question, option and answer from the recall-loop design interview, with which answers were later changed. `sprint-context.md` holds the resulting decisions.
 - `design-system.md` — component rules: which component to use, its states, and naming conventions. Read before building or editing any UI component.

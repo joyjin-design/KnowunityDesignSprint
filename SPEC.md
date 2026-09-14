@@ -1,0 +1,274 @@
+# Voice recall prototype spec
+
+Source: the 2026-09-14 design interview and the Open-list pass after it. Every question and answer is in `voice-recall-interview-2026-09-14.csv`; the decisions are logged in `sprint-context.md`. If this file and the log disagree, the log wins; fix this file.
+
+Figma references are nodes in the Yummy-Knowie Design System file (`VF5OpIZyDTe8ML0YITnjPe`), page "Design the core flow", section "Design for voice recall first run experience".
+
+## What we're building
+
+An iOS voice active-recall step inside Knowunity's exam plan. The student answers 4 biology questions out loud, sees a live transcript, and gets a pass/partial/fail verdict in text.
+Transcripts come from the browser's own speech recognizer, judging is a mocked keyword judge, and every screen has a way out. Built for moderated usability tests with English-speaking students.
+
+## Screens, in build order (easiest first)
+
+Component names are Storybook titles under `Components/` (source in `app/components/`). Props named here exist in the source today, unless marked **(change approved)**.
+
+Every screen is composed inside `Screen` (`app/components/Screen.tsx`), 390px, dark mode. Sheets go in its `bottomSheetOnly` slot with `showBottomSheetBackground`. Questions and their content come from `content/voice-recall-questions.md`.
+
+### 1. Verdict sheet
+
+Already built as `ResultBtm`; this step wires it in. Figma: End09 13568:5533 (Success), Partialright 13549:6911, Section 2 13556:4495 (Error). It sits over the loop screen, with the transcript visible behind it.
+
+| State | When | What the student can do |
+| --- | --- | --- |
+| `variant="Success"` | Pass | **Why?** (`onWhy`) → Why? sheet. **Continue** (`onContinue`) → next question, or the summary after the last one |
+| `variant="Partial"` | Partial | Same as Success |
+| `variant="Error"` | Fail (title "Incorrect") | Same as Success |
+| `variant="Silence"` | Empty transcript, noise with no words, recognizer or network error, no result by 15s, **or the answer opened with a question** | **Re-record** (`onReRecord`) → recording. **Try typing instead** (`onTypeInstead`) → typing placeholder (screen 4). **Skip** (`onSkip`) → next question. No attempt used |
+
+- One attempt per question; no Try again on any verdict.
+- Silence can repeat any number of times.
+- The thumbs up/down that `ResultBtm` renders stay unwired.
+
+### 2. Turn log (`/log`, facilitator only)
+
+A hidden route, never linked from the student flow.
+
+- **States:** no turns yet; turns listed; the Clear log confirm.
+- **Components:** `Button` (`variant="Primary"`) for **Copy as CSV**, `Button` (`variant="Secondary"`) for **Clear log**. The rows use tokens only.
+- **Fields per turn:** session, round (original or Try again), question, transcript, concepts hit, verdict, latency, latency flag, timestamp.
+- **Clear log** asks for confirmation, then empties storage on the device. Use it between participants, after copying the CSV.
+
+### 3. Homescreen and exam plan (static images)
+
+The exam plan is out of scope as components. These screens are exported Figma frames with tap zones:
+
+| Image | Figma | Tap zone → goes to |
+| --- | --- | --- |
+| Homescreen | 13619:3109 | Exam tab (with badge) → Exam00 |
+| Exam00 | 13548:6324 | Show me (banner) → Hint-animate01 |
+| Hint-animate01 | 13547:5824 | Voice recall toggle → Turnon02 |
+| Turnon02 | 13548:6325 | Organelle Identification node → gate (or the loop, see Open) · Comparing Cell Types node → same, for node 2 |
+
+- **What the student can do:** only the tap zones above.
+- The only snackbar in the whole flow is Exam00's readiness banner. It's part of the image, not a `Snackbar` instance.
+
+### 4. Typing placeholder
+
+The typing turn is out of scope this sprint. Reached from **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet).
+
+- **Content:** says typing isn't part of this prototype.
+- **What the student can do:** **Skip** → next question; **Back to voice** → idle for the same question.
+- **Components:** `TextBlock`, `ButtonGroup` (`variant="Horizontal"`, `size="L"`) of a Secondary `ButtonIcon` (Skip) and a `Button` (Back to voice). Final layout and copy are Open.
+
+### 5. Mic-off sheet
+
+Shown when the student taps **Start** but mic permission has since been revoked.
+
+- **Components:** `BottomSheet` (with `aria-label`) + `BottomSheetAppBar` (`variant="Default"`), `TextBlock` with Settings instructions in `middleSection`, and `ButtonGroup` (Horizontal, L) of `ButtonIcon` Skip + `Button` Primary "Type instead" in `bottomSection`.
+- **What the student can do:** **Type instead** → typing placeholder; **Skip** → next question. There's no Open Settings button (a web app can't link there).
+
+### 6. Gate (mic primer)
+
+Figma 13555:8294, without its "Allow microphone access?" sheet, which is dropped from the build because the real iOS prompt follows it and students would be asked twice.
+
+- **Content:** headline "Say it, don't just tap it"; body "Tap Start and explain it out loud, in your own words. Tap Stop when you're done. Knowie's listening for what you know, not perfect grammar."; mascot; two buttons.
+- **Components:** `Screen`, `TextBlock`, `MascotSlot` (`size="3XL"`, as in Figma), and `ButtonGroup` (`variant="Vertical"`, as in Figma) of `Button` Primary **Turn on microphone** + `Button` Secondary **Can't talk right now**.
+
+| State | What the student can do |
+| --- | --- |
+| First time | **Turn on microphone** → real iOS prompt. Allow → loop, question 1 idle. Don't Allow → Exam00. **Can't talk right now** → Exam00 |
+| After an earlier denial | Settings steps replace the body copy. **I've turned on the mic** → checks permission; if granted → loop. **Can't talk right now** → Exam00 |
+
+- The body copy says "Tap Stop"; the recording button now reads "Send". See Open.
+
+### 7. Why? explanation sheet
+
+Modelled on `reference/TapWhy?.PNG`. There's no Figma design yet.
+
+- **Composition:** `BottomSheet` + `BottomSheetAppBar` (`variant="Default"`), with the explanation paragraph in `middleSection`. The peeking `MascotSlot` and a `Button` (`variant="Primary"`, "Got it", default `interactive/primary` fill) are positioned **outside `BottomSheet`**, above its top edge, inside `Screen`'s `bottomSheetOnly` slot. The student's transcript stays visible behind.
+- **States:** after Success; after Partial or Fail, where the concepts the judge found missing are bold.
+- **What the student can do:** only **Got it** → next question, or the summary. It can't be dragged down or closed from the backdrop.
+- **Not carried over:** the shipped quiz's "How can I help?" input.
+
+### 8. Summary sheet
+
+A `BottomSheet` at `height="L"` over the last question's screen, with rows scrolling inside `middleSection`. There's no Figma design yet.
+
+- **Content:**
+  - A headline count: questions explained, meaning passes.
+  - One row per question: the question, a snippet of **the student's own transcript**, and the verdict (Pass / Partial / Fail / Skipped). Rows are built **inline** in the summary, token-styled, not as a component.
+  - The caption "One more try at the N you missed".
+- **Actions:** `ButtonGroup` (`variant="Vertical"`, `size="L"`) in `bottomSection`, with `Button` Primary **Continue** and `Button` Secondary **Try again**.
+
+| State | Rows | What the student can do |
+| --- | --- | --- |
+| After the first session, some non-pass | All 4 | **Continue** → exam plan image. **Try again** → reruns only the non-pass questions |
+| After the first session, all pass | All 4 | **Continue** (Try again and caption behaviour: Open) |
+| After a Try again run | **Only the rerun questions** | **Continue** only; round 2 is used |
+
+- There is no confidence rating and no review queue.
+- With no top-up, progress in a Try again run rounds to the nearest step.
+
+### 9. appBar (component, built before screen 10)
+
+Built from Figma's `appBar` set (9003:8606: variants default / leftIconButtonOnly / leftAndRightIconButton / leftAndRightButton / leftAndTwoRightIconButtons / leftAnd2RightButtons, plus a `Slot`) after this Open list is closed. It goes through the usual process: Storybook, stories and a design-system.md entry.
+
+- **In the loop it holds:** a close icon button, `ProgressIndicator` (`thickness="16"`) in the Slot, and a static XP chip ("⚡2", never counts).
+
+### 10. Voice recall loop (hardest; blocked on Verification step 0)
+
+Figma: Starting04 13548:6327, Talking05 13548:6328, Talking06 13568:5231, Talking-finished07a 13568:5313, Thinking 13642:7889.
+
+- **Top:** `appBar` (screen 9).
+- **Middle:**
+  - A question row, built inline in the screen: `MascotSlot` (`size="XL"`), a speech bubble (plain token-styled elements, no component) holding the question, and `AiDisclaimer` underneath.
+  - `TranscriptDisplay` below it.
+- **Bottom (idle):** `ButtonGroup` (`variant="Horizontal"`, `size="L"`) of `ButtonIcon` (`variant="Secondary"`, Skip) + `ButtonVoice`, then `Button` (`variant="Secondary"`, `size="L"`) **Can't talk right now** (Figma 13561:2721).
+
+**Approved component changes for this screen**
+- `ButtonVoice` passes a `leftIcon` through to `Button` (Figma already exposes `showLeftIcon`): Phosphor `Microphone` at idle, Phosphor `Waveform` while recording.
+- `TranscriptDisplay` `state="Overflow"` anchors its 320px window to the **newest** text instead of clipping from the top. Figma 13563:1611 should be matched.
+
+| State | What's on screen | What the student can do |
+| --- | --- | --- |
+| Idle | Mascot `expression="standby"`, bubble shows the question, `TranscriptDisplay state="Empty"`, `ButtonVoice state="Default"` with mic icon + "Start", Skip, Can't talk right now | **Start**. **Skip** → next question. **Can't talk right now** → Exam00 (leaves the session). **Close** → Exam00 |
+| Recording | `ButtonVoice state="Recording"` with waveform + "Send"; the `ButtonIcon` beside it swaps from Skip to a cancel icon; Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → Exam00 |
+| Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript for ~1.5s when iOS restarts recognition | Same as Recording |
+| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays | **Close** → Exam00, answer thrown away |
+| Verdict | Screen 1 over this one | See screen 1 |
+| Interrupted | Call, lock or backgrounding mid-recording → Idle with `TranscriptDisplay state="Silence"` ("Sorry, I didn't catch that. Can you repeat?"), no attempt used | Same as Idle |
+| Accidental tap | Start then Send under ~1s with nothing heard → Idle silently | Same as Idle |
+| Mic off | Screen 5 over this one | See screen 5 |
+
+- **Leaving:** close or **Can't talk right now** ends the session with no confirmation. Opening the node again starts at question 1.
+
+## Out of scope
+
+- Auto-endpointing or continuous listening.
+- Answering questions, tutoring or conversation, including the "How can I help?" input.
+- A custom speech-to-text engine, or model-based judging.
+- Hints, a hint ladder, Say it back, and more than one attempt per question within a session.
+- **The typing turn** (buttons lead to the placeholder; `AnswerInput` and `Keyboard` are unused in this flow).
+- **Review node and review queue.**
+- **Exam plan screens as real components** (static images; no toggle, node or banner components).
+- **In-loop snackbars**, and the gate's invented permission sheet.
+- XP as a mechanic (the chip is static), a confidence rating, resuming mid-session, and a leave confirmation.
+- Thumbs up/down feedback (rendered, unwired).
+- A distinct noise or "can't answer questions" state; both use the Silence sheet.
+- VoiceOver announcements for the live transcript, and reduced-motion handling beyond the mascot loop (known gap).
+- Languages other than English, in-app consent, reminder notifications, and a facilitator verdict panel.
+- From `Voice-ux.md`: mic busy (on a call), switching language mid-answer, and pausing and resuming one take.
+- Any platform other than 390px iOS in dark mode.
+
+## How the mocked recall behaves
+
+**Recording**
+- Real mic and the browser's built-in recognizer (`webkitSpeechRecognition`), English, streaming interim results into `TranscriptDisplay`.
+- Only Send ends a take. If iOS ends recognition on a pause while still recording, it restarts, keeps adding to the same transcript, and shows "Still listening…".
+
+**On Send, in order**
+1. **Under ~1s and nothing heard:** dropped, back to Idle, nothing logged.
+2. **Wait for the final result.** If it doesn't arrive in ~2s, use the last live transcript.
+3. **Empty transcript** (silence, noise, recognizer or network error): Silence sheet, no attempt used.
+4. **Opens with a question** (what, what's, how, why, can you, could you, is it, does it, I don't get, I don't know what, what does, wait) **or ends with "?"**: Silence sheet, no attempt used. Deliberately loose: a real answer starting "What happens is…" is caught too.
+5. **Keyword judge** using the question's 3 concepts in `content/voice-recall-questions.md`. A concept counts if any of its phrases, synonyms or listed mis-hearings appear (case-insensitive).
+   - 2 or 3 concepts **and a real sentence** → **Pass**. A real sentence is at least 6 words plus at least one linking word: is, are, it, they, has, have, makes, uses, because, so, and, which, that.
+   - 2 or 3 concepts without a real sentence → **Partial** (the list cap).
+   - 1 concept → **Partial**.
+   - 0 concepts → **Fail**.
+6. **Fake wait.** The processing state is held for 2–4s. About 1 in 5 turns are slow (7–8s). With no verdict by 15s, the Silence sheet shows.
+
+**URL flags** for testing, set by the facilitator: `?latency=slow` makes every turn 7–8s; `?latency=hang` never returns a verdict, so the 15s Silence path runs.
+
+**Session rules**
+- 4 questions per session. Node 1 is Q1–Q4 (Organelle Identification), node 2 is Q5–Q8 (Comparing Cell Types).
+- Skip counts as non-pass.
+- A question gets two rounds at most: the original and one Try again.
+- Every turn is logged on the device and shown at `/log`.
+
+**Accepted mismatch:** the Silence sheet's "didn't catch that" copy also covers network errors and questions.
+
+## Verification
+
+### 0. Spike first (decides whether screen 10 is possible)
+
+On the test iPhone, served over a tunnel or `next dev --experimental-https`, build a throwaway page that uses the mic and `webkitSpeechRecognition`. Try it in a Safari tab and as a home-screen web app. Record which one streams interim results, restarts cleanly after a pause, and keeps mic permission across reloads. Collect real transcripts of the sample answers in `content/voice-recall-questions.md` and replace the guessed mis-hearings. Log the results in `sprint-context.md`.
+
+### 1. Automated checks
+
+- `npx vitest run --project=storybook`: every story passes with a11y failures set to `error`. New and changed states have stories: `ButtonVoice` with icons, `TranscriptDisplay` Overflow anchored to the newest text, and `appBar`.
+- `npm run lint` and `npm run build` pass.
+- **Judge tests:** a table of transcript → expected verdict, one row per rule in "On Send" above, covering every sample answer in the content file.
+- **No invented values:** no raw hex or px in any new `*.module.css` (`Keyboard.module.css` excepted), and every `var(--…)` exists in `build/css/tokens.css`.
+
+### 2. End to end on the test iPhone
+
+Use the setup chosen in the spike: a tunnel or local HTTPS while building, the Vercel URL for sessions. Clear the log first. After each step, check the screen, then check `/log`.
+
+1. **Homescreen → exam tab** → Exam00 → **Show me** → Hint-animate01 → **toggle** → Turnon02 → **Organelle Identification** → gate.
+2. **Gate:** **Can't talk right now** → Exam00. Go back to the gate. **Turn on microphone** → **Don't Allow** → Exam00. Open the node again: the gate shows Settings steps. Allow the mic in iOS Settings → **I've turned on the mic** → Q1 idle.
+3. **Q1 idle:** question in the bubble, mascot standby, disclaimer, Empty transcript placeholder, mic icon + Start, Skip, Can't talk right now; progress 0; XP chip reads 2.
+4. **Start** → waveform + Send, cancel icon instead of Skip, Can't talk right now hidden. Speak a 2-concept sentence with a pause → "Still listening…" appears and nothing is sent. **Send** → button hidden, phrases advance, mascot moves → **Success**. **Why?** → explanation with no bold terms, mascot and Got it above the sheet, can't be dragged down. **Got it** → Q2, progress 25.
+5. **Q2:** a 1-concept answer → **Partial**. Why? shows the missed concepts in bold → Got it → Q3.
+6. **Q3:**
+   - Answer at length: the transcript keeps the newest words visible. **Cancel** → Idle, nothing logged.
+   - **Start** then **Send** immediately → Idle silently.
+   - **Start**, say nothing, **Send** → Silence sheet. **Re-record** → "What does the cell membrane do?" → Silence sheet again, no attempt logged.
+   - **Re-record** → a bare keyword list → **Partial**. **Continue**.
+7. **Q4:** an off-topic answer → **Fail** → **Continue** → summary sheet (height L): the count reads 1, 4 rows with transcript snippets (Pass / Partial / Partial / Fail), caption "One more try at the 3 you missed".
+8. **Try again:** the 3 questions rerun. On the first, tap **Skip**. The summary shows only those 3 rows, with no Try again. **Continue** → Exam00.
+9. **Failure paths** (each from a fresh node open):
+   - With `?latency=slow`: "Almost there…" appears at ~5s and holds until the verdict.
+   - With `?latency=hang`: the Silence sheet at 15s.
+   - Lock the phone mid-recording and unlock → Idle with the Silence copy.
+   - Airplane mode, then **Send** → Silence sheet.
+   - **Close** during processing → Exam00; reopening starts at Q1.
+   - **Can't talk right now** on Q2 → Exam00; reopening starts at Q1.
+10. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
+11. **Open `/log`:** every answered, skipped and Silence turn is there with the right round, transcript, concepts, verdict, latency and flag. Nothing is logged for the cancel or the accidental tap. **Copy as CSV** gives the same rows; **Clear log** asks, then empties it.
+
+**Done** means every step behaves as described and every automated check passes, with nothing skipped.
+
+## Open (not yet decided)
+
+**Blocked on the spike**
+1. Home-screen web app or Safari tab.
+2. The Settings steps copy for the gate and mic-off sheet.
+
+**Flow**
+
+3. Whether the Homescreen is a static image like the exam plan (it's mostly hand-drawn frames in Figma).
+4. When the gate shows: only the first time a node opens, or every time mic permission isn't granted (and then when the mic-off sheet shows instead).
+5. What happens when **I've turned on the mic** finds the mic still off.
+6. Whether **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet) should go back to Exam00 like **Can't talk right now**, instead of the typing placeholder. The placeholder's layout and copy, if kept.
+7. The gate's body copy says "Tap Stop when you're done", but the recording button now says "Send".
+
+**Screens**
+
+8. `appBar`: which variant fits the loop's top nav, and whether the XP chip is the `Chip` component (Figma draws it as a plain frame).
+9. Mascot expression while recording (idle is standby, processing is thinking).
+10. Summary: headline copy; whether Try again and its caption are hidden when everything passed; whether the summary has a mascot; how long a transcript snippet is before truncating; what a Skipped row shows in place of a snippet.
+11. Continue from the summary lands on the exam plan image, which can't show the node as completed.
+
+**Content**
+
+12. Q8's concept B is loosely phrased; check it against spike transcripts. Question order within a node (as written, or random).
+
+**Already flagged elsewhere**
+
+13. `Partial` still uses `accent/blue` as a stand-in colour.
+14. The Phosphor icons (already used in code by `Snackbar`) differ from the Figma library's icon family (for Harry).
+
+## Figma follow-ups (decided, not yet done in Figma)
+
+- Loop screens: set `mascotSlot` to XL (currently a 2XL instance resized to 84px).
+- Recording frames (Talking05/06/07a): the left `buttonIcon` shows a cancel icon, not Skip.
+- Thinking (13642:7889) and Loading/AnimateHowie08 (13568:5451): hide `buttonVoice`.
+- `transcriptDisplay` Overflow (13563:1611): anchor to the newest text.
+- `buttonVoice`: set real icons (mic at Default, waveform at Recording) in place of the `square` placeholder.
+- The orphaned `bottomCta` set (5101:6963, no page, no description): delete it or reattach it.
+
+## Hosting
+
+A tunnel (Cloudflare quick tunnel or ngrok) or `next dev --experimental-https` while building and for the spike. Vercel for participant sessions: a stable URL keeps the home-screen install working. Vercel needs a GitHub remote, which the repo doesn't have yet.

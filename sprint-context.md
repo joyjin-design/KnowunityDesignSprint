@@ -209,12 +209,73 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
 - Accessibility of the live parts (VoiceOver announcing streaming transcript, reduced motion for the waveform and auto-follow scroll): out of scope, known gap.
 - Hints and Say it back: cut.
 
+- 2026-09-14: SPEC.md Open list, first pass (missing props and components, hosting, content).
+- **Waveform** goes in `ButtonVoice`'s Recording state as a **left icon with the "Send" label**, using Phosphor's `Waveform` (`@phosphor-icons/react`, already a dependency through `Snackbar`). Chosen over `button`'s Center Icon Container: in Figma that layer is only switched on in the Loading state, where it replaces the label (icon-only), and it isn't exposed as a property. The left icon container is already exposed as `showLeftIcon`, and `Button` already has `leftIcon`, so the only code change is letting `ButtonVoice` pass it through. Pairs the icon with a label, per Voice-ux principle 1. The Phosphor-vs-library icon mismatch is smaller than first logged: Phosphor is already used in code.
+- **Long answers** use `transcriptDisplay` state=Overflow (Figma 13563:1611: 320px clip window, 96px `size.space.2400` padding), **anchored to the newest text** so the latest words stay visible while speaking. This is an alignment change inside the component (today it clips from the top, so new words fall below the window) and should be matched in Figma. It replaces the earlier "follow the newest line with a top fade" idea; there is no fade.
+- **Snackbar:** the only snackbar in this flow is the exam plan's readiness banner (Figma 13547:1235, "Voice recall is ready for Biology. Try say it out loud." + Show me). The in-loop snackbars decided earlier are dropped:
+  - **Question redirect** now shows the `ResultBtm` Silence sheet (Re-record / Try typing instead / Skip), no attempt used. Known copy mismatch: Silence reads as "didn't catch that", not "can't answer questions".
+  - **Interruption** (call, lock, backgrounding mid-recording) returns to idle with `TranscriptDisplay` state=Silence ("Sorry, I didn't catch that. Can you repeat?"), no attempt used.
+- **appBar** will be built from Figma's `appBar` set (9003:8606) after the Open list is worked through, and used as the loop's top navigation.
+- **Exam plan path** already exists in Figma (13547:1235) and is out of scope for the build for now.
+- `ResultBtm`'s thumbs up/down stay rendered and unwired.
+- **Hosting:** a tunnel (Cloudflare quick tunnel or ngrok) or local HTTPS (`next dev --experimental-https`) while building and for the spike; Vercel for participant sessions, where a stable URL keeps the home-screen install working. Vercel needs a GitHub remote, which the repo doesn't have yet. Neither tunnel tool is installed yet.
+- **Content:** a draft of 8 middle-school biology questions (Eukaryotic and Prokaryotic Cells, 4 per node, matching the node names on the Figma exam plan) is in `content/voice-recall-questions.md`, each with 3 concepts, synonyms, guessed mis-hearings, an explanation and sample answers. Q5 reworded to ask *where* the DNA is, because a keyword judge can't read "has / doesn't have a nucleus". Q6 reworded to ask *why* plants need a cell wall and chloroplasts, because a naming question would be capped at Partial by the bare-list rule.
+
+- 2026-09-14: SPEC.md Open list, second pass. It works from the existing Figma flow in section "Design for voice recall first run experience" on the "Design the core flow" page: Homescreen 13619:3109 → Exam00 13548:6324 → Hint-animate01 13547:5824 → Turnon02 13548:6325 → gate 13555:8294 → Starting04 13548:6327 → Talking05/06 → Talking-finished07a → Thinking 13642:7889 → End09, plus Partialright 13549:6911 and Section 2 13556:4495 for the Partial and Error sheets.
+
+### Entry and first run
+- **The prototype starts on the Homescreen** (13619:3109). The exam plan screens (Exam00, Hint-animate01, Turnon02) are **static images with tap zones**: exam tab → Exam00, Show me → Hint-animate01, Voice recall toggle → Turnon02, a node → the gate. No exam plan components are built. This replaces "the primer is a bottom sheet on toggle-on".
+- **The mic primer is the full-screen gate** (13555:8294): "Say it, don't just tap it", with **Turn on microphone** and **Can't talk right now**. **Turn on microphone** triggers the real iOS prompt directly. The gate's invented "Allow microphone access?" sheet is **dropped from the build**: with a real mic, iOS shows its own prompt right after, so students would be asked twice in a row. The gate already does the priming Voice-ux asks for.
+- **Don't Allow at the gate** → back to the exam plan image. Returning later shows the gate with steps for turning the mic on in Settings.
+- **Review is cut this sprint**: no queue, no review node, no "comes back later" line. Try again on the summary is the only second round. This supersedes the review-node decisions above.
+
+### Loop screen (Starting04 onward)
+- **Question** sits in a speech bubble beside the mascot, with `aiDisclaimer` under it, as in Figma. The bubble is hand-drawn in Figma and is built **inline in the loop screen**, not as a component.
+- **Mascot is `mascotSlot` XL (64px).** The Figma screens use a 2XL instance resized to 84px, which matches no size or token; fix those instances to XL in Figma. The XL exception in design-system.md stands.
+- **Idle bottom** follows Figma 13561:2721: `buttonGroup` (Horizontal, L) of a Secondary `buttonIcon` Skip and `buttonVoice`, with a Secondary `button` "Can't talk right now" (L, full width) below.
+- **`buttonVoice` icons** use its left icon slot (Figma's exposed `showLeftIcon`): Phosphor `Microphone` + "Start" at idle, Phosphor `Waveform` + "Send" while recording.
+- **Recording:** the `buttonIcon` in the same group swaps from Skip to a cancel/discard icon, and cancel returns to idle. Figma keeps Skip there during recording; update Figma to match, because Voice-ux lists re-record before send as a Must.
+- **Still listening:** when iOS restarts recognition mid-take, a brief "Still listening…" line in `text/tertiary` appears under the transcript for about 1.5s. Plain text.
+- **Processing** follows the Thinking frame (13642:7889):
+  - `buttonVoice` is **hidden**.
+  - The bubble swaps the question for timed phrases: "Let me think…" at 0s, "Checking your answer…" at about 2s, "Almost there…" at about 5s, holding until the verdict. This replaces the separate "taking a moment" line.
+  - The transcript stays.
+  - The mascot (thinking expression) gets a **CSS motion loop** (transform only, static under reduced motion).
+  - Figma's Thinking and Loading08 frames still show the Stop button; update them.
+- **XP chip** ("⚡2") appears in the top nav as **static**, never counting. XP stays out of scope.
+- The orphaned `bottomCta` set (5101:6963: no page, no description) wraps the same [buttonIcon | buttonVoice] pair. The build uses `buttonGroup` directly. Flag it for deletion or reattachment, per design-system.md's never-list.
+
+### Why? sheet
+- Composed as `BottomSheet` + `BottomSheetAppBar`, with the peeking `mascotSlot` and the "Got it" `Button` **positioned outside `BottomSheet`** in `Screen`'s `bottomSheetOnly` slot, to match `reference/TapWhy?.PNG`. No component change; the positioning is custom.
+
+### Summary
+- **A `BottomSheet` at height L over question 4's screen** (90dvh cap), rows scrolling inside `middleSection`.
+- **Layout:** each row shows the question, a **snippet of the student's own transcript**, and the verdict, so the count is backed by their words. Rows are built inline in the summary, not as a component.
+- **Try again caption:** "One more try at the 2 you missed".
+- **After a Try again run:** the summary shows **only the rerun questions**.
+
+### Typing turn
+- **The whole typing turn is out of scope this sprint.** `AnswerInput` and `Keyboard` stay in the library, unused by this flow.
+- **"Can't talk right now"** (idle screen and gate) **goes back to the previous screen, the exam plan image Exam00** (13548:6324). On the idle screen that leaves the session, which restarts next time, as with close.
+- "Try typing instead" (Silence sheet) and "Type instead" (mic-off sheet) lead to a placeholder screen saying typing isn't in this prototype, with Skip and back to voice. Open: whether these should also go back to Exam00.
+- CLAUDE.md's text-fallback rule reworded to match.
+
+### Mock engine
+- **Real sentence** (needed for a Pass): at least 6 words and at least one linking word (is, are, it, they, has, have, makes, uses, because, so, and, which, that).
+- **Question detection:** the transcript opens with what, what's, how, why, can you, could you, is it, does it, I don't get, I don't know what, what does or wait, or ends with "?". The redirect is the `ResultBtm` Silence sheet.
+- **Slow turns:** about 1 in 5 turns are slow (7–8s) at random. URL flags force states for testing: `?latency=slow`, `?latency=hang`.
+- **Turn log:** cleared with a "Clear log" button on `/log`, with a confirm, after copying the CSV.
+
 ## Not building
 - Auto-endpointing or continuous listening
 - Tutoring or open conversation branch if the student asks Knowie something
 - A custom speech-to-text engine or real judging (the browser's built-in recognizer is used for transcripts; judging is a mocked keyword judge)
 - Hints or a hint ladder, and Say it back
 - Resume mid-session (leaving restarts)
+- The typing turn (this sprint; text-fallback buttons lead to a placeholder)
+- Review node and review queue (this sprint)
+- Exam plan screens as real components (static images this sprint)
+- In-loop snackbars (the only snackbar is the exam plan's readiness banner)
 - XP (this sprint)
 - A confidence rating before or after answering
 - VoiceOver and reduced-motion handling for the live transcript and waveform (this sprint)

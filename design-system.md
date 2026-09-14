@@ -18,7 +18,7 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 
 **iconSlot** — the base wrapper for every icon in the system. It is the most-used primitive in the file. Its size axis is confusingly named `Size (IGNORE)`; until that naming is resolved with Harry, know that this axis is in fact what's driving real icon sizing today, the name is misleading, not a warning to obey.
 
-**mascotSlot** — large, hero-scale mascot moments only (onboarding, celebration). Confirmed real usage starts at 2XL and goes up. Don't use it at its own default size (XL) or smaller expecting it to read as a small inline mascot appearance; nothing in the file supports that use. One exception, decided 2026-09-14: the voice recall loop screen uses XL as an in-loop status mascot that swaps expression (standby, thinking, and so on). That is the first real XL usage and should be placed in Figma to confirm it holds up.
+**mascotSlot** — large, hero-scale mascot moments only (onboarding, celebration). Confirmed real usage starts at 2XL and goes up. Don't use it at its own default size (XL) or smaller expecting it to read as a small inline mascot appearance; nothing in the file supports that use. One exception, decided 2026-09-14: the voice recall loop screen uses XL (64px) beside the question's speech bubble, swapping expression (standby, thinking, and so on). The Figma loop screens (Starting04 through End09) currently place a 2XL instance resized by hand to 84px, which matches no size or token; they should be set to XL.
 
 **progressIndicator** — lesson/quiz progress, and it lives inside the appBar's Slot in real use. It is a five-step snap scale (0/25/50/75/100), not a freeform percentage bar. Don't wire it up expecting arbitrary progress values.
 
