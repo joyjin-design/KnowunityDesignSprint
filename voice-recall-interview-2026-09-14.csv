@@ -147,3 +147,4 @@
 "146","38","appBar","Add disabled/loading props for AppBar buttons?","Not now | Add disabled/loading props","Not now","Final"
 "147","38","Git","How should the commit be split?","Two commits | One commit","Two commits","Final"
 "148","39","appBar","The 1% letter spacing has no token. What to do?","Skip it, log it | Add a letter-spacing token group","Skip it, log it","Final"
+"149","40","Processing","Your direction: what does Skip do while an answer is being judged?","(your direction)","it will go to the next question","Final (judging cancelled, answer discarded, logged as Skipped)"

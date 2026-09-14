@@ -137,7 +137,7 @@ Figma: Starting04 13548:6327, Talking05 13548:6328, Talking06 13568:5231, Talkin
 | Idle | Mascot `expression="standby"`, bubble shows the question, `TranscriptDisplay state="Empty"`, `ButtonVoice state="Default"` with mic icon + "Start", Skip, Can't talk right now | **Start**. **Skip** → next question. **Can't talk right now** → Exam00 (leaves the session). **Close** → Exam00 |
 | Recording | `ButtonVoice state="Recording"` with waveform + "Send" (Figma still says "Stop"; deferred); the `ButtonIcon` beside it swaps from Skip to a discard icon (Phosphor `ArrowCounterClockwise`); Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → Exam00 |
 | Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript for ~1.5s when iOS restarts recognition | Same as Recording |
-| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays | **Close** → Exam00, answer thrown away |
+| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays. The Skip `ButtonIcon` stays visible | **Skip** → next question; judging is cancelled, the answer thrown away, logged as Skipped. **Close** → Exam00, answer thrown away |
 | Verdict | Screen 1 over this one | See screen 1 |
 | Interrupted | Call, lock or backgrounding mid-recording → Idle with `TranscriptDisplay state="Silence"` ("Sorry, I didn't catch that. Can you repeat?"), no attempt used | Same as Idle |
 | Accidental tap | Start then Send under ~1s with nothing heard → Idle silently | Same as Idle |
@@ -225,6 +225,7 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
    - With `?latency=hang`: the Silence sheet at 15s.
    - Lock the phone mid-recording and unlock → Idle with the Silence copy.
    - Airplane mode, then **Send** → Silence sheet.
+   - **Skip** during processing → next question straight away; no verdict sheet appears, and the turn is logged as Skipped.
    - **Close** during processing → Exam00; reopening starts at Q1.
    - **Can't talk right now** on Q2 → Exam00; reopening starts at Q1.
 10. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
@@ -249,7 +250,7 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 **Screens**
 
 8. `appBar`: which variant fits the loop's top nav, and whether the XP chip is the `Chip` component (Figma draws it as a plain frame).
-9. Mascot expression while recording (idle is standby, processing is thinking). Also: Skip stays visible during processing in Figma (Thinking, Loading08). What does tapping it do while an answer is being judged?
+9. Mascot expression while recording (idle is standby, processing is thinking).
 10. Summary: headline copy; whether Try again and its caption are hidden when everything passed; whether the summary has a mascot; how long a transcript snippet is before truncating; what a Skipped row shows in place of a snippet.
 11. Continue from the summary lands on the exam plan image, which can't show the node as completed.
 

@@ -291,6 +291,8 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
   - **Re-measured:** Skip is 29.2px wide, its label centre, the ⋮ position and the Slot widths are within 1px of Figma, and a real mouse press gives `text/secondary` on both. Glyphs are closer but still differ, because Phosphor and Untitled draw differently.
   - **Not fixed:** letter spacing (Figma 1%, no token exists; skipped by your call, same as Button and TextBlock); Button Tertiary's loading spinner is `text/link` where Figma's appBar loading icon is `text/primary` (a Button-wide issue, by your call left and logged); AppBar doesn't expose disabled/loading on its buttons (by your call, a gap).
 
+- 2026-09-14: **Skip while an answer is being judged goes to the next question.** Skip stays visible during processing (as in Figma's Thinking and Loading08 frames). Tapping it cancels the judging, throws the answer away, and logs the question as Skipped, so no verdict for it is shown. This matches how Close during processing already discards the answer. Closes the SPEC.md Open item.
+
 ## Not building
 - Auto-endpointing or continuous listening
 - Tutoring or open conversation branch if the student asks Knowie something
