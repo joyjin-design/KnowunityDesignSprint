@@ -266,6 +266,22 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
 - **Slow turns:** about 1 in 5 turns are slow (7–8s) at random. URL flags force states for testing: `?latency=slow`, `?latency=hang`.
 - **Turn log:** cleared with a "Clear log" button on `/log`, with a confirm, after copying the CSV.
 
+- 2026-09-14: `AppBar` (app/components/AppBar.tsx) built from Figma's `appBar` set (9003:8606).
+  - **Props:** `variant` with Figma's exact six options (default / leftIconButtonOnly / leftAndRightIconButton / leftAndRightButton / leftAndTwoRightIconButtons / leftAnd2RightButtons), `slot` for Figma's Slot, and icon/label/click props for each button.
+  - **Built from existing components:** `ButtonIcon` (Tertiary, M) for every icon button, the same reuse `BottomSheetAppBar` made for the orphaned `App Bar Button Icon`, and `Button` (Tertiary, S) for the text button, standing in for the orphaned `App Bar Button`. Its differences are documented in the story: 20px vs 16px line height, no pressed dim, and a 48px minimum width vs Figma's 30px.
+  - **Missing values, decided:** no fixed height (Figma's unbound 56px comes from the 48px buttons plus `space.200` bottom padding); the Slot's unbound 10px padding and gap become 0 and `space.300`, rebound in Figma (Space/0, Space/300) on all six variants; the unbound 375px width becomes fluid.
+  - **Background:** Figma's two stacked `background/page` → transparent gradients are both reproduced.
+  - **Icons:** Phosphor defaults by decision: ArrowLeft, DotsThreeVertical and Export stand in for arrow-left, dots-vertical and share-02. ShareNetwork was used first and swapped for Export, which is the matching box-with-arrow share glyph.
+  - **Chips beside the progress bar** go inside `slot`; no second slot prop.
+  - **Stories:** one per variant, named `variant=…`, plus "Slot with progressIndicator". The Figma description is carried verbatim into the docs, with build notes.
+  - **Verified:** all `var()` values exist in tokens.css, with no raw hex or px outside comments; types and lint pass; 7/7 story tests pass with a11y in error mode (the first run failed on a Vite dependency-optimisation fetch error and passed on re-run with no changes). Measured at 390px in Playwright: all six variants are 56px tall and the button positions match Figma.
+  - **After a property-by-property comparison with Figma, you chose four fixes.** Three are applied as local overrides in `AppBar.module.css`, using the attribute-qualified technique from `resultBtm`'s `.skipButton`:
+    - Icon box is 24px (`size.icon.300`) instead of ButtonIcon M's 20px.
+    - Pressed turns the icon and the text-button label `text/secondary`.
+    - The text button hugs its label: no 48px minimum width, no baseline nudge, Greed/Headline XXS Bold. **Accessibility trade:** the "Skip" tap target is about 30px wide.
+  - **Re-measured:** Skip is 29.2px wide, its label centre, the ⋮ position and the Slot widths are within 1px of Figma, and a real mouse press gives `text/secondary` on both. Glyphs are closer but still differ, because Phosphor and Untitled draw differently.
+  - **Not fixed:** letter spacing (Figma 1%, no token exists; skipped by your call, same as Button and TextBlock); Button Tertiary's loading spinner is `text/link` where Figma's appBar loading icon is `text/primary` (a Button-wide issue, by your call left and logged); AppBar doesn't expose disabled/loading on its buttons (by your call, a gap).
+
 ## Not building
 - Auto-endpointing or continuous listening
 - Tutoring or open conversation branch if the student asks Knowie something

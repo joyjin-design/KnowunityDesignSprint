@@ -23,6 +23,10 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 **progressIndicator** — lesson/quiz progress, and it lives inside the appBar's Slot in real use. It is a five-step snap scale (0/25/50/75/100), not a freeform percentage bar. Don't wire it up expecting arbitrary progress values.
 
 **appBar** — the lesson/quiz top nav. In real use it holds a back action, a progress indicator, and a streak/lives counter (chip + icon) beside it. Its own six named variants don't fully describe every real top nav in the file, some screens add elements beyond the formal Slot, so don't assume picking a variant alone reproduces a specific real screen.
+- States (`variant` axis): `default`, `leftIconButtonOnly`, `leftAndRightIconButton`, `leftAndRightButton`, `leftAndTwoRightIconButtons`, `leftAnd2RightButtons`. Plus one `Slot`.
+- Built in React (`AppBar`, 2026-09-14) from existing components: icon buttons are `buttonIcon` (Tertiary, M), which is what Figma's orphaned `App Bar Button Icon` resolves to; the text button is `button` (Tertiary, S), standing in for the orphaned `App Bar Button`. Anything that sits beside the progress bar (a streak or XP chip) goes inside the Slot, not in a second slot.
+- Spacing: the Slot's raw 10px padding and gap had no token; Figma now binds Space/0 padding and a Space/300 (12px) gap. The 56px row height isn't fixed in code, since the 48px buttons plus `space.200` bottom padding produce it. The two `App Bar Button*` sets are orphaned (no page) and should be replaced by `buttonIcon`/`button` at the source.
+- What not to do with it: don't use it inside a `bottomSheet`, that's `Bottom-sheet App Bar`. Don't hardcode icons into it, pass them; the code defaults are Phosphor stand-ins for Figma's Untitled-style arrow-left / dots-vertical / share-02.
 
 **snackbar** — confirmation and error toasts. Not built anywhere in the file yet. Treat the first real instance as the first real test of its structure, particularly the nested chips-with-icon-slots it expects for an action (dismiss, retry).
 

@@ -1,0 +1,118 @@
+/* Figma frames the set at a fixed 375px, unbound to any variable, so the row
+   fills its container instead (same call as Screen, BottomSheet and
+   ProgressIndicator). The outer component's own 4px vertical gap wraps a
+   single child and isn't reproduced. */
+.root {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Figma fixes this row at 56px with no binding. There's no fixed height
+   here: the 48px buttons (or the Slot's min-height) plus the space-200 bottom
+   padding come to the same 56px. The fill is Figma's two stacked
+   background/page -> transparent gradients, reproduced as two layers. */
+.topNav {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--size-space-100);
+  padding-top: var(--size-space-0);
+  padding-bottom: var(--size-space-200);
+  background:
+    linear-gradient(to bottom, var(--color-background-page), transparent),
+    linear-gradient(to bottom, var(--color-background-page), transparent);
+}
+
+/* Inline padding per variant, as bound in Figma: space-400 on an edge that
+   holds nothing or text, space-100 on an edge that holds a 48px icon button,
+   space-300 beside leftAnd2RightButtons' trailing text button. */
+.topNav[data-variant='default'] {
+  padding-inline: var(--size-space-400);
+}
+
+.topNav[data-variant='leftIconButtonOnly'],
+.topNav[data-variant='leftAndRightButton'] {
+  padding-left: var(--size-space-100);
+  padding-right: var(--size-space-400);
+}
+
+.topNav[data-variant='leftAndRightIconButton'],
+.topNav[data-variant='leftAndTwoRightIconButtons'] {
+  padding-inline: var(--size-space-100);
+}
+
+.topNav[data-variant='leftAnd2RightButtons'] {
+  padding-left: var(--size-space-100);
+  padding-right: var(--size-space-300);
+}
+
+/* Figma's Slot binds its inline padding to Space/0 but leaves a raw 10px on
+   top/bottom and a raw 10px gap, and no 10px token exists. By decision the
+   vertical padding is 0 (content is centred in the row either way) and the
+   gap is space-300 (12px). The min-height keeps an empty or short Slot at the
+   48px row height the fixed Figma frame gave it. */
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--size-space-1200);
+  gap: var(--size-space-300);
+  padding-block: var(--size-space-0);
+}
+
+.rightButtons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--size-space-0);
+}
+
+.rightButtons[data-variant='leftAnd2RightButtons'] {
+  padding-right: var(--size-space-100);
+}
+
+/* Local overrides on the reused ButtonIcon (Tertiary, M), matching Figma's
+   App Bar Button Icon. Qualified with ButtonIcon's own data attributes so they
+   out-specify its rules (the same technique resultBtm's .skipButton uses);
+   the child spans are ButtonIcon's circle and, inside it, the icon box.
+   1) Icon box is Icon/300 (24px), not ButtonIcon M's 20px.
+   2) Pressed turns the icon text/secondary. Disabled buttons never match
+      :active, so text/disabled still wins there. */
+.iconButton[data-variant='Tertiary'][data-size='M'] > span > span {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+.iconButton[data-variant='Tertiary'][data-size='M']:active > span {
+  color: var(--color-text-secondary);
+}
+
+.textButton {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Local overrides on the reused Button (Tertiary, S), matching Figma's App
+   Bar Button: the label hugs its text (no 48px minimum width, by decision,
+   so the tap target is narrower than 48px), no baseline nudge, the
+   Greed/Headline XXS Bold text style, and a text/secondary pressed state.
+   The 48px min-height stays. */
+.textButtonLabel[data-variant='Tertiary'][data-size='S'] {
+  min-width: var(--size-space-0);
+  padding-bottom: var(--size-space-0);
+  font: var(--font-greed-headline-xxs-bold);
+}
+
+.textButtonLabel[data-variant='Tertiary'][data-size='S']:active {
+  color: var(--color-text-secondary);
+}
+
+/* Only in leftAndRightButton does Figma pad the text button's container on
+   the left (Space/300); in leftAnd2RightButtons it sits flush. */
+.textButton[data-variant='leftAndRightButton'] {
+  padding-left: var(--size-space-300);
+}
