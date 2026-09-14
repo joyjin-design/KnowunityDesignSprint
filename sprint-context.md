@@ -149,13 +149,77 @@ Exam plan path screen. A "Voice recall" toggle pill sits at top; when on, topic 
 - 2026-09-12: `TextField` typography changed at your direction: title, input and placeholder move from `Body S Bold` to `Body S Regular`. Captions stay `Caption S Regular` (11px), unchanged. Same size and line height as before (15px / 20px), so no layout or height changes; only the weight drops from semibold to regular. Updated in the stylesheet, the component's Storybook docs and its `design-system.md` entry.
 - 2026-09-13: `bottomSheetVerdict` renamed to `resultBtm` at your direction: `ResultBtm` in code (`app/components/ResultBtm.tsx`, `.module.css`, `.stories.tsx`; Storybook title `Components/ResultBtm`, so story IDs are now `resultbtm--*`) and `resultBtm` in `design-system.md` and cross-referencing story docs, keeping the camelCase naming rule. `Result-btm` was considered and not used, since the hyphen breaks that rule. Earlier entries in this log keep the old name as written. In Figma the set (13562:5922) had already been renamed to `ResultBtm`; by your call it is now `resultBtm` to match the camelCase rule, and its section (13562:5777) is `resultBtm (local, verdict states after a student answers)`. Variant names unchanged. A search of every page found no other layer carrying the old name. Figma's plugin couldn't connect at first because a leftover figma-console-mcp server from a closed session held the plugin's connection on port 9223; stopping it let this session's server take over. By your call, the Storybook label (`Components/ResultBtm`) and file names (`ResultBtm.*`) stay capitalised to match the code name, the same split every other component uses (Figma `bottomSheet`, code `BottomSheet`); the code name itself can't be lowercase, since JSX treats a lowercase tag as an HTML element.
 
+- 2026-09-14: Recall loop, failure paths and mock engine decided in a design interview. Built for **moderated usability tests with English-speaking students**, so the mock is tuned for believability, not for steering a demo.
+
+### Mock engine
+- Transcription uses the browser's built-in recognizer (`webkitSpeechRecognition`) with a real mic (`getUserMedia`). Judging stays mocked. This changes CLAUDE.md's "never build real STT" rule to "no custom STT engine", updated the same day. Chosen over a facilitator typing live because a human can't keep pace with a live transcript, and because real mis-hearings are what the "heard wrong vs didn't know" principle needs to be tested against.
+- The judge is a keyword judge running on the device, plus a turn log. Each question is authored with 3 key concepts (with synonyms and likely mis-hearings). 2+ concepts in a real sentence = Pass, 1 = Partial, 0 = Fail, empty transcript = Silence. A facilitator verdict was rejected: it needs a second device, a sync service and session pairing.
+- Partial needs at least one concept. The earlier "any on-topic attempt is Partial" floor was raised, because combined with one attempt per term it would have made Fail almost unreachable.
+- Keyword stuffing ("chlorophyll, glucose, oxygen") caps at Partial: a Pass needs sentence structure, not a list.
+- Question detection is loose: any question pattern ("what's…", "can you…", "I don't get…") shows a snackbar redirect over the idle screen ("can't answer questions here, give it your best shot") and uses no attempt. Accepted cost: a real answer starting with "What happens is…" can be swallowed, costing the student a re-take.
+- Latency is faked on top of the recognizer: usually 2–4s, sometimes 7–8s, so the slow state is exercised naturally. Browser STT alone returns in ~1s, which would leave the brief's wait constraint untested.
+- iOS recognizer quirks: if it ends its own session on a pause while the student is still recording, it silently restarts and shows a "still listening" cue; only the student's send ends a take. If no final result arrives after send, the last interim transcript is judged; if that's empty, the Silence path runs.
+- Recognizer/network errors after send use the Silence path (Record again / Try typing instead, no penalty). Known copy mismatch: "didn't catch that" blames audio for a network fault. Accepted to avoid a new state.
+- Noise with an empty transcript is Silence, same as quiet.
+- Takes under ~1s with an empty transcript (a start/send fumble) are dropped silently, back to idle, no sheet.
+- The turn log (transcript, concepts hit, verdict, latency, modality) is stored on the device and read on a hidden `/log` route with copy-as-CSV. It never appears in the student flow.
+- Research consent for minors' audio going to Apple's recognizer is handled by the study consent form, not in-app.
+- To do before building on browser STT: spike `getUserMedia` + `webkitSpeechRecognition` on the test iPhone, in both a Safari tab and home-screen (standalone) mode. The plan is to run as a home-screen web app, to avoid Safari re-prompting for the mic on every load, but speech recognition has historically been less reliable in standalone mode.
+
+### The loop
+- **One attempt per term.** No hints and no retry within a session: the kickoff's hint → re-attempt → hint → reveal ladder is cut. After any verdict the sheet offers Why? (explanation) and Continue (next term). Say it back is out this sprint.
+- A mis-heard answer's verdict stands once sent. The safety net is the **live transcript while speaking plus cancel before send**: the student sees the mis-hearing as it happens. A deliberate tradeoff against "a false wrong is demoralizing", softened by the generous judge.
+- **Transcript streams live while speaking.** When it passes transcriptDisplay's 320px window it auto-follows the newest line with older lines fading at the top; after send it becomes scrollable for review behind the sheet.
+- **Recording controls:** `buttonGroup` of a Secondary `buttonIcon` (cancel/discard) and `buttonVoice` (send), matching the beta layout. "Can't talk right now" and Skip are **hidden while recording**; cancel returns to idle, where both reappear. This bends "one tap to text on every voice turn" during recording only; CLAUDE.md reworded the same day.
+- **Skip** sits in the bottom area next to the typing link on the idle screen.
+- **Waveform:** the Phosphor waveform icon (phosphoricons.com, "wave"), placed inside `buttonVoice`, shown only while recording. This closes the "icon swap not wired" gap on buttonVoice. Deliberate mismatch, to flag with Harry: the rest of the library's icons are a different family.
+- **Processing** shows no waveform. A `mascotSlot` at XL is on the loop screen and swaps expression (e.g. standby → thinking). First real XL use; design-system.md's mascotSlot entry updated to allow it for in-loop status.
+- **Prompt** is a full question ("What happens to particles during diffusion?"), like the shipped quiz, not a bare term. It's clearer scope for a keyword judge.
+- **Interruptions** (call, backgrounding, lock) discard the take and return to idle on the same term with a snackbar; no attempt used.
+- **X is allowed during processing**: the answer is discarded.
+- Silence has no cap on repeats; Skip and typing are always one tap away on that sheet.
+
+### Why? sheet
+- Why? follows `reference/TapWhy?.PNG`: an explanation bottom sheet that overlays the screen, with the student's transcript staying behind it, the mascot peeking over the sheet edge, and a "Got it" pill. **"Got it" is back in scope** (it was cut 2026-09-12) and always goes to the next term, on Success, Partial and Error alike.
+- One authored explanation per question. The concepts the keyword judge found missing are set in bold, so a Partial sees exactly what to add.
+- Not dismissible by drag or scrim; Got it is the only way out, and it's always available.
+- Got it is `interactive/primary` on every verdict, not verdict-coloured, because the explanation isn't a verdict and shouldn't repeat a miss's red.
+- The single-sheet model resolves both earlier open questions: explanations are revealed on Why?, and there's no hint ladder left to conflict with.
+
+### Text fallback
+- Typed answers go through the identical judge (thresholds, stuffing cap, question detection), and the summary doesn't label modality.
+- Every term opens on voice again, even after typing on the previous one, to protect the experiment.
+- With the keyboard up, the question collapses to one line (tap to expand). Skip is reached by dismissing the keyboard (two taps).
+
+### Mic permission and the toggle
+- The primer fires when the Voice recall toggle turns on, as one bottomSheet that does both jobs: it explains active recall and asks for the mic. It has "Turn on mic" (triggers OS prompt) and "Not now". It replaces the kickoff's separate first-run screen.
+- "Don't Allow" snaps the toggle back off. Turning it on again later shows the primer with Settings steps and an "I've turned on the mic" re-check, since iOS won't show its prompt twice.
+- If permission is lost later, each term's mic tap shows a "Turn on mic in Settings" sheet with Type instead (primary) and Skip (secondary). There's no Open Settings button, because a web app can't deep-link there.
+- The toggle is locked while inside a voice node and unlocks on exit. Since the toggle isn't reachable from inside the loop and sessions restart on leave (below), this is effectively no lock.
+
+### Session and after
+- **Always 4 terms**, so progressIndicator's 0/25/50/75/100 snaps map exactly. Kickoff's 3–5 range narrowed.
+- **Leaving restarts the session**, with no confirmation on X. This reverses the kickoff's "progress saves, returning resumes", accepted because a 4-term session is short. Turning the toggle off discards nothing extra, since nothing is saved.
+- **Summary counts:** "explained unaided" = Pass in any modality; Partial and Fail are separate; Skip is separate. No confidence rating. Honest counts only. This leaves the brief's "overconfidence must cost / underconfidence rewarded" requirement unmet, as a known gap.
+- **Summary actions:** Continue (primary) and Try again (secondary), which reruns only non-pass terms with no top-up (progress uses the nearest snap). A caption says it plainly: "Try the 2 you missed now, or review them later." Try again counts as a term's second and final round.
+- **After:** the node completes whatever the result. Non-pass terms queue for a review node later in the path, topped up to 4 with previously passed terms. A term leaves the system after its second round, pass or fail. The student learns about the queue from a summary line only; the path shows the review node when it's due. Scheduling is mocked.
+
+### Cut or open from this interview
+- XP: out of scope this sprint (brief open question 2 stays open).
+- Accessibility of the live parts (VoiceOver announcing streaming transcript, reduced motion for the waveform and auto-follow scroll): out of scope, known gap.
+- Hints and Say it back: cut.
+
 ## Not building
 - Auto-endpointing or continuous listening
 - Tutoring or open conversation branch if the student asks Knowie something
-- Real speech-to-text or real judging (mocked)
+- A custom speech-to-text engine or real judging (the browser's built-in recognizer is used for transcripts; judging is a mocked keyword judge)
+- Hints or a hint ladder, and Say it back
+- Resume mid-session (leaving restarts)
+- XP (this sprint)
+- A confidence rating before or after answering
+- VoiceOver and reduced-motion handling for the live transcript and waveform (this sprint)
 - Thumbs up/down feedback on the verdict (this sprint)
 - A chat input ("How can I help?") on the Why? explanation sheet
-- The "Got it" action on the Why? explanation sheet (this sprint)
 
 ## Leftover from setup (not yet cleaned up)
 - `app/page.tsx` is still the unedited create-next-app scaffold

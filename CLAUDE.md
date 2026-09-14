@@ -10,10 +10,10 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - Voice in, text out. Knowie never speaks.
 - Push-to-talk with explicit send. No auto-endpointing.
 - Every required action has a way out (skip, text fallback, or cancel/re-record).
-- Text fallback reachable in one tap on every voice turn.
+- Text fallback reachable in one tap on every idle voice turn. While recording it's hidden; cancel returns to idle in one tap.
 - Verdict is pass / partial / fail, never binary.
 - Transcript is always shown back to the student.
-- The recall engine (STT + judging) is mocked, not real.
+- Judging is mocked (an on-device keyword judge). Transcripts come from the browser's built-in recognizer (`webkitSpeechRecognition`); no custom STT engine.
 - Any color, size, weight, or line height comes from `tokens/tokens.json`. Never invent one.
 - Component usage, states, and naming follow `design-system.md` exactly.
 - Build from the components that already exist, and stop before making a new one. Only add a new component if `design-system.md` has no existing match for the need.
@@ -23,7 +23,7 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 
 - Never add auto-endpointing or continuous listening.
 - Never branch a recall answer into tutoring/open conversation.
-- Never build real speech-to-text or real judging.
+- Never build a custom speech-to-text engine or real (model-based) judging. The browser's built-in recognizer is the only STT allowed.
 - Never trap the student with no way forward.
 - Never touch `AGENTS.md` or remove the block inside it.
 
@@ -37,6 +37,7 @@ When working on UI, use the storybook tools to read the component library before
 - `Design Brief.md` — the feature brief: problem, bet, hard constraints, what's open vs. fixed. Read before any product/UX decision.
 - `Voice-ux.md` — voice-UX principles and the states-to-design checklist. Read before designing the recall loop or any voice screen.
 - `sprint-context.md` — committed decisions log for this sprint. Read before changing exam-plan/toggle/node behavior.
+- `voice-recall-interview-2026-09-14.csv` — every question, option and answer from the recall-loop design interview, with which answers were later changed. `sprint-context.md` holds the resulting decisions.
 - `design-system.md` — component rules: which component to use, its states, and naming conventions. Read before building or editing any UI component.
 - `tokens/tokens.json` — all actual color/size/weight/line-height values. Read when a token name is needed.
 - `tokens/style-dictionary.config.mjs` — Style Dictionary config; turns `tokens/tokens.json` into `build/css/tokens.css`. Read only when changing how tokens build.
