@@ -1,0 +1,38 @@
+/* Screen's middleContent is a plain flex column with no centering of its
+   own; this is the only content on an otherwise empty screen, so it's
+   centered both ways rather than left-aligned at the top. */
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Title stepped down by explicit request (2026-09-15, second review pass):
+   28px Bold/28 (headline/M), not textBlock's own L-variant title
+   (headline/XL, 44px Bold/44). Same change made to GateScreen's title. */
+.content .textBlock[data-variant='L'] p:first-child {
+  font: var(--font-greed-headline-m);
+}
+
+/* Local override (2026-09-15 review), out-ranking textBlock's own
+   `[data-variant='L']` gap rule by adding an ancestor class, the same
+   attribute-qualified pattern ResultBtm's .skipButton and AppBar use.
+   size.space.300 (12px) replaces the component's own 4px gap between title
+   and caption for this screen only — TextBlock isn't sitting next to a
+   mascot here, so its usual tight spacing reads cramped. */
+.content .textBlock[data-variant='L'] {
+  gap: var(--size-space-300);
+}
+
+/* 150% line height on the caption, by explicit instruction. No line-height
+   token equals 150% of Headline XS Regular's 18px (27px; the nearest real
+   token is line-height/lg at 28px), so this is a literal ratio rather than
+   a token substitution — recorded here since it doesn't come from
+   tokens.json. Only the caption, not the title: the title is a short bold
+   heading where the component's own tighter line-height still reads fine. */
+.content .textBlock[data-variant='L'] p:last-child {
+  line-height: 1.5;
+}

@@ -87,6 +87,15 @@
   color: var(--color-text-primary);
 }
 
+/* Secondary/L's own master was repointed to interactive/secondary directly
+   in Figma (2026-09-15, on screen 6's review) — the fix every screen using
+   this size had been working around locally (ResultBtm's SECONDARY_COLOR,
+   screen 5's and screen 6's own local overrides) is now the real default.
+   S and M's masters are untouched, still background/surface. */
+.button[data-variant='Secondary'][data-size='L'] {
+  background: var(--color-interactive-secondary);
+}
+
 .button[data-variant='Secondary']:active {
   box-shadow:
     inset 0 0 0 9999px var(--color-background-stacking),

@@ -1,0 +1,92 @@
+/* Screen's middleContent is a plain flex column with no centering of its
+   own; this is the only content on an otherwise empty screen, so it's
+   centered both ways rather than left-aligned at the top. */
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Title stepped down again by explicit request (2026-09-15): 28px Bold/28
+   (headline/M), not headline/L's 33/36 (itself a step down from textBlock's
+   own L-variant title, headline/XL's 44px Bold/44). */
+.content .textBlock[data-variant='L'] p:first-child {
+  font: var(--font-greed-headline-m);
+}
+
+/* Caption: 15px Regular/20 (body/S regular), not textBlock's own L-variant
+   caption (headline/XS regular, 18px/20). */
+.content .textBlock[data-variant='L'] p:last-child {
+  font: var(--font-greed-body-s-regular);
+}
+
+/* 16px (space.400), not the component's own 4px (space.100) — the gate
+   frame's real itemSpacing between title and body. Also `align-items:
+   center`, not textBlock's own `flex-start`: the caption wraps to 3 lines
+   and claims the full width, but the shorter title doesn't wrap, so it
+   shrinks to its own text width and — left-aligned by textBlock's default —
+   sits flush against the left edge instead of centered under the caption.
+   `.content`'s own `text-align: center` only centers text within a box;
+   this centers the (narrower) title box itself within textBlock's width. */
+.content .textBlock[data-variant='L'] {
+  align-items: center;
+  gap: var(--size-space-400);
+}
+
+/* Screen's own bottomContent already pads 16px (space.400, its real master
+   value — checked against the master `scaffold` component, 4794:5828, not
+   just this instance). The gate frame overrides that to 28px (space.700) in
+   this one placed instance, so the extra 12px (space.300) is added here
+   rather than changed on Screen itself, which every other bottomContent
+   usage still needs at 16px. */
+.bottomContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: var(--size-space-300);
+  box-sizing: border-box;
+}
+
+/* The mascot peeks above the button stack in Figma, tucked about 41px
+   behind its top edge — a hand-placed, off-grid overlap, not a multiple of
+   any spacing step. The nearest negative-margin token, space.negative.600
+   (-24px), stands in; the visible ~2/3-mascot-above-the-buttons effect is
+   what matters, not the exact 41px. Both boxes stay in normal flow — the
+   negative margin alone pulls `.buttons` up over it, and being later in DOM
+   order, `.buttons` paints on top with no extra positioning needed. */
+.mascot {
+  margin-bottom: var(--size-space-negative-600);
+}
+
+.buttons {
+  width: 100%;
+}
+
+/* 12px (space.300), not ButtonGroup's own real Vertical+L default (space.200,
+   8px, checked against the master buttonGroup component, 4893:5348) — this
+   instance's own hand-adjusted gap, from the 2026-09-15 review pass. */
+.buttons div[data-variant='Vertical'][data-size='L'] {
+  gap: var(--size-space-300);
+}
+
+/* `BottomSheet`'s `.bottomSection` centers its children on the cross axis
+   (`align-items: center`), so without an explicit width this wrapper (and
+   the buttons inside it) shrinks to content instead of filling the sheet —
+   the fill-width bug you caught, fixed the same way `.buttons` above
+   already avoids it. */
+.sheetButtons {
+  width: 100%;
+}
+
+/* Same kind of hand-adjusted gap, this time on the permission sheet's own
+   buttonGroup: 16px (space.400), not the master's 8px. A different value
+   from `.buttons` above because it's a different placed instance. The extra
+   `div` type selector (over just the attributes) out-specifies buttonGroup's
+   own same-specificity rule regardless of module import/bundling order. */
+.sheetButtons div[data-variant='Vertical'][data-size='L'] {
+  gap: var(--size-space-400);
+}

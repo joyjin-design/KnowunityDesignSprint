@@ -63,26 +63,36 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 ### 4. Typing placeholder
 
-The typing turn is out of scope this sprint. Reached from **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet).
+✅ Built 2026-09-15 as `TypingPlaceholderScreen` (`app/screens/TypingPlaceholderScreen.tsx`, Storybook `Screens/TypingPlaceholderScreen`). No Figma frame. The typing turn is out of scope this sprint. Reached from **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet).
 
-- **Content:** says typing isn't part of this prototype.
-- **What the student can do:** **Skip** → next question; **Back to voice** → idle for the same question.
-- **Components:** `TextBlock`, `ButtonGroup` (`variant="Horizontal"`, `size="L"`) of a Secondary `ButtonIcon` (Skip) and a `Button` (Back to voice). Final layout and copy are Open.
+- **Content:** title "Typing isn't part of this prototype", caption "This build is voice only. Go back to the exam plan to try again by voice." (`TextBlock`, `variant="L"`).
+- **What the student can do:** **Back to voice** → leaves the session for the exam plan (01Exam). This resolves Open #6 for this screen's own button: no Skip (removed 2026-09-15), so Back to voice is the only, and therefore sole, way out.
+- **Components:** `Screen`, `TextBlock` (`variant="L"`), `Button` (`variant="Primary"`, `size="L"`) alone in `bottomContent` — no `ButtonGroup`, since there's only one action.
+- **Spacing/type (2026-09-15 review):** `size.space.300` (12px) between title and caption, overriding `textBlock`'s own 4px gap at `variant="L"` (local override, `TextBlock` isn't next to a mascot here). Caption line height is 150% (`line-height: 1.5`), a literal ratio, not a token — no line-height token equals 150% of Headline XS Regular's 18px.
 
 ### 5. Mic-off sheet
 
-Shown when the student taps **Start** but mic permission has since been revoked.
+✅ Built 2026-09-15 as `MicOffScreen` (`app/screens/MicOffScreen.tsx`, Storybook `Screens/MicOffScreen`). No Figma frame at build time; a reference mockup was added afterward ("Permission ask (invented — no system equivalent)", Figma 13666:3837) and the build was revised to match it. Shown when the student taps **Start** but mic permission has since been revoked.
 
-- **Components:** `BottomSheet` (with `aria-label`) + `BottomSheetAppBar` (`variant="Default"`), `TextBlock` with Settings instructions in `middleSection`, and `ButtonGroup` (Horizontal, L) of `ButtonIcon` Skip + `Button` Primary "Type instead" in `bottomSection`.
+- **Behind the sheet:** the loop's Idle look (mascot, question bubble, disclaimer, `TranscriptDisplay` Empty), reconstructed inline since screen 10 isn't built yet — the tap never reaches Recording. Dimmed (`showBottomSheetBackground`), per the general sheet rule; the verdict sheet (screen 1) is the one documented exception, not this one.
+- **Components:** `BottomSheet` (with `aria-label`) + `BottomSheetAppBar` (`variant="withTitle"`, title "Your mic is off", caption "Open Settings, find Voice recall, then turn on Microphone.") — not a separate `TextBlock` in `middleSection`, which is unused. `ButtonGroup` (Horizontal, L) of `ButtonIcon` Skip + `Button` Primary "Type instead" in `bottomSection`.
+- **Settings copy is still a placeholder**, pending Open #2 (blocked on the Verification-step-0 spike).
 - **What the student can do:** **Type instead** → typing placeholder; **Skip** → next question. There's no Open Settings button (a web app can't link there).
+- **Component fixes made building this screen (apply to every `BottomSheet`/`BottomSheetAppBar` usage):**
+  - `ButtonIcon` Secondary's real fill (`background/surface`) matched the sheet's own background, making the Skip button invisible — fixed with the same local `.skipButton` override `ResultBtm` already uses (`interactive/secondary` + `interactive/onSecondary`), applied per-screen, not to `ButtonIcon` itself.
+  - `BottomSheetAppBar`'s `withTitle` inline padding: `space.600` (24px), not the real master's own bound 16px.
+  - `BottomSheet`'s `bottomSection` padding: `space.700` (28px) on every side, not the real master's own bound 16px — reconciles it with `ResultBtm`'s own `.bottomCta`, which already used this padding.
+  - `BottomSheetAppBar`'s title/caption are left-aligned, not centered, confirmed against the reference mockup — applies to every variant that shows text.
 
 ### 6. Gate (mic primer)
 
-Figma, both in the first-run section: **13575:1934** ("04bfull-screen gate (built)"), the gate on its own, and **13555:8294** ("04afull-screen gate (built)"), the same gate with its "Allow microphone access?" sheet open. The sheet is back in the build (decided 2026-09-15, reversing the earlier drop).
+✅ Built 2026-09-15 as `GateScreen` (`app/screens/GateScreen.tsx`, Storybook `Screens/GateScreen`). Figma, both in the first-run section: **13575:1934** ("04bfull-screen gate (built)"), the gate on its own, and **13555:8294** ("04afull-screen gate (built)"), the same gate with its "Allow microphone access?" sheet open. The sheet is back in the build (decided 2026-09-15, reversing the earlier drop). The third state, after an earlier denial, has no frame.
 
 - **Content:** headline "Say it, don't just tap it"; body "Tap Start and explain it out loud, in your own words. Tap Stop when you're done. Knowie's listening for what you know, not perfect grammar."; mascot; two buttons.
-- **Components:** `Screen`, `TextBlock`, `MascotSlot` (`size="2XL"` in both states, as both frames now have it), and `ButtonGroup` (`variant="Vertical"`, as in Figma) of `Button` Primary **Turn on microphone** + `Button` Secondary **Can't talk right now**.
-- **Permission sheet:** `BottomSheet` in `bottomSheetOnly`, with `BottomSheetAppBar` showing the title "Allow microphone access?" and caption "Knowie needs this to hear you explain answers out loud." (Figma's instance still uses the old `Type=Default` axis; confirm the variant in Storybook when building), and `ButtonGroup` (`variant="Vertical"`, `size="L"`) of `Button` Primary **Allow** + `Button` Secondary **Don't allow**. Known: `Button` Secondary is hard to see on a sheet's `background/surface` (logged 2026-09-11).
+- **Components:** `Screen`, `TextBlock` (`variant="L"`; title/caption fonts, their gap, and centering are all local overrides — see below), `MascotSlot` (`size="2XL"`, `expression="approving"` in both states), and `ButtonGroup` (`variant="Vertical"`, `size="L"`) of `Button` Primary **Turn on microphone** + `Button` Secondary **Can't talk right now**.
+- **Permission sheet:** `BottomSheet` in `bottomSheetOnly`, with `BottomSheetAppBar` (`variant="withTitle"`) showing the title "Allow microphone access?" and caption "Knowie needs this to hear you explain answers out loud.", and `ButtonGroup` (`variant="Vertical"`, `size="L"`) of `Button` Primary **Allow** + `Button` Secondary **Don't allow**.
+- **Dimmed** (`showBottomSheetBackground`) while the sheet is open — the general sheet rule; the verdict sheet (screen 1) is the one documented exception, not this one. Figma's own "sheet open" frame has the dim off and its scrim hidden, possibly an authoring gap rather than a deliberate choice — flagged, not resolved.
+- **After an earlier denial:** the body copy swaps to Settings steps (reusing the mic-off sheet's own placeholder copy, "Open Settings, find Voice recall, then turn on Microphone." — pending Open #2), and the primary button becomes **I've turned on the mic**.
 
 | State | What the student can do |
 | --- | --- |
@@ -91,8 +101,12 @@ Figma, both in the first-run section: **13575:1934** ("04bfull-screen gate (buil
 | After an earlier denial | Settings steps replace the body copy. **I've turned on the mic** → checks permission; if granted → loop. **Can't talk right now** → 01Exam |
 
 - The sheet appears only after **Turn on microphone**, so the gate's own buttons, including **Can't talk right now**, stay reachable. Accepted: a student who allows is asked twice in a row, by the sheet and then by iOS.
-
-- The body copy says "Tap Stop"; the recording button now reads "Send". See Open.
+- **Component fixes made building and reviewing this screen:**
+  - `Button` Secondary/L's own master is now bound to `interactive/secondary`, not `background/surface` — fixed at the source in Figma (2026-09-15), so `Button.module.css` now defaults Secondary+L to it too. Size S/M's masters are untouched, still `background/surface`.
+  - Title font: 44px Bold/44 (`textBlock`'s own default) → 33px Bold/36 → **28px Bold/28** (`font-greed-headline-m`, final). Caption: 18px Regular/24 → 15px Regular/20 (`font-greed-body-s-regular`, an exact token match).
+  - Both button groups' own gaps are hand-adjusted per placed instance, not their master's real 8px default: the gate's own is 12px, the sheet's is 16px.
+  - The sheet's buttons now fill its width (a scoping wrapper was shrinking instead of stretching) and the title is centered, not flush-left (`textBlock`'s own `align-items: flex-start` left-aligns short, non-wrapping text even under an ancestor's `text-align: center`).
+- The body copy says "Tap Stop"; the recording button now reads "Send". See Open #7 (unresolved).
 
 ### 7. Why? explanation sheet
 
@@ -253,10 +267,10 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 
 **Flow**
 
-3. Whether 00Homescreen is a static image like the exam plan (it's mostly hand-drawn frames in Figma).
+3. ✅ Resolved: 00Homescreen is a static image like the rest of the exam plan, with its own tap zones (built 2026-09-15 as part of screen 3; decided in sprint-context.md 2026-09-14).
 4. When the gate shows: only the first time a node opens, or every time mic permission isn't granted (and then when the mic-off sheet shows instead).
 5. What happens when **I've turned on the mic** finds the mic still off.
-6. Whether **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet) should go back to 01Exam like **Can't talk right now**, instead of the typing placeholder. The placeholder's layout and copy, if kept.
+6. Whether **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet) should skip straight to 01Exam like **Can't talk right now**, instead of routing through the typing placeholder first. Screen 4's own layout and copy are settled (2026-09-15); this item is now only about whether that screen is reached at all, since its one button already leaves for 01Exam either way.
 7. The gate's body copy says "Tap Stop when you're done", but the recording button now says "Send".
 
 **Screens**

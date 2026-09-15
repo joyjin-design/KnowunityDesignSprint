@@ -51,6 +51,16 @@
   align-items: center;
   gap: var(--size-space-600);
   box-sizing: border-box;
-  padding: var(--size-space-400);
+  /* space.700 on all sides, not the real component's own bound space.400 —
+     reconciled with ResultBtm's own .bottomCta, which already uses this
+     exact padding for the same kind of action row (sheet CTAs), and
+     matches the mic-off sheet reference mockup's widened inline padding
+     ("Permission ask (invented — no system equivalent)", 13666:3837,
+     2026-09-15). Nothing else placed real buttons in this slot before. */
+  padding: var(--size-space-700);
+  /* The larger of space.700 and the safe-area inset, so buttons clear the
+     home indicator on the phone — the same rule ResultBtm's action row
+     already follows (sprint-context.md, 2026-09-15). */
+  padding-bottom: max(var(--size-space-700), env(safe-area-inset-bottom));
   flex-shrink: 0;
 }

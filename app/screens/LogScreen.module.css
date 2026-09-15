@@ -1,0 +1,211 @@
+/* Not composed inside Screen (no mascot, no appBar): a plain 390px dark
+   page for the facilitator. iOS's own status bar draws over the top of a
+   full-bleed home-screen app, so this pads the safe-area insets itself,
+   the same way Screen does for every other route. */
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  background: var(--color-background-page);
+  padding-top: env(safe-area-inset-top);
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--size-space-600);
+  padding: var(--size-space-600) var(--size-space-400);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-100);
+}
+
+.title {
+  margin: 0;
+  font: var(--font-greed-headline-l);
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-secondary);
+}
+
+.saveWarning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-100);
+  padding: var(--size-space-300);
+  border-radius: var(--size-radius-400);
+  background: var(--color-feedback-error-subtle);
+}
+
+.saveWarningTitle {
+  margin: 0;
+  font: var(--font-greed-body-s-bold);
+  color: var(--color-feedback-error-on-subtle);
+}
+
+.saveWarningDetail {
+  margin: 0;
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-feedback-error-on-subtle);
+}
+
+.latencyRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+}
+
+.latencyLabel {
+  font: var(--font-greed-body-s-bold);
+  color: var(--color-text-primary);
+}
+
+/* A 3-way segmented switch: no `chips`/`toggle` component covers this
+   (design-system.md has no toggle or segmented control), built inline per
+   the build-screen skill's step 5 — logged in component-gaps.md. */
+.latencyOptions {
+  display: flex;
+  gap: var(--size-space-100);
+}
+
+.latencyOption {
+  flex: 1 1 auto;
+  min-height: var(--size-space-1200);
+  padding-inline: var(--size-space-200);
+  border: none;
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+  color: var(--color-text-secondary);
+  font: var(--font-greed-caption-m-bold);
+  text-align: center;
+}
+
+.latencyOption[data-selected] {
+  background: var(--color-accent-blue-subtle);
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.empty {
+  margin: 0;
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-tertiary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-300);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sessionDivider {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--size-space-200);
+  padding-top: var(--size-space-200);
+  border-top: var(--size-stroke-border) solid var(--color-border-default);
+  font: var(--font-greed-caption-m-bold);
+  color: var(--color-text-tertiary);
+}
+
+.turnCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  padding: var(--size-space-300);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+}
+
+.turnHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--size-space-200);
+}
+
+.turnMeta {
+  min-width: 0;
+  font: var(--font-greed-caption-m-bold);
+  color: var(--color-text-secondary);
+}
+
+.outcome {
+  flex-shrink: 0;
+  font: var(--font-greed-body-s-bold);
+  color: var(--color-text-primary);
+}
+
+.outcome[data-tone='success'] {
+  color: var(--color-text-success);
+}
+
+.outcome[data-tone='partial'] {
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.outcome[data-tone='error'] {
+  color: var(--color-text-error);
+}
+
+.outcome[data-tone='neutral'] {
+  color: var(--color-text-secondary);
+}
+
+.transcript {
+  margin: 0;
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-primary);
+}
+
+.meta {
+  margin: 0;
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-text-secondary);
+}
+
+/* text/tertiary reads 4.34:1 on background/surface (below 4.5:1) — the same
+   gap sprint-context.md's 2026-09-11 contrast audit already found on
+   transcriptDisplay. text/secondary is used here instead, since this card
+   sits on background/surface, not background/page. */
+.turnFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--size-space-200);
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-text-secondary);
+}
+
+/* Not a sheet, so no `bottomSheetOnly` slot to render it in, but the same
+   home-indicator rule applies: the taller of space.700 and the safe-area
+   inset, so the buttons end clear of the inset on the phone
+   (sprint-context.md, 2026-09-15, screen 1). */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-300);
+  position: sticky;
+  bottom: 0;
+  padding: var(--size-space-400);
+  padding-bottom: max(var(--size-space-700), env(safe-area-inset-bottom));
+  background: var(--color-background-page);
+  border-top: var(--size-stroke-border) solid var(--color-border-default);
+}
+
+.confirmText {
+  margin: 0;
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-primary);
+  text-align: center;
+}

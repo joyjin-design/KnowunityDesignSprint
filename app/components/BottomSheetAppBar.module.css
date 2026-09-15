@@ -36,9 +36,14 @@
   padding-inline: var(--size-space-300);
 }
 
+/* 24px (space.600), not the real component's own bound 16px (space.400) —
+   widened to match the mic-off sheet reference mockup ("Permission ask
+   (invented — no system equivalent)", 13666:3837, 2026-09-15), the first
+   real placed usage of this variant. Nothing else uses withTitle yet, so
+   this changes the component's default rather than a local override. */
 .topNav[data-variant='withTitle'] {
   gap: var(--size-space-100);
-  padding-inline: var(--size-space-400);
+  padding-inline: var(--size-space-600);
 }
 
 .topNav[data-variant='dismissOnly'] {
@@ -52,10 +57,14 @@
   padding-inline: var(--size-space-100);
 }
 
+/* Left-aligned, not centered — confirmed against the mic-off sheet
+   reference mockup ("Permission ask (invented — no system equivalent)",
+   13666:3837, 2026-09-15): its title/caption both sit flush to the left
+   edge of the text section rather than centered in it. */
 .textSection {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: var(--size-space-0);
   flex: 1 1 auto;
@@ -67,7 +76,7 @@
   max-width: 100%;
   font: var(--font-greed-body-m-bold);
   color: var(--color-text-primary);
-  text-align: center;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -77,7 +86,7 @@
   max-width: 100%;
   font: var(--font-greed-caption-m-regular);
   color: var(--color-text-secondary);
-  text-align: center;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

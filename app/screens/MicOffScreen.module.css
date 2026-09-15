@@ -1,0 +1,106 @@
+/* Same values as VerdictScreen's .content — duplicated, not shared, per
+   this screen's decision notes (the mascot/bubble pattern stays inline per
+   screen, matching SPEC.md screen 10's own instruction). No measured
+   padding-bottom here: Idle's TranscriptDisplay Empty is a fixed one-line
+   state, so this content block is always short and sits at the top, well
+   clear of the sheet at the bottom — unlike the verdict sheet's long
+   Overflow transcripts, there's nothing here that could grow into it. */
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: var(--size-space-400);
+}
+
+.knowie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  flex-shrink: 0;
+}
+
+.questionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+}
+
+.mascot {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mascotShadow {
+  position: absolute;
+  bottom: var(--size-space-050);
+  left: 0;
+  width: 100%;
+  height: var(--size-space-300);
+  border-radius: 50%;
+  background: var(--color-background-stacking);
+}
+
+.mascotArt {
+  position: relative;
+}
+
+.bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: var(--size-space-400);
+  padding: var(--size-space-400);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+}
+
+.bubbleTail {
+  position: absolute;
+  right: 100%;
+  bottom: var(--size-space-400);
+  width: var(--size-space-400);
+  height: var(--size-space-400);
+  background: var(--color-background-surface);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.bubbleText {
+  margin: 0;
+  font: var(--font-greed-body-m-regular);
+  color: var(--color-text-primary);
+}
+
+.xpChip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-100);
+  font: var(--font-greed-headline-xs-bold);
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.xpIcon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+/* Secondary's real fill (background/surface) is the same colour as the
+   sheet it sits on, which makes the Skip button read as invisible — the
+   same known gap already fixed once on ResultBtm's own Skip button
+   (sprint-context.md, 2026-09-11: "button Secondary is unusable on any
+   background/surface surface, which is every sheet in the system"). Same
+   fix, copied: the root stays transparent (a plain `style` override would
+   tint the 56×56 tap target instead of the circle) and the tint goes on
+   the inner circle `<span>`, out-specifying ButtonIcon's own
+   `.button[data-variant='Secondary'] .circle` rule via the
+   [data-variant][data-size] qualifiers. */
+.skipButton {
+  background: none;
+}
+
+.skipButton[data-variant='Secondary'][data-size='L'] > span {
+  background: var(--color-interactive-secondary);
+  color: var(--color-interactive-on-secondary);
+}

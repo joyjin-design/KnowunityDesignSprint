@@ -8,7 +8,7 @@ Scope: Mobile iOS, dark mode only, per the platform constraints doc. Rules below
 
 ## Which component to reach for
 
-**button** — the single primary CTA on a screen. Pair it with a secondary `buttonIcon` when a screen needs both a primary and a secondary action, and wrap the pair in `buttonGroup` (Horizontal) rather than placing them as loose siblings.
+**button** — the single primary CTA on a screen. Pair it with a secondary `buttonIcon` when a screen needs both a primary and a secondary action, and wrap the pair in `buttonGroup` (Horizontal) rather than placing them as loose siblings. Secondary's fill is size-dependent: at size L it's bound to `interactive/secondary` (fixed at the master, 2026-09-15, after size L kept turning up invisible against a sheet's own `background/surface` — screen 5's Skip button, `resultBtm`'s own Secondary actions, screen 6's gate). Sizes S and M are still bound to `background/surface`, unfixed — don't assume the L fix carries to them without checking the master first.
 
 **buttonIcon** — the secondary action next to a primary button. Set its icon by editing the nested `iconSlot` instance, not the buttonIcon layer itself.
 
