@@ -38,8 +38,11 @@ yarn-error.log*
 # vercel
 .vercel
 
-# claude code local skill cache
-.claude/
+# claude code local skill cache (except the project's own build-screen skill)
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/build-screen/
 
 # typescript
 *.tsbuildinfo

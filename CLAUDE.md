@@ -41,6 +41,7 @@ When working on UI, use the storybook tools to read the component library before
 - `sprint-context.md` — committed decisions log for this sprint. Read before changing exam-plan/toggle/node behavior.
 - `voice-recall-interview-2026-09-14.csv` — every question, option and answer from the recall-loop design interview, with which answers were later changed. `sprint-context.md` holds the resulting decisions.
 - `design-system.md` — component rules: which component to use, its states, and naming conventions. Read before building or editing any UI component.
+- `component-gaps.md` — running list of things built inline during a screen build because Storybook had no component for them. Read before building a new screen.
 - `tokens/tokens.json` — all actual color/size/weight/line-height values. Read when a token name is needed.
 - `tokens/style-dictionary.config.mjs` — Style Dictionary config; turns `tokens/tokens.json` into `build/css/tokens.css`. Read only when changing how tokens build.
 - `build/css/tokens.css` — generated CSS variables, imported by `app/globals.css`. Never edit it by hand; edit `tokens/tokens.json` and run `npm run tokens` instead.
