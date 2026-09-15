@@ -1,0 +1,148 @@
+/* Matches the real Figma frame's own middleContent exactly (node 7366:69693:
+   padding space/200 top/bottom, space/400 left/right, which Screen's own
+   .middleContent already supplies) — no extra margin needed, unlike
+   VerdictScreen's. itemSpacing/64 (space/1600) between the Knowie group and
+   the stat row; content stays top-aligned (Figma's primaryAxisAlignItems
+   MIN), leaving the open space below down to the buttons. */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-1600);
+  width: 100%;
+}
+
+.knowie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-200);
+}
+
+.mascot {
+  position: relative;
+}
+
+/* Same shadow treatment as every other screen's mascot (VerdictScreen,
+   WhyScreen, MicOffScreen), scaled to this mascot's own footprint rather
+   than transcribing Figma's one-off 142×25 ellipse — kept consistent with
+   the rest of this codebase's already-established shadow pattern. */
+.mascotShadow {
+  position: absolute;
+  bottom: var(--size-space-050);
+  left: 0;
+  width: 100%;
+  height: var(--size-space-300);
+  border-radius: 50%;
+  background: var(--color-background-stacking);
+}
+
+.mascotArt {
+  position: relative;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-200);
+  text-align: center;
+}
+
+/* Figma's own headline uses an off-system condensed display face ("Greed
+   VF-TRIAL" Condensed Heavy) — the same untokened family already flagged on
+   ResultBtm's Error title. Size (44) and weight (heavy) both match real
+   primitives exactly; line-height (48) doesn't match any --font-line-height
+   token (nearest are 44 and 60), so it's a literal value, same treatment as
+   TypingPlaceholderScreen's own 150% caption line-height. Letter-spacing
+   (-1%) is skipped — no letter-spacing group in tokens.json, same as every
+   other screen. */
+.headline {
+  margin: 0;
+  font: var(--font-weight-heavy) var(--font-size-3xl) / 48px var(--font-family-display);
+  color: var(--color-text-primary);
+}
+
+/* Exact match: --font-greed-headline-s is bold/21/24, the real measured
+   style (fontSize 21, "Bold", lineHeight 24). */
+.subhead {
+  margin: 0;
+  font: var(--font-greed-headline-s);
+  color: var(--color-text-secondary);
+}
+
+/* Figma's own row is 3 fixed-width (108px) cards that happen to sum to the
+   established 358px content width; dropping the third (Blazing/streak — see
+   the build report) leaves a gap on a fixed-width row, so these two split
+   the row evenly instead. */
+.stats {
+  display: flex;
+  gap: var(--size-space-600);
+  width: 100%;
+}
+
+.chip {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--size-radius-400);
+}
+
+.chip[data-tone='xp'] {
+  background: var(--color-accent-blue-bold);
+}
+
+.chip[data-tone='score'] {
+  background: var(--color-feedback-success-bold);
+}
+
+/* Exact match: --font-greed-body-s-bold is semibold/15/20, the real measured
+   label style. Letter-spacing (+1%) skipped, same reasoning as .headline. */
+.chipLabel {
+  padding-inline: var(--size-space-200);
+  font: var(--font-greed-body-s-bold);
+}
+
+.chip[data-tone='xp'] .chipLabel {
+  color: var(--color-accent-blue-on-bold);
+}
+
+.chip[data-tone='score'] .chipLabel {
+  color: var(--color-feedback-success-on-bold);
+}
+
+/* The dark inset box sitting inside the coloured card, flush to its bottom
+   and sides — same radius as the card itself, so only the label strip above
+   shows the coloured fill. */
+.chipValue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-space-150);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--size-space-300);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-page);
+  /* Figma's own value text is another off-system condensed face at 24px, no
+     matching --font-size token (nearest are 21 and 28) — the same kind of
+     gap as .headline. Weight (heavy) and line-height (20, --font-line-height-sm)
+     both match real tokens. */
+  font: var(--font-weight-heavy) 24px / var(--font-line-height-sm) var(--font-family-display);
+}
+
+.chip[data-tone='xp'] .chipValue {
+  color: var(--color-accent-blue-bold);
+}
+
+.chip[data-tone='score'] .chipValue {
+  color: var(--color-feedback-success-bold);
+}
+
+.chipIcon {
+  display: inline-flex;
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}

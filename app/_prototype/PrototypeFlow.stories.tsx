@@ -14,10 +14,13 @@ const DESCRIPTION = `
 | Gate | Turn on microphone / Don't allow | opens / closes the permission sheet |
 | Gate sheet | Allow | the real iOS prompt: allowed → the loop; Don't Allow → 01Exam, and the node's gate then shows Settings steps |
 | Gate, after a denial | I've turned on the mic | asks again: allowed → the loop; still off → stays, with a "Still off" notice |
+| Verdict | Why? (Pass, Partial, Fail only) | the Why? sheet, same question and transcript. Got it → the loop (not built) |
 
 **The loop (screen 10) isn't built**, so everything that leads to it stops at a temporary "Not built yet" screen (\`NotBuiltScreen\`) with a way back to 03VoicerecallON. Mic permission is remembered in memory only, so a reload starts over; iOS answers straight away if it already has.
 
-**Review links** open one screen directly: \`/?screen=gate\`, \`gate-sheet\`, \`gate-denied\`, \`mic-off\`, \`typing\`, \`verdict-pass\`, \`verdict-partial\`, \`verdict-fail\`, \`verdict-silence\`. They don't write to the turn log. The mic prompt needs HTTPS (or localhost): off it, Allow acts like Don't Allow and logs a console warning.
+**Review links** open one screen directly: \`/?screen=gate\`, \`gate-sheet\`, \`gate-denied\`, \`mic-off\`, \`typing\`, \`verdict-pass\`, \`verdict-partial\`, \`verdict-fail\`, \`verdict-silence\`, \`why-pass\`, \`why-partial\`, \`why-fail\`, \`summary-some-non-pass\`, \`summary-all-pass\`, \`summary-after-try-again\`. They don't write to the turn log. The mic prompt needs HTTPS (or localhost): off it, Allow acts like Don't Allow and logs a console warning.
+
+**The summary (screen 8) isn't reachable from the flow yet**, only by review link: nothing in this mock tracks which question a session is on, so Verdict's and Why's own Continue/Got it always return to the loop's "Not built yet" stop, never to the summary. Once reached, its own Share and Claim XP are decorative this sprint (your instruction, 2026-09-15) — Close is the only way out, back to the exam plan.
 `;
 
 const granted = () => fn<() => Promise<MicRequestResult>>(async () => 'granted');
@@ -173,13 +176,51 @@ export const ReviewLinkMicOff: Story = {
   },
 };
 
-/** `/?screen=verdict-partial`: Why? isn't built yet, so it stops at Not built yet. */
+/** `/?screen=verdict-partial`: Why? opens the Why? sheet with the same question and transcript; Got it moves on to the loop (not built). */
 export const ReviewLinkVerdict: Story = {
   name: '?screen=verdict-partial',
   args: { initialView: reviewScreen('verdict-partial').view },
-  play: async ({ canvas }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByText("They're the powerhouse of the cell.")).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Why?' }));
-    await expect(canvas.getByText("The Why? sheet isn't in this prototype yet.")).toBeVisible();
+    await expect(canvas.getByText(/They're the powerhouse of the cell\./)).toBeVisible();
+    await expect([...canvasElement.querySelectorAll('strong')].map((el) => el.textContent)).toEqual([
+      'glucose',
+      'cellular respiration',
+    ]);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Got it' }));
+    await expect(await canvas.findByText('Not built yet')).toBeVisible();
+  },
+};
+
+/** `/?screen=why-fail`: opens the Why? sheet directly, all three concepts missing. */
+export const ReviewLinkWhy: Story = {
+  name: '?screen=why-fail',
+  args: { initialView: reviewScreen('why-fail').view },
+  play: async ({ canvasElement }) => {
+    await expect([...canvasElement.querySelectorAll('strong')].map((el) => el.textContent)).toEqual([
+      'energy',
+      'glucose',
+      'cellular respiration',
+    ]);
+  },
+};
+
+/** `/?screen=summary-some-non-pass`: Share and Claim XP are decorative this
+ * sprint (your instruction, 2026-09-15) — Close is the only way out. */
+export const ReviewLinkSummary: Story = {
+  name: '?screen=summary-some-non-pass',
+  args: { initialView: reviewScreen('summary-some-non-pass').view },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(canvas.getByText('Lesson complete!')).toBeVisible();
+    await expect(canvas.getByText('You explained 1 of 4 out loud.')).toBeVisible();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Share' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Claim XP' }));
+    await expect(canvas.getByText('Lesson complete!')).toBeVisible(); // neither leaves the screen
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
+    await expect(visibleFrame(canvasElement)).toBe('03VoicerecallON');
   },
 };

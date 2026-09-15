@@ -112,12 +112,16 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 ### 7. Why? explanation sheet
 
-Modelled on `reference/TapWhy?.PNG`. There's no Figma design yet.
+✅ Built 2026-09-15 as `WhyScreen` (`app/screens/WhyScreen.tsx`, Storybook `Screens/WhyScreen`). No Figma frame for the screen itself. First modelled on `reference/TapWhy?.PNG`, then rebuilt against `reference/Quiz-Why-explanation.png` on review (a better layout reference added the same day); individual components inside it (Got it) were separately checked against their own real Figma masters.
 
-- **Composition:** `BottomSheet` + `BottomSheetAppBar` (`variant="Default"`), with the explanation paragraph in `middleSection`. The peeking `MascotSlot` and a `Button` (`variant="Primary"`, "Got it", default `interactive/primary` fill) are positioned **outside `BottomSheet`**, above its top edge, inside `Screen`'s `bottomSheetOnly` slot. The student's transcript stays visible behind.
-- **States:** after Success; after Partial or Fail, where the concepts the judge found missing are bold.
-- **What the student can do:** only **Got it** → next question, or the summary. It can't be dragged down or closed from the backdrop.
+- **Composition:** `BottomSheet` (`middleSection` holds the explanation paragraph; no `bottomSection`) over the same behind-the-sheet reconstruction `VerdictScreen` (screen 1) uses — mascot, question bubble, `AiDisclaimer`, transcript — since screen 10, the loop, isn't built yet. **Got it** `Button` sits outside `BottomSheet`, above its top edge, in `Screen`'s own `bottomSheetOnly` slot, floating clear of the sheet with a `space.100` (4px) gap rather than overlapping it (`reference/Quiz-Why-explanation.png` doesn't overlap it either, unlike the gate's own peeking mascot).
+- **The sheet's own header:** a bare grab handle built inline, not `BottomSheetAppBar` — its only no-title variant (`Default`) still reserves a 64px zone sized for its titled variants, and this screen has no title. The inline handle uses the same token values as the real one, in a 16px zone instead; paired with the explanation's own padding, the sheet's total top and bottom padding both land at `space.2000` (40px, measured ~42px in a real browser on each side, the extra couple px from the sheet's own border stroke).
+- **Got it:** `accent/coral/bold` fill with `accent/coral/on-bold` text (a local style override, not one of `Button`'s own variants — the same mechanism `ResultBtm`'s own `ACTION_COLOR` uses), `size="S"`. Its real master (Figma 4871:29852) is a fixed 32px pill, shorter than `Button`'s shared 48px tap-target floor (the right floor for `size="L"`, wrong for this master) — fixed with a local `min-height` override scoped to this button, not a `Button.module.css` change, since the app's other two `size="S"` buttons are text-only Tertiary buttons where that floor may be deliberate.
+- **Knowie:** hidden for now, on your call (2026-09-15) — normally sits behind the sheet alongside Got it, the same way the gate's own mascot sits behind its buttons (Figma 13555:8294).
+- **States:** after Pass, Partial or Fail — only the concepts the (mocked) judge found missing are bold; Success has nothing missing, so nothing's bold. Silence has no Why? button (`ResultBtm` doesn't render one for it).
+- **What the student can do:** only **Got it** → next question, or the summary. It can't be dragged down or closed from the backdrop; **Close**, in the top app bar, is still this screen's own way out (the same rule `VerdictScreen` follows), separate from the sheet's own dismissal rules.
 - **Not carried over:** the shipped quiz's "How can I help?" input.
+- **Wired into `PrototypeFlow`:** reached from the verdict view's own Why? (Pass/Partial/Fail only); Got it goes to the loop's "Not built yet" stop, same as the verdict screen's own Continue. Review links: `?screen=why-pass`, `why-partial`, `why-fail`.
 
 ### 8. Summary sheet
 

@@ -1,0 +1,188 @@
+/* Identical to VerdictScreen's own "behind the sheet" reconstruction (screen
+   10, the loop, isn't built yet) — see that file's comments for why each
+   value is what it is. Duplicated rather than shared, per the exception
+   SPEC.md's screen 10 carves out for this inline scaffolding. */
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: var(--size-space-400);
+}
+
+.knowie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  flex-shrink: 0;
+}
+
+.questionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+}
+
+.mascot {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mascotShadow {
+  position: absolute;
+  bottom: var(--size-space-050);
+  left: 0;
+  width: 100%;
+  height: var(--size-space-300);
+  border-radius: 50%;
+  background: var(--color-background-stacking);
+}
+
+.mascotArt {
+  position: relative;
+}
+
+.bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: var(--size-space-400);
+  padding: var(--size-space-400);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+}
+
+.bubbleTail {
+  position: absolute;
+  right: 100%;
+  bottom: var(--size-space-400);
+  width: var(--size-space-400);
+  height: var(--size-space-400);
+  background: var(--color-background-surface);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.bubbleText {
+  margin: 0;
+  font: var(--font-greed-body-m-regular);
+  color: var(--color-text-primary);
+}
+
+.transcriptArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: var(--size-space-600);
+}
+
+.transcriptArea[data-overflowing] {
+  justify-content: flex-end;
+}
+
+.transcriptArea[data-overflowing] > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+.transcriptArea[data-overflowing] > div > p {
+  height: auto;
+  max-height: var(--size-illustration-4000);
+  min-height: 0;
+  flex: 0 1 auto;
+}
+
+.xpChip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-100);
+  font: var(--font-greed-headline-xs-bold);
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.xpIcon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+/* Defensive parity with the gate's own fill-width fix: `middleSection`'s
+   `align-items: center` shrinks a flex child to its own content width unless
+   it's given one explicitly. Every current explanation is a full sentence
+   that already needs the full width to wrap, so this isn't observably fixing
+   anything today, but a future short explanation would otherwise render
+   centered and cramped instead of as a left-aligned paragraph. */
+.explanation {
+  width: 100%;
+  margin: 0;
+  /* Top and bottom both total space.2000 (40px) from the sheet's own edges
+     to the visible text, on your call (2026-09-15). Bottom: this padding's
+     own space.800 (32) plus middleSection's own space.200 (8) below the
+     text. Top: this padding's own space.600 (24) plus the handle zone's
+     space.400 (16) above the text — a smaller share here since the handle
+     zone (below) already accounts for more of the 40 on that side. */
+  padding-top: var(--size-space-600);
+  padding-bottom: var(--size-space-800);
+  font: var(--font-greed-body-m-regular);
+  color: var(--color-text-primary);
+}
+
+.explanation strong {
+  font: var(--font-greed-body-m-bold);
+}
+
+/* A bare grab handle, replacing BottomSheetAppBar's own Default variant
+   (see the comment where this is passed as `appBar`). Same handle token
+   values as BottomSheetAppBar.module.css's own `.handle`, so it looks
+   identical — just in a space.400 (16px) zone sized for a handle alone,
+   not that component's fixed space.1600 (64px) title zone. Centering in
+   that zone gives 6px above and below the 4px handle, the same clearance
+   Figma's own handle sits at (space.150 from the zone's own top). */
+.sheetHandleZone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--size-space-400);
+}
+
+.sheetHandle {
+  width: var(--size-space-800);
+  height: var(--size-space-100);
+  border-radius: var(--size-stroke-heavy-border);
+  background: var(--color-background-stacking);
+}
+
+/* Got it + the sheet, stacked with a gap between them — measured by
+   sheetWrap's own ref. space.100 (4px), on your call (2026-09-15), tighter
+   than reference/Quiz-Why-explanation.png's own spacing there. Knowie
+   normally sits alongside Got it here too, peeking behind the sheet the way
+   that reference (and the gate's own mascot behind its buttons, screen 6,
+   Figma 13555:8294) shows, but is hidden for now, also on your call. */
+.sheetWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-100);
+}
+
+.peek {
+  display: flex;
+  justify-content: flex-end;
+  padding-inline: var(--size-space-400);
+}
+
+/* `Button`'s shared min-height (space.1200, 48px) is a 48px tap-target floor
+   — the right call for L, whose own master exceeds it (see Button.module.css's
+   own comment), but Got it's real master (Figma 4871:29852, "variant=Primary,
+   size=S") is a fixed 32px pill (space.800), shorter than that floor. A local
+   override, not a change to size=S everywhere: two other S buttons exist
+   (AppBar's text button, Snackbar's secondary action), both Tertiary and
+   text-only, where the 48px floor may be the deliberate accessible tap
+   target rather than an oversight — flagged, not touched here. Padding-inline
+   (space.300, 12px) already matched the master; height didn't. */
+button.gotIt {
+  min-height: var(--size-space-800);
+}

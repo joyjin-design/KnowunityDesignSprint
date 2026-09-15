@@ -1,6 +1,6 @@
 import type { FrameId } from './frames';
 import type { VerdictOutcome } from '@/app/screens/VerdictScreen';
-import type { NodeId } from '@/lib/recall/types';
+import type { NodeId, Verdict } from '@/lib/recall/types';
 
 /** Which screen the prototype is showing. Prototype scaffolding, not app state. */
 export type PrototypeView =
@@ -9,6 +9,8 @@ export type PrototypeView =
   | { screen: 'mic-off' }
   | { screen: 'typing' }
   | { screen: 'verdict'; outcome: VerdictOutcome }
+  | { screen: 'why'; outcome: Verdict }
+  | { screen: 'summary'; variant: 'someNonPass' | 'allPass' | 'afterTryAgain' }
   | { screen: 'not-built'; caption: string };
 
 /** What the prototype knows about mic permission, in memory only: a reload
@@ -37,6 +39,12 @@ export const REVIEW_SCREENS: Record<string, PrototypeStart> = {
   'verdict-partial': { view: { screen: 'verdict', outcome: 'Partial' }, mic: 'unknown' },
   'verdict-fail': { view: { screen: 'verdict', outcome: 'Fail' }, mic: 'unknown' },
   'verdict-silence': { view: { screen: 'verdict', outcome: 'Silence' }, mic: 'unknown' },
+  'why-pass': { view: { screen: 'why', outcome: 'Pass' }, mic: 'unknown' },
+  'why-partial': { view: { screen: 'why', outcome: 'Partial' }, mic: 'unknown' },
+  'why-fail': { view: { screen: 'why', outcome: 'Fail' }, mic: 'unknown' },
+  'summary-some-non-pass': { view: { screen: 'summary', variant: 'someNonPass' }, mic: 'unknown' },
+  'summary-all-pass': { view: { screen: 'summary', variant: 'allPass' }, mic: 'unknown' },
+  'summary-after-try-again': { view: { screen: 'summary', variant: 'afterTryAgain' }, mic: 'unknown' },
 };
 
 /** An unknown or missing `?screen=` starts the normal flow on 00Homescreen. */

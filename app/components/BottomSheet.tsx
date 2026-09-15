@@ -49,7 +49,15 @@ export function BottomSheet({
       {...rest}
     >
       {appBar ?? <BottomSheetAppBar variant="Default" />}
-      {middleSection && <div className={styles.middleSection}>{middleSection}</div>}
+      {/* tabIndex so a keyboard user can reach and scroll this region once
+       * its content passes the height detent and it actually scrolls
+       * (axe scrollable-region-focusable) — found building screen 8, the
+       * first `middleSection` content tall enough to trigger it. */}
+      {middleSection && (
+        <div className={styles.middleSection} tabIndex={0}>
+          {middleSection}
+        </div>
+      )}
       {bottomSection && <div className={styles.bottomSection}>{bottomSection}</div>}
     </div>
   );
