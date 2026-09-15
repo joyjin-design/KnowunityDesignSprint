@@ -49,6 +49,7 @@ When working on UI, use the storybook tools to read the component library before
 - `app/layout.tsx` — root layout, fonts, metadata.
 - `app/globals.css` — global styles/Tailwind import.
 - `public/images/` — mascot expression icons (svg).
+- `public/prototypes/show-me-hint/` — standalone HTML preview comparing two "Show me" hint animations (Knowie bounce vs lined arrow), built over exported Figma frames. Not part of the Next app.
 - `public/` (other svgs) — create-next-app default assets.
 - `package.json` / `tsconfig.json` / `next.config.ts` / `eslint.config.mjs` / `postcss.config.mjs` — standard Next.js/TS/lint/build config, read only when changing tooling.
 - `README.md` — project readme.

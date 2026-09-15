@@ -52,6 +52,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 - **What the student can do:** only the tap zones above.
 - The only snackbar in the whole flow is Exam00's readiness banner. It's part of the image, not a `Snackbar` instance.
+- **Show me hint animation: not decided.** Two options are prototyped for the moment after **Show me** (Hint-animate01). See **Options under consideration**.
 
 ### 4. Typing placeholder
 
@@ -262,6 +263,32 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 
 13. `Partial` still uses `accent/blue` as a stand-in colour.
 14. The Phosphor icons (already used in code by `Snackbar`) differ from the Figma library's icon family (for Harry).
+
+## Options under consideration
+
+Prototyped alternatives, not decisions. Nothing here is chosen or built into the app. When one is picked, log the decision in `sprint-context.md` and move it into the screen it belongs to.
+
+### Show me hint animation
+
+What the student sees right after tapping **Show me** on the Exam00 banner: the exam plan dims, and something points them at the **Voice recall** chip.
+
+- **Prototype:** `public/prototypes/show-me-hint/index.html` (local; full-bleed 390px, for the test iPhone).
+- **Preview link:** https://claude.ai/artifact/R2DHRWYxYu5Q9D4bM6VHMS (private). It has a fallback font and 16px side gutters, so it isn't exactly 390px wide on a phone.
+- **Both options:** play once, over the dimmed exam plan. Tapping the chip goes to Turnon02. Under reduced motion both simply fade in, with no movement.
+
+| | Option A: Knowie bounce | Option B: Lined arrow |
+| --- | --- | --- |
+| Figma | Hint-animate01, 13547:5824 | Hint-animate01, 13651:2244 |
+| Knowie | `mascotSlot` 2XL at (129, 95), tucked just under the chip | `mascotSlot` 2XL at (19, 145), off to the left |
+| Motion | Knowie rises into place (420ms), two light hops straight up at the chip (8px, then 4px, each landing with a slight squash), then the chip pops (106% → 100% → 102% → 100%) | Knowie slides in from the left (360ms), the hand-drawn looping arrow (`mascot/body`, 6px) draws from Knowie to the chip (720ms), then the arrowhead lines draw in |
+| Length | About 2s | About 1.3s |
+| What points at the chip | Knowie's direction of movement, then the chip itself | A drawn line that ends at the chip |
+| Motion on the button itself | Yes (the pop) | No |
+
+**Still to decide, beyond the pick:**
+- Whether option B also gets the chip pop.
+- Whether the hint plays again if the student doesn't tap the chip.
+- Timing, once both have been seen on the test iPhone.
 
 ## Figma follow-ups
 

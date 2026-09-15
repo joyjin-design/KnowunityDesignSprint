@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Show me hint</title>
+<style>
+/* Design tokens, copied verbatim from build/css/tokens.css (generated from
+   tokens/tokens.json). This page lives in public/ and can't import that file,
+   so these are copies: if a token changes, re-copy it; never edit a value here. */
+:root {
+  --color-navy-950: #090c18;
+  --color-navy-800: #22242f;
+  --color-violet-50: #f4f2ff;
+  --color-violet-300: #a78bfa;
+  --color-violet-500: #9178e6;
+  --color-alpha-light-10: rgba(255, 255, 255, 0.102);
+  --color-alpha-light-68: rgba(245, 243, 255, 0.6784);
+  --color-background-page: var(--color-navy-950);
+  --color-background-surface: var(--color-navy-800);
+  --color-text-primary: var(--color-violet-50);
+  --color-text-secondary: var(--color-alpha-light-68);
+  --color-interactive-primary: var(--color-violet-50);
+  --color-interactive-on-primary: var(--color-navy-950);
+  --color-border-default: var(--color-alpha-light-10);
+  --color-border-focus: var(--color-violet-300);
+  --color-mascot-body: var(--color-violet-500);
+  --font-family-default: 'Greed Standard-TRIAL';
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-size-xs: 12px;
+  --font-size-sm: 15px;
+  --font-line-height-xs: 16px;
+  --font-line-height-sm: 20px;
+  --font-greed-body-s-bold: var(--font-weight-semibold) var(--font-size-sm)/var(--font-line-height-sm) var(--font-family-default);
+  --font-greed-caption-m-regular: var(--font-weight-regular) var(--font-size-xs)/var(--font-line-height-xs) var(--font-family-default);
+  --size-space-0: 0px;
+  --size-space-050: 2px;
+  --size-space-100: 4px;
+  --size-space-150: 6px;
+  --size-space-200: 8px;
+  --size-space-300: 12px;
+  --size-space-400: 16px;
+  --size-space-600: 24px;
+  --size-space-1200: 48px;
+  --size-illustration-1500: 120px;
+  --size-radius-full: 9999px;
+  --size-stroke-border: 1px;
+  --size-stroke-heavy-border: 2px;
+}
+
+/* Figma frame geometry, not design tokens. The three screens are exported
+   frames (Exam00 13548:6324, the dimmed scaffold of Hint-animate01 13651:2245,
+   Turnon02 13548:6325), so everything laid over them has to sit at the
+   frame's own coordinates, read from Figma. Keep these numbers here only. */
+.phone {
+  --frame-w: 390px;
+  --frame-h: 844px;
+  --show-me-x: 274px;  --show-me-y: 282px;  --show-me-w: 85px;  --show-me-h: 32px;
+  --chip-x: 119px;     --chip-y: 56px;      --chip-w: 129px;    --chip-h: 40px;
+  /* Option A, Hint-animate01 13547:5824: mascotSlot 2XL at (129, 95). */
+  --knowie-a-x: 129px; --knowie-a-y: 95px;
+  /* Option B, Hint-animate01 13651:2244: mascotSlot 2XL at (19, 145), arrow
+     vector 13651:2316 at (129, 116). The SVG below pads its viewBox by 10 on
+     each side for the 6px stroke and arrowhead, so it sits 10px up and left. */
+  --knowie-b-x: 19px;  --knowie-b-y: 145px;
+  --arrow-x: 119px;    --arrow-y: 106px;
+}
+
+/* Motion. There are no motion tokens in this system, so easing and timing
+   live here. Strong custom curves, per the animations.dev guidance. */
+:root {
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--color-background-page);
+  color: var(--color-text-primary);
+  font: var(--font-greed-body-s-bold);
+}
+
+.stage {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-400);
+  padding-block: var(--size-space-400);
+}
+
+.phone {
+  position: relative;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  overflow: hidden;
+  background: var(--color-background-page);
+  box-shadow: 0 0 0 var(--size-stroke-border) var(--color-border-default);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* On a 390px-wide phone, fill the screen edge to edge. */
+@media (max-width: 420px) {
+  .stage { padding-block: var(--size-space-0); }
+  .phone { box-shadow: none; }
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out-quad);
+}
+
+.phone[data-state='exam'] .screen-exam,
+.phone[data-state='hint'] .screen-hint,
+.phone[data-state='on'] .screen-on {
+  opacity: 1;
+}
+
+/* Invisible tap zones over the exported screens. Each is at least 48px tall
+   (the tap-target token) and centred on the drawn control. */
+.zone {
+  position: absolute;
+  display: none;
+  border: none;
+  padding: var(--size-space-0);
+  background: transparent;
+  border-radius: var(--size-radius-full);
+  cursor: pointer;
+}
+
+.zone:focus-visible {
+  outline: var(--size-stroke-heavy-border) solid var(--color-border-focus);
+  outline-offset: var(--size-space-050);
+}
+
+.zone-show-me {
+  left: var(--show-me-x);
+  top: calc(var(--show-me-y) + (var(--show-me-h) - var(--size-space-1200)) / 2);
+  width: var(--show-me-w);
+  height: var(--size-space-1200);
+}
+
+.zone-chip {
+  left: var(--chip-x);
+  top: calc(var(--chip-y) + (var(--chip-h) - var(--size-space-1200)) / 2);
+  width: var(--chip-w);
+  height: var(--size-space-1200);
+}
+
+.phone[data-state='exam'] .zone-show-me,
+.phone[data-state='hint'] .zone-chip {
+  display: block;
+}
+
+/* Knowie, built like mascotSlot 2XL: a 120px box with 12px padding around
+   public/images/standby.svg. */
+.knowie {
+  position: absolute;
+  width: var(--size-illustration-1500);
+  height: var(--size-illustration-1500);
+  padding: var(--size-space-300);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.knowie img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.knowie-hop {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+.phone[data-option='bounce'] .knowie { left: var(--knowie-a-x); top: var(--knowie-a-y); }
+.phone[data-option='arrow'] .knowie  { left: var(--knowie-b-x); top: var(--knowie-b-y); }
+
+.arrow {
+  position: absolute;
+  left: var(--arrow-x);
+  top: var(--arrow-y);
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.arrow path {
+  fill: none;
+  stroke: var(--color-mascot-body);
+  stroke-width: var(--size-space-150);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Hidden until drawn. With pathLength=100 the dash is the whole line; the gap
+   is slightly longer so the round caps don't peek through. */
+.arrow .line,
+.arrow .head {
+  stroke-dasharray: 100 101;
+  stroke-dashoffset: 100;
+}
+
+.phone[data-option='bounce'] .arrow { display: none; }
+
+/* ---------- Option A: Knowie rises, two light hops toward the chip, then the chip pops ---------- */
+
+.phone[data-state='hint'][data-option='bounce'] .knowie {
+  animation: knowie-rise 420ms var(--ease-out-expo) 160ms forwards;
+}
+
+.phone[data-state='hint'][data-option='bounce'] .knowie-hop {
+  animation: knowie-hop 900ms 520ms both;
+}
+
+@keyframes knowie-rise {
+  from { opacity: 0; transform: translateY(var(--size-space-600)) scale(0.95); }
+  to   { opacity: 1; transform: translateY(var(--size-space-0)) scale(1); }
+}
+
+/* Two decaying hops straight up at the chip: 8px, then 4px, each landing with
+   a barely-there squash from the feet. Rise on ease-out, fall on ease-in-out. */
+@keyframes knowie-hop {
+  0%   { transform: translateY(var(--size-space-0)) scale(1, 1);         animation-timing-function: var(--ease-out-quad); }
+  22%  { transform: translateY(calc(-1 * var(--size-space-200))) scale(0.99, 1.02); animation-timing-function: var(--ease-in-out-cubic); }
+  42%  { transform: translateY(var(--size-space-0)) scale(1.03, 0.97);   animation-timing-function: var(--ease-out-quad); }
+  58%  { transform: translateY(calc(-1 * var(--size-space-100))) scale(1, 1.01);    animation-timing-function: var(--ease-in-out-cubic); }
+  76%  { transform: translateY(var(--size-space-0)) scale(1.015, 0.985); animation-timing-function: var(--ease-out-quad); }
+  100% { transform: translateY(var(--size-space-0)) scale(1, 1); }
+}
+
+/* The Voice recall chip, lifted out of hint-base.png so it can move: a
+   chip-sized window onto the same image at the same spot, so at rest it's
+   pixel-identical to what's underneath. The bounce only ever scales up (never
+   below 1), so the copy always covers the original and nothing peeks out. */
+.chip-pop {
+  position: absolute;
+  left: var(--chip-x);
+  top: var(--chip-y);
+  width: var(--chip-w);
+  height: var(--chip-h);
+  border-radius: var(--size-radius-full);
+  background-image: url('hint-base.png');
+  background-size: var(--frame-w) var(--frame-h);
+  background-position: calc(-1 * var(--chip-x)) calc(-1 * var(--chip-y));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out-quad);
+}
+
+.phone[data-state='hint'][data-option='bounce'] .chip-pop {
+  opacity: 1;
+}
+
+/* Starts as Knowie's second hop settles (520ms delay + 900ms hop = 1420ms):
+   a quick pop to 106%, back to rest, then a smaller 102% echo. No fill mode
+   on purpose: holding scale(1) after the end keeps the layer composited and
+   resampled, and it stops matching the pixels underneath. */
+.phone[data-state='hint'][data-option='bounce'] .chip-pop {
+  animation: chip-pop 560ms 1420ms;
+}
+
+@keyframes chip-pop {
+  0%   { transform: scale(1);    animation-timing-function: var(--ease-out-quad); }
+  32%  { transform: scale(1.06); animation-timing-function: var(--ease-in-out-cubic); }
+  60%  { transform: scale(1);    animation-timing-function: var(--ease-out-quad); }
+  80%  { transform: scale(1.02); animation-timing-function: var(--ease-in-out-cubic); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Option B: Knowie slides in, then the arrow draws to the chip ---------- */
+
+.phone[data-state='hint'][data-option='arrow'] .knowie {
+  animation: knowie-slide 360ms var(--ease-out-expo) 160ms forwards;
+}
+
+.phone[data-state='hint'][data-option='arrow'] .arrow {
+  opacity: 1;
+}
+
+.phone[data-state='hint'][data-option='arrow'] .arrow .line {
+  animation: draw 720ms var(--ease-in-out-cubic) 420ms forwards;
+}
+
+.phone[data-state='hint'][data-option='arrow'] .arrow .head {
+  animation: draw 180ms var(--ease-out-quad) 1100ms forwards;
+}
+
+@keyframes knowie-slide {
+  from { opacity: 0; transform: translateX(calc(-1 * var(--size-space-400))); }
+  to   { opacity: 1; transform: translateX(var(--size-space-0)); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ---------- Leaving the hint: tapping the chip turns Voice recall on ---------- */
+
+.phone[data-state='on'] .knowie,
+.phone[data-state='on'] .chip-pop,
+.phone[data-state='on'] .arrow {
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out-quad);
+}
+
+/* ---------- Reduced motion: keep the reveal, drop the movement ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .phone[data-state='hint'][data-option] .knowie {
+    animation: fade-in 200ms var(--ease-out-quad) 160ms forwards;
+  }
+  .phone[data-state='hint'][data-option] .knowie-hop {
+    animation: none;
+  }
+  .phone[data-state='hint'][data-option='bounce'] .chip-pop {
+    animation: none;
+  }
+  .phone[data-state='hint'][data-option='arrow'] .arrow {
+    animation: fade-in 200ms var(--ease-out-quad) 260ms both;
+  }
+  .phone[data-state='hint'][data-option='arrow'] .arrow .line,
+  .phone[data-state='hint'][data-option='arrow'] .arrow .head {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .screen { transition-duration: 1ms; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- Controls, outside the phone ---------- */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-300);
+  width: var(--frame-w);
+  max-width: 100%;
+  padding-inline: var(--size-space-400);
+}
+
+.segmented {
+  display: flex;
+  gap: var(--size-space-100);
+  padding: var(--size-space-100);
+  margin: var(--size-space-0);
+  border: none;
+  border-radius: var(--size-radius-full);
+  background: var(--color-background-surface);
+}
+
+.segmented legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.segmented label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--size-space-1200);
+  padding-inline: var(--size-space-400);
+  border-radius: var(--size-radius-full);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented label:has(input:checked) {
+  background: var(--color-interactive-primary);
+  color: var(--color-interactive-on-primary);
+}
+
+.segmented label:has(input:focus-visible),
+.replay:focus-visible {
+  outline: var(--size-stroke-heavy-border) solid var(--color-border-focus);
+  outline-offset: var(--size-space-050);
+}
+
+.replay {
+  min-height: var(--size-space-1200);
+  padding-inline: var(--size-space-600);
+  border: none;
+  border-radius: var(--size-radius-full);
+  background: var(--color-background-surface);
+  color: var(--color-text-primary);
+  font: var(--font-greed-body-s-bold);
+  cursor: pointer;
+  transition: transform 150ms var(--ease-out-quad);
+}
+
+.replay:active { transform: scale(0.97); }
+
+.caption {
+  margin: var(--size-space-0);
+  font: var(--font-greed-caption-m-regular);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<main class="stage">
+  <div class="phone" id="phone" data-state="exam" data-option="bounce">
+    <img class="screen screen-exam" src="exam00.png" alt="Biology exam plan with the banner: Voice recall is ready for Biology. Try say it out loud. Show me.">
+    <img class="screen screen-hint" src="hint-base.png" alt="">
+    <img class="screen screen-on" src="turnon02.png" alt="">
+
+    <div class="chip-pop" aria-hidden="true"></div>
+
+    <button class="zone zone-show-me" type="button" aria-label="Show me"></button>
+    <button class="zone zone-chip" type="button" aria-label="Voice recall"></button>
+
+    <div class="knowie" aria-hidden="true">
+      <div class="knowie-hop">
+        <img src="../../images/standby.svg" alt="">
+      </div>
+    </div>
+
+    <!-- Vector 13651:2316, path copied from Figma. viewBox is padded by 10 on
+         every side so the 6px stroke and the arrowhead aren't clipped. -->
+    <svg class="arrow" width="132" height="125" viewBox="-10 -10 132 125" aria-hidden="true">
+      <path class="line" id="arrow-line" pathLength="100"
+        d="M 0 105 C 20.62 102.3 74.56 83.5 69.38 59.48 C 66.04 44 46.5 47.5 46.5 61.5 C 46.5 78.5 69.38 83 85 72.5 C 104.66 59.28 112.09 25.13 99.67 0" />
+      <path class="head" id="arrow-head" pathLength="100" d="" />
+    </svg>
+  </div>
+
+  <div class="controls">
+    <fieldset class="segmented">
+      <legend>Hint style</legend>
+      <label><input type="radio" name="option" value="bounce" checked>A · Knowie bounce</label>
+      <label><input type="radio" name="option" value="arrow">B · Lined arrow</label>
+    </fieldset>
+    <button class="replay" type="button" id="replay">Replay from Show me</button>
+    <p class="caption" id="caption">Tap Show me on the banner.</p>
+  </div>
+</main>
+
+<script>
+  const phone = document.getElementById('phone');
+  const caption = document.getElementById('caption');
+
+  const captions = {
+    exam: 'Tap Show me on the banner.',
+    hint: 'Tap the Voice recall chip to turn it on.',
+    on: 'Voice recall is on. Replay to watch the hint again.',
+  };
+
+  function setState(state) {
+    phone.dataset.state = state;
+    caption.textContent = captions[state];
+  }
+
+  // Restart the hint's CSS animations by leaving and re-entering the state.
+  function replayHint() {
+    phone.dataset.state = 'exam';
+    void phone.offsetWidth;
+    setState('hint');
+  }
+
+  phone.querySelector('.zone-show-me').addEventListener('click', () => setState('hint'));
+  phone.querySelector('.zone-chip').addEventListener('click', () => setState('on'));
+  document.getElementById('replay').addEventListener('click', () => setState('exam'));
+
+  document.querySelectorAll('input[name="option"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      phone.dataset.option = input.value;
+      if (phone.dataset.state !== 'exam') replayHint();
+    });
+  });
+
+  // Figma ends the vector with an ARROW_LINES cap. Build the two arms from the
+  // curve's own end direction so the head always follows the path.
+  (function buildArrowHead() {
+    const line = document.getElementById('arrow-line');
+    const total = line.getTotalLength();
+    const tip = line.getPointAtLength(total);
+    const back = line.getPointAtLength(total - 4);
+    const angle = Math.atan2(back.y - tip.y, back.x - tip.x);
+    const arm = 16;
+    const spread = (40 * Math.PI) / 180;
+    const a = { x: tip.x + arm * Math.cos(angle + spread), y: tip.y + arm * Math.sin(angle + spread) };
+    const b = { x: tip.x + arm * Math.cos(angle - spread), y: tip.y + arm * Math.sin(angle - spread) };
+    document.getElementById('arrow-head').setAttribute(
+      'd',
+      `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${tip.x.toFixed(2)} ${tip.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}`
+    );
+  })();
+</script>
+</body>
+</html>
