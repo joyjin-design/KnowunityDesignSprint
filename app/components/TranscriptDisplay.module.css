@@ -1,8 +1,20 @@
+/* Body S Regular in every state, matching Figma (changed from Headline XS
+   Regular on 2026-09-15). */
 .transcript {
   margin: 0;
   width: 100%;
   box-sizing: border-box;
-  font: var(--font-greed-headline-xs-regular);
+  font: var(--font-greed-body-s-regular);
+}
+
+/* Every state pads Space/600 on top and Space/300 on the left in Figma
+   (both updated on 2026-09-15). Overflow carries them on its wrapper
+   instead, so its 320px window isn't shortened. */
+.transcript[data-state='Empty'],
+.transcript[data-state='Filled'],
+.transcript[data-state='Silence'] {
+  padding-top: var(--size-space-600);
+  padding-left: var(--size-space-300);
 }
 
 .transcript[data-state='Empty'],
@@ -14,20 +26,28 @@
   color: var(--color-text-primary);
 }
 
-/* Overflow now wraps its text in a padded outer box (96px top/bottom), read
-   straight off the real component's own bound padding variable, rather than
-   the text sitting flush against the clip edges. */
+/* Overflow's padding: Space/600 above the window, Space/2400 below it
+   (24 + 320 + 96 = 440), and Space/300 on the left. */
 .overflowWrapper {
   width: 100%;
   box-sizing: border-box;
-  padding-block: var(--size-space-2400);
+  padding-top: var(--size-space-600);
+  padding-bottom: var(--size-space-2400);
+  padding-left: var(--size-space-300);
 }
 
-/* The clip window itself is unchanged: content past it is hard clipped, no
-   ellipsis, no fade, no scroll — that's a deliberate open gap, not an
-   oversight (see the component's Storybook docs). */
+/* The clip window. Text is anchored to its bottom edge, so the newest words
+   stay visible and older lines clip off the top. (Figma's Overflow is top-
+   aligned since 2026-09-15; the bottom anchor is kept by decision.) The
+   top space/1200 fades in from transparent so those lines leave gradually.
+   The mask only reads alpha, so any opaque token works as its solid end. No
+   scrolling is built. */
 .transcript[data-state='Overflow'] {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   color: var(--color-text-primary);
   height: var(--size-illustration-4000);
   overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, var(--color-background-page) var(--size-space-1200));
 }

@@ -2,6 +2,8 @@
   margin: 0;
   padding-top: var(--size-space-100);
   padding-bottom: var(--size-space-800);
+  /* Added in Figma on 2026-09-15 (Space/300). */
+  padding-left: var(--size-space-300);
   font: var(--font-greed-caption-m-regular);
   color: var(--color-text-secondary);
 }

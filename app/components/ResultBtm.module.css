@@ -165,11 +165,19 @@
   color: var(--color-text-secondary);
 }
 
+/* The sheet sits flush on the screen's bottom edge, so on the test iPhone the
+   home indicator draws over its bottom padding. The shipped app
+   (reference/Errorwithhomebar.PNG, 390×844pt) ends its buttons exactly the
+   inset (34pt) above the edge, with the home bar inside that space rather
+   than below the usual padding. So the padding is whichever is larger: Figma's
+   space/700 (28) or the inset. The inset is the device's own measurement (no
+   token) and resolves to 0 in Storybook, which keeps Figma's 28 there. */
 .bottomCta {
   display: flex;
   flex-direction: column;
   gap: var(--size-space-200);
   padding: var(--size-space-700);
+  padding-bottom: max(var(--size-space-700), env(safe-area-inset-bottom));
 }
 
 /* ButtonIcon paints its visible circle on an inner <span>; the root <button>

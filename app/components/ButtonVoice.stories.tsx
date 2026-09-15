@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Microphone } from '@phosphor-icons/react/dist/csr/Microphone';
+import { Waveform } from '@phosphor-icons/react/dist/csr/Waveform';
 import { ButtonVoice } from './ButtonVoice';
 
 const FIGMA_DESCRIPTION = `
@@ -14,6 +16,7 @@ Built as a local override, not a shared master edit: each state variant wraps a 
 
 Notes from the React build, for anything the Figma description above doesn't cover:
 - \`state\` is the only real exposed property (confirmed by instantiating the real component and reading back its \`componentProperties\`) — CTA text is not formally exposed either, even though real usage already overrides it.
+- \`leftIcon\` (2026-09-15, approved in SPEC.md) passes an icon through to the wrapped \`button\`'s left icon, which Figma exposes as \`showLeftIcon\`. The Figma master now shows Phosphor \`microphone\` at Default and \`waveform\` at Recording, so the description's "icon swap is not wired" is out of date. The icon is passed rather than built in, because Silence's Re-record reuses this component with the mic.
 - \`ctaText\` is **not** a real exposed Figma property, added here ahead of Figma's own interface: the real component's own placed instance inside \`resultBtm\`'s Silence variant overrides the Default state's text to "Re-record" instead of "Start", proving the real file already needs this override even though it isn't formally exposed. Default text per state (Start/Stop/Analyzing/Start) comes straight from the real component's own bound CTA values.
 `;
 
@@ -48,11 +51,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { state: 'Default' },
+  args: { state: 'Default', leftIcon: <Microphone size="100%" aria-hidden="true" /> },
 };
 
 export const Recording: Story = {
-  args: { state: 'Recording' },
+  args: { state: 'Recording', leftIcon: <Waveform size="100%" aria-hidden="true" /> },
 };
 
 export const Loading: Story = {

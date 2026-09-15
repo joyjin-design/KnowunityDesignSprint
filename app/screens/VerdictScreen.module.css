@@ -1,0 +1,136 @@
+/* Figma's loop middleContent pads Space/600 (24) on top; Screen's slot already
+   pads space/200, so this adds the other 16. */
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: var(--size-space-400);
+}
+
+/* Figma frame "Knowie": the question row above aiDisclaimer. Its 8px gap is
+   unbound there; space/200 is the same value. */
+.knowie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  flex-shrink: 0;
+}
+
+.questionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+}
+
+.mascot {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* The flat shadow Knowie stands on (`background/stacking`). Figma draws a
+   59×11 ellipse; the nearest tokens are the slot's own 64px width and 12px. */
+.mascotShadow {
+  position: absolute;
+  bottom: var(--size-space-050);
+  left: 0;
+  width: 100%;
+  height: var(--size-space-300);
+  border-radius: 50%;
+  background: var(--color-background-stacking);
+}
+
+/* Lifts the mascot above its shadow. */
+.mascotArt {
+  position: relative;
+}
+
+/* Speech bubble, hand-drawn in Figma and built inline per SPEC.md. Padding is
+   Figma's Padding/lg (16), which tokens.json carries as space/400. */
+.bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: var(--size-space-400);
+  padding: var(--size-space-400);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+}
+
+/* The tail points left at Knowie. Its tip sits 24px above the bubble's bottom
+   edge, which centres it on a one-line bubble, as in Figma; on a longer
+   question it stays low, as Figma's bottom-aligned tail frame does. */
+.bubbleTail {
+  position: absolute;
+  right: 100%;
+  bottom: var(--size-space-400);
+  width: var(--size-space-400);
+  height: var(--size-space-400);
+  background: var(--color-background-surface);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.bubbleText {
+  margin: 0;
+  font: var(--font-greed-body-m-regular);
+  color: var(--color-text-primary);
+}
+
+/* Straight below the disclaimer, as in 10End, Partial and Incorrect: their
+   transcript frame has no padding of its own, so the only space above the
+   text is TranscriptDisplay's own Space/600.
+
+   The area fills the room down to the sheet (the content's bottom padding is
+   the measured sheet height), so its Space/600 bottom padding is the gap
+   between the transcript and the sheet, and nothing inside it can run under
+   the sheet. */
+.transcriptArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: var(--size-space-600);
+}
+
+/* A long answer sits on the bottom of that room: the newest words end just
+   above the gap. Overflow's own Space/2400 bottom padding is for the loop's
+   controls below it; behind the sheet it would only push the newest words
+   up, so it's dropped here. */
+.transcriptArea[data-overflowing] {
+  justify-content: flex-end;
+}
+
+.transcriptArea[data-overflowing] > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+/* When the room above the sheet is shorter than Overflow's 320px window (a
+   taller sheet such as Silence, or a longer question), the window shrinks to
+   fit instead of being cut, so its fade stays at the top edge. */
+.transcriptArea[data-overflowing] > div > p {
+  height: auto;
+  max-height: var(--size-illustration-4000);
+  min-height: 0;
+  flex: 0 1 auto;
+}
+
+/* Static XP chip, a plain frame in Figma (not `chips`): Padding/xs (4) either
+   side and a Space/100 gap, text and bolt in accent/blue/onSubtle. */
+.xpChip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-100);
+  font: var(--font-greed-headline-xs-bold);
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.xpIcon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}

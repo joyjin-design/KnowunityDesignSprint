@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
+import { Microphone } from '@phosphor-icons/react/dist/csr/Microphone';
 import styles from './ResultBtm.module.css';
 import { Button } from './Button';
 import { ButtonIcon } from './ButtonIcon';
@@ -207,6 +208,7 @@ export function ResultBtm({
               <ButtonVoice
                 state={voiceState}
                 ctaText="Re-record"
+                leftIcon={<Microphone size="100%" aria-hidden="true" />}
                 style={SILENCE_ACTION_COLOR}
                 onClick={onReRecord}
               />

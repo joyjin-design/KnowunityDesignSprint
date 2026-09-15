@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { Button } from './Button';
 
 export type ButtonVoiceState = 'Default' | 'Recording' | 'Loading' | 'Disabled';
@@ -21,6 +21,12 @@ export interface ButtonVoiceProps extends Omit<ButtonHTMLAttributes<HTMLButtonEl
    * own interface rather than locked to the state's own default text.
    */
   ctaText?: string;
+  /**
+   * Passed through to the wrapped `button`'s left icon (Figma's
+   * `showLeftIcon`): Phosphor Microphone at Default, Waveform while
+   * recording. Should paint with currentColor. Approved in SPEC.md.
+   */
+  leftIcon?: ReactNode;
 }
 
 /**
@@ -29,7 +35,7 @@ export interface ButtonVoiceProps extends Omit<ButtonHTMLAttributes<HTMLButtonEl
  * loop — see the component's Storybook docs for the full brief.
  */
 export const ButtonVoice = forwardRef<HTMLButtonElement, ButtonVoiceProps>(function ButtonVoice(
-  { state = 'Default', ctaText, ...rest },
+  { state = 'Default', ctaText, leftIcon, ...rest },
   ref
 ) {
   return (
@@ -37,6 +43,7 @@ export const ButtonVoice = forwardRef<HTMLButtonElement, ButtonVoiceProps>(funct
       ref={ref}
       variant="Secondary"
       size="L"
+      leftIcon={leftIcon}
       loading={state === 'Loading'}
       disabled={state === 'Disabled'}
       {...rest}
