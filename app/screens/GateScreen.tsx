@@ -25,6 +25,10 @@ export interface GateScreenProps {
   onDontAllow?: () => void;
   /** afterDenial only → checks permission again. */
   onIveTurnedOnMic?: () => void;
+  /** afterDenial only: the last check (I've turned on the mic) found it
+   * still off. Shows an inline notice instead of leaving the tap looking
+   * like it did nothing (2026-09-15, resolving Open #5). */
+  micStillOff?: boolean;
 }
 
 const SETTINGS_CAPTION = 'Open Settings, find Voice recall, then turn on Microphone.';
@@ -42,6 +46,7 @@ export function GateScreen({
   onAllow,
   onDontAllow,
   onIveTurnedOnMic,
+  micStillOff = false,
 }: GateScreenProps) {
   const deniedBefore = state === 'afterDenial';
   const sheetOpen = state === 'permissionSheetOpen';
@@ -62,6 +67,9 @@ export function GateScreen({
                 : "Tap Start and explain it out loud, in your own words. Tap Stop when you're done. Knowie's listening for what you know, not perfect grammar."
             }
           />
+          {deniedBefore && micStillOff && (
+            <p className={styles.stillOffNotice}>Still off — check Settings and try again.</p>
+          )}
         </div>
       }
       bottomContent={

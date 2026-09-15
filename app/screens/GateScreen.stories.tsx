@@ -24,6 +24,8 @@ const DESCRIPTION = `
 
 **Not replicated:** a partial-width "Divider" instance inside the sheet's own app bar — the third time this exact artifact has shown up in an "invented — no system equivalent" mockup/frame (screen 5's build, its reference mockup, and now this frame), reinforcing that it's leftover from Figma's own authoring rather than a deliberate choice.
 
+**Decision: a recheck that's still off shows a notice (resolving Open #5, 2026-09-15).** \`micStillOff\` adds "Still off — check Settings and try again." under the caption, in \`text/error\` — a tap that visibly did nothing read as broken. Owned by whoever wires this screen up (the app clears it on every node open, so a stale notice can't reappear on a later visit); \`GateScreen\` itself just renders it.
+
 **Actions:** **Turn on microphone** → the permission sheet. **Can't talk right now** (every state) → 01Exam. **Allow** → the real iOS prompt. **Don't allow** → closes the sheet, back to the gate. **I've turned on the mic** (after an earlier denial) → checks permission again.
 `;
 
@@ -162,10 +164,31 @@ export const AfterAnEarlierDenial: Story = {
     await expect(canvas.getByText('Open Settings, find Voice recall, then turn on Microphone.')).toBeVisible();
     await expect(canvas.queryByRole('button', { name: 'Turn on microphone' })).not.toBeInTheDocument();
 
+    // No notice before a check has run.
+    await expect(canvas.queryByText('Still off — check Settings and try again.')).not.toBeInTheDocument();
+
     await userEvent.click(canvas.getByRole('button', { name: "I've turned on the mic" }));
     await expect(args.onIveTurnedOnMic).toHaveBeenCalledTimes(1);
     await userEvent.click(canvas.getByRole('button', { name: "Can't talk right now" }));
     await expect(args.onCantTalk).toHaveBeenCalledTimes(1);
+  },
+};
+
+/** A recheck (I've turned on the mic) came back still off (2026-09-15, resolving Open #5). */
+export const StillOffAfterRechecking: Story = {
+  name: 'Still off after rechecking',
+  args: { state: 'afterDenial', micStillOff: true },
+  play: async ({ canvas }) => {
+    const notice = canvas.getByText('Still off — check Settings and try again.');
+    await expect(notice).toBeVisible();
+    // text/error, not the caption's own text/secondary.
+    await expect(getComputedStyle(notice).color).not.toBe(
+      getComputedStyle(canvas.getByText('Open Settings, find Voice recall, then turn on Microphone.')).color
+    );
+
+    // Below the caption, not replacing it.
+    const caption = canvas.getByText('Open Settings, find Voice recall, then turn on Microphone.');
+    await expect(notice.getBoundingClientRect().top).toBeGreaterThan(caption.getBoundingClientRect().bottom);
   },
 };
 

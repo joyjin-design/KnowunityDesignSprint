@@ -130,6 +130,17 @@ Exception: if `SPEC.md` explicitly says to build something inline and not as a c
   - No state traps the student.
   - Knowie never speaks.
 
+## 9. Hook it into the running app
+
+A screen isn't done when its stories pass: it also has to be reachable in the app on the phone. `app/page.tsx` renders `app/_prototype/PrototypeFlow.tsx`, a single client-side flow that switches between screens. It isn't a set of routes, since "leaving restarts" and the home-screen app has no address bar.
+
+- **Add the screen as a view** in `PrototypeView` (`app/_prototype/reviewScreens.ts`) and a `case` in `PrototypeFlow`. Pass `showStatusBar={false}`, since the flow is what runs on the phone.
+- **Wire every action to its SPEC.md destination**, the log winning where they disagree. Leaving voice recall goes to 03VoicerecallON; only Don't Allow in the iOS prompt goes to 01Exam; typing's Back to voice goes to 01Exam.
+- **A destination that isn't built yet goes to `NotBuiltScreen`** with a caption naming what's missing, never to a dead button. When you build that destination, replace every `NotBuiltScreen` that stood in for it.
+- **Add a review link** in `REVIEW_SCREENS` (`/?screen=<name>`) for every state the flow can't reach yet. Review links don't write to the turn log.
+- **Anything the flow decides** (a route, what an unbuilt stop says, what a failure does) goes in your report as a decision, same as any other.
+- Add or update a click-through story in `app/_prototype/PrototypeFlow.stories.tsx`. Inject `requestMic` and `startSession` there instead of touching the real mic or turn log.
+
 ## Verify
 
 - **Tests:** run the changed story files with `npx vitest run --project=storybook <files>`, then the full suite. The Storybook MCP `test-run` has reported stale passes after CSS and story edits, so it can't be trusted on its own. Don't report done while tests fail.
@@ -145,6 +156,7 @@ Exception: if `SPEC.md` explicitly says to build something inline and not as a c
 - **Lint and types:** `npm run lint` (0 errors) and `npx tsc --noEmit`.
   - React's purity rule flags `Date.now()` in functions declared during render. Use the event's `timeStamp`.
   - Story export names can't start with a digit, even when the Figma names do.
+- **Click through the real app.** Run `npx next dev`, open `http://localhost:3000` at 390×844 in Playwright and tap from 00Homescreen to the screen, then through each of its actions. For mic paths, launch Chromium with `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream` and grant `microphone` for an allowed run; override `navigator.mediaDevices.getUserMedia` to reject with `NotAllowedError` for a denied one. The first mic request after a fresh `.next` can take several seconds while dev compiles, so wait generously. Also check the console for errors.
 - **Previews:** `stories-preview` for every screen story and every component you created or changed. Keep the URLs.
 - With a frame: compare each state's screenshot with its Figma screenshot side by side before writing the report.
 
@@ -156,6 +168,7 @@ Always include:
 - Token substitutions.
 - Mismatches between `SPEC.md` and `sprint-context.md`.
 - Preview URLs and test/lint results.
+- How to reach the screen in the app: the tap path from 00Homescreen, or its `/?screen=` review link, and any `NotBuiltScreen` stops it leads to.
 
 **If the screen (or state) has a Figma frame:** list **every** difference between the build and the frame, grouped by state. Cover layout, spacing, sizes, copy, icons, component or variant choices, token substitutions, and elements added or left out. Note which differences the spec intended (for example "Send" vs "Stop") and which aren't yet explained. Don't summarise ("minor spacing tweaks"); name each one.
 

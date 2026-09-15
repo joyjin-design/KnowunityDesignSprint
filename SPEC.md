@@ -98,9 +98,11 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 | --- | --- |
 | First time (13575:1934) | **Turn on microphone** → the permission sheet. **Can't talk right now** → 01Exam |
 | Permission sheet open (13555:8294) | **Allow** → real iOS prompt: Allow → loop, question 1 idle; Don't Allow → 01Exam. **Don't allow** → closes the sheet, back to the gate (nothing is asked of iOS) |
-| After an earlier denial | Settings steps replace the body copy. **I've turned on the mic** → checks permission; if granted → loop. **Can't talk right now** → 01Exam |
+| After an earlier denial | Settings steps replace the body copy. **I've turned on the mic** → checks permission; if granted → loop; if still off, an inline notice ("Still off — check Settings and try again.") appears under the caption and the state stays put. **Can't talk right now** → 01Exam |
 
 - The sheet appears only after **Turn on microphone**, so the gate's own buttons, including **Can't talk right now**, stay reachable. Accepted: a student who allows is asked twice in a row, by the sheet and then by iOS.
+- ✅ Resolved (Open #5, 2026-09-15): a recheck that's still off shows the inline notice above, `color/text-error`, cleared whenever the gate is reopened so it can't reappear stale.
+- The mic's `unavailable` result (no HTTPS, or no mic hardware) is routed exactly like a real denial, on your call (2026-09-15) — it only shows up testing over plain HTTP, so it doesn't get its own path.
 - **Component fixes made building and reviewing this screen:**
   - `Button` Secondary/L's own master is now bound to `interactive/secondary`, not `background/surface` — fixed at the source in Figma (2026-09-15), so `Button.module.css` now defaults Secondary+L to it too. Size S/M's masters are untouched, still `background/surface`.
   - Title font: 44px Bold/44 (`textBlock`'s own default) → 33px Bold/36 → **28px Bold/28** (`font-greed-headline-m`, final). Caption: 18px Regular/24 → 15px Regular/20 (`font-greed-body-s-regular`, an exact token match).
@@ -269,7 +271,7 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 
 3. ✅ Resolved: 00Homescreen is a static image like the rest of the exam plan, with its own tap zones (built 2026-09-15 as part of screen 3; decided in sprint-context.md 2026-09-14).
 4. When the gate shows: only the first time a node opens, or every time mic permission isn't granted (and then when the mic-off sheet shows instead).
-5. What happens when **I've turned on the mic** finds the mic still off.
+5. ✅ Resolved: what happens when **I've turned on the mic** finds the mic still off — an inline notice under the caption (2026-09-15, see screen 6).
 6. Whether **Try typing instead** (Silence sheet) and **Type instead** (mic-off sheet) should skip straight to 01Exam like **Can't talk right now**, instead of routing through the typing placeholder first. Screen 4's own layout and copy are settled (2026-09-15); this item is now only about whether that screen is reached at all, since its one button already leaves for 01Exam either way.
 7. The gate's body copy says "Tap Stop when you're done", but the recording button now says "Send".
 

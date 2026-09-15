@@ -36,6 +36,19 @@
   gap: var(--size-space-400);
 }
 
+/* The "still off" notice after a failed recheck (2026-09-15, resolving Open
+ * #5): text/error, same body/S size as the caption above it so it reads as
+ * a continuation of the copy, not a separate alert. No token exists for
+ * "the gap under a textBlock it doesn't own", so space.200 (8px) — tighter
+ * than the 16px title/caption gap, since this is a correction to the
+ * caption just above it, not a new paragraph. */
+.stillOffNotice {
+  margin: 0;
+  margin-top: var(--size-space-200);
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-error);
+}
+
 /* Screen's own bottomContent already pads 16px (space.400, its real master
    value — checked against the master `scaffold` component, 4794:5828, not
    just this instance). The gate frame overrides that to 28px (space.700) in

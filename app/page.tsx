@@ -1,15 +1,17 @@
-'use client';
+import { PrototypeFlow } from '@/app/_prototype/PrototypeFlow';
+import { reviewScreen } from '@/app/_prototype/reviewScreens';
 
-import { useRouter } from 'next/navigation';
-import { ExamPlanFlow } from '@/app/screens/ExamPlanScreen';
-
-// The prototype starts on 00Homescreen (sprint-context.md, 2026-09-14).
-// Node taps aren't wired yet: the gate (SPEC.md screen 6) isn't built.
-export default function Home() {
-  const router = useRouter();
+// The prototype starts on 00Homescreen (sprint-context.md, 2026-09-14), or on
+// one screen via a `?screen=` review link (app/_prototype/reviewScreens.ts).
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const start = reviewScreen((await searchParams).screen);
   return (
     <main>
-      <ExamPlanFlow onOpenLog={() => router.push('/log')} />
+      <PrototypeFlow initialView={start.view} initialMic={start.mic} />
     </main>
   );
 }
