@@ -1,0 +1,31 @@
+/* Full-bleed: each export draws its own status bar, tab bar and home
+   indicator, so nothing pads it (sprint-context.md, 2026-09-14). */
+.frame {
+  position: relative;
+  width: 100%;
+  background: var(--color-background-page);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Invisible over the image's own control. Never smaller than the 48pt tap
+   minimum, whatever the frame's scale. */
+.zone {
+  position: absolute;
+  min-width: var(--size-space-1200);
+  min-height: var(--size-space-1200);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zone:focus-visible {
+  outline: var(--size-stroke-heavy-border) solid var(--color-border-focus);
+}
