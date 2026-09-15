@@ -9,9 +9,9 @@ function TypeFoundation() {
       title="Type"
       intro={
         'Every named text style under font.Greed in tokens/tokens.json, largest to smallest (the order already ' +
-        'authored in the file), each rendered with its real generated CSS shorthand (--font-greed-*). Note: no ' +
-        'webfont file for "Greed Standard-TRIAL" is loaded in this project yet, so these render in your browser’s ' +
-        'fallback font — the size and line height shown are still the real token values.'
+        'authored in the file), each rendered with its real generated CSS shorthand (--font-greed-*). The family ' +
+        'is Inter Variable, self-hosted from @fontsource-variable/inter, not Figma’s Greed: Greed had no webfont ' +
+        'in this project, so it only rendered on machines with it installed. The style names still say Greed.'
       }
     >
       <FoundationSection heading="Text styles" layout="stack">

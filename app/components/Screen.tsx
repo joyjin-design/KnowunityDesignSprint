@@ -40,6 +40,11 @@ export interface ScreenProps {
    * exists but is wired to nothing, so it can only be toggled by hand there.
    * A bottom fade of `background/page` over the content, off by default. */
   showScrim?: boolean;
+  /** Not a Figma component property: the Panel Header's mock iOS status bar
+   * is fixed chrome there. On a real iPhone the real status bar already
+   * shows, so the app passes `false` and the screen pads its top by the
+   * safe-area inset instead. Defaults to `true` to keep Figma parity here. */
+  showStatusBar?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -59,6 +64,7 @@ export function Screen({
   showBottomNavSlot = true,
   showBottomSheetBackground = false,
   showScrim = false,
+  showStatusBar = true,
   className,
   style,
 }: ScreenProps) {
@@ -68,13 +74,15 @@ export function Screen({
       style={style}
       data-size={size}
     >
-      <div className={styles.panelHeader}>
-        {/* Mock device chrome, not content — hidden from assistive tech so a
-            screen reader doesn't read a fake clock before the screen. */}
-        <div className={styles.statusBar} aria-hidden="true">
-          <span className={styles.time}>09:41</span>
+      {showStatusBar && (
+        <div className={styles.panelHeader}>
+          {/* Mock device chrome, not content — hidden from assistive tech so a
+              screen reader doesn't read a fake clock before the screen. */}
+          <div className={styles.statusBar} aria-hidden="true">
+            <span className={styles.time}>09:41</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {showTopNavSlot && topNavigation && (
         <div className={styles.topNavigation}>{topNavigation}</div>

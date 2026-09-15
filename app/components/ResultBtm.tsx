@@ -28,7 +28,9 @@ const TITLE: Record<ResultBtmVariant, string> = {
   Error: 'Incorrect',
   Partial: 'Partial right',
   Success: 'Nice!',
-  Silence: "Didn't catch that",
+  // Figma says "Didn't catch that". Shortened 2026-09-14: in Inter the full
+  // title ran 4px past its one-line box and ended in an ellipsis.
+  Silence: "Didn't catch it",
 };
 
 // Action button color per variant — a local override on top of the real

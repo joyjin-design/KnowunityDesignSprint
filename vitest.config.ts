@@ -31,6 +31,17 @@ export default defineConfig({
           },
         },
       },
+      // Plain TypeScript logic with no UI (session transitions, the turn log,
+      // the keyword judge). Runs in Node, no browser. Run with
+      // `npx vitest run --project=unit`.
+      {
+        resolve: { alias: { '@': dirname } },
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['lib/**/*.test.ts'],
+        },
+      },
     ],
   },
 });

@@ -189,7 +189,7 @@ Figma: Starting04 13548:6327, Talking05 13548:6328, Talking06 13568:5231, Talkin
 - A question gets two rounds at most: the original and one Try again.
 - Every turn is logged on the device and shown at `/log`.
 
-**Accepted mismatch:** the Silence sheet's "didn't catch that" copy also covers network errors and questions.
+**Accepted mismatch:** the Silence sheet's "Didn't catch it" copy also covers network errors and questions.
 
 ## Verification
 

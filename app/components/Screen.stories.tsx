@@ -34,6 +34,7 @@ Notes from the React build, for anything the Figma description above doesn't cov
 - **The root's \`itemSpacing: 10\` never renders.** The frame is SPACE_BETWEEN with a FILL child (\`middleContent\`), so Figma ignores itemSpacing entirely and the four sections stack flush — 48 + 60 + 702 + 34 = 844 exactly. Not transcribed as a \`gap\`, which would push the layout 30px past the frame; 10 isn't a token either way. Same reasoning as the \`Space/0\` bindings dropped from BottomSheet.
 - **\`middleContent\` clips rather than scrolls**, matching Figma's \`clipsContent\` slot. No scroll behaviour is designed there — the same open question transcriptDisplay's Overflow state already flags. Safe here because a screen's actions live in \`bottomContent\`, outside this box, so clipping can't strand a student mid-flow.
 - **No landmark elements.** The four slots render as plain \`<div>\`s rather than \`<header>\`/\`<main>\`/\`<footer>\`. Figma defines no semantics, and a docs page renders every story at once — multiple \`<main>\` elements on one page is itself an a11y violation. Whoever mounts a real screen owns its landmarks.
+- **\`showStatusBar\` is this build's addition** (2026-09-14), the same ahead-of-Figma pattern as \`showScrim\`. In Figma the Panel Header is fixed device chrome, not a property. On the test iPhone the prototype runs full-bleed as a home-screen web app, where iOS draws its real status bar over the page, so the mock one would show a second clock. The app passes \`false\`. The frame pads its top and bottom by \`env(safe-area-inset-top/bottom)\` so content clears the real status bar and home indicator. Those insets are the device's own measurements (no token exists for them) and resolve to 0 in Storybook. Defaults to \`true\`, so every other story still matches Figma.
 - **\`showBottomSheetBackground\` paints the dim but does not make the screen modal.** It doesn't trap focus, mark the content behind it inert, or handle Esc — exactly the division BottomSheet's docs already describe, where it says "the modality lives in scaffold". It doesn't live here yet either. Whoever mounts a sheet still owns focus trapping and Esc-to-close.
 `;
 
@@ -56,6 +57,7 @@ const meta = {
     showBottomNavSlot: true,
     showBottomSheetBackground: false,
     showScrim: false,
+    showStatusBar: true,
     topNavigation: <ProgressIndicator variant="Primary" thickness="16" progress={50} />,
     middleContent: (
       <TranscriptDisplay
@@ -125,6 +127,21 @@ export const WithBottomSheet: Story = {
     await expect(sheet).toBeVisible();
     await userEvent.click(sheet);
     await expect(onContinue).toHaveBeenCalled();
+  },
+};
+
+/**
+ * How the app renders every screen on the test iPhone: the real iOS status
+ * bar replaces the mock one, so the Panel Header is gone and the top
+ * navigation sits at the top of the frame.
+ */
+export const StatusBarHidden: Story = {
+  name: 'showStatusBar=false',
+  args: { showStatusBar: false },
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByText('09:41')).not.toBeInTheDocument();
+    await expect(canvas.getByRole('progressbar')).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
   },
 };
 

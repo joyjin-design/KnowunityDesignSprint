@@ -16,6 +16,12 @@
      TranscriptDisplay, ProgressIndicator all went fluid rather than
      hardcoding an unbound pixel width). */
   height: 100dvh;
+  /* The app runs full-bleed as a home-screen web app (viewport-fit=cover), so
+     the real iOS status bar and home indicator sit over the page. These insets
+     are the device's own measurements, not design values, so there's no token
+     for them; they resolve to 0 everywhere else, including Storybook. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
   background: var(--color-background-page);
   border-radius: var(--size-radius-600);

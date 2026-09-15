@@ -1,4 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite'
+// Same self-hosted face the app loads in app/globals.css, so stories render
+// in the font the tokens name ('Inter Variable') on any machine.
+import '@fontsource-variable/inter'
 import '../build/css/tokens.css'
 import './preview.css'
 
