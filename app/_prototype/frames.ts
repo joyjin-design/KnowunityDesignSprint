@@ -44,7 +44,7 @@ export const FRAMES: Record<FrameId, PrototypeFrame> = {
     id: '00Homescreen',
     figmaNode: '13619:3109',
     src: '/frames/00-homescreen.png',
-    alt: 'Knowunity home screen. Knowie asks "Evening study session, Harry?", above Scan, Flashcards and Quiz shortcuts, an Ask anything field and the tab bar.',
+    alt: 'Knowunity home screen. Knowie asks "Study session?", above Scan, Flashcards and Quiz shortcuts, an Ask anything field and the tab bar.',
     zones: [
       // Navigation Button 183,775 40×40, grown to 48.
       { id: 'exam-tab', label: 'Exam. New: voice recall available', box: [179, 771, 48, 48] },

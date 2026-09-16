@@ -107,3 +107,75 @@
     stroke-dashoffset: 0;
   }
 }
+
+/*
+ * 00Homescreen's exam-tab "new" badge (design-system.md's `badge`) — a live
+ * dot composited over the still export in place of its own baked-in one
+ * (public/frames/00-homescreen.png re-exported with the real badge instance,
+ * I13619:3274;4794:5834;13619:3216, hidden). Fill/stroke colors are the
+ * same tokens the real instance binds — `accent/coral/bold` fill,
+ * `accent/coral/on-bold` stroke — already documented as this badge's real
+ * colors in design-system.md.
+ *
+ * Position is pinned to the exam-tab icon's own corner, not the real
+ * instance's own (inset) coordinates: the live Figma badge sits centered at
+ * (215, 783.07) in the frame's 390×844 point space, about 8pt in from the
+ * icon's literal top-right corner on each axis — matching pixel-for-pixel
+ * is what the arrow overlay above does, but here it read as floating with
+ * too much gap from the icon (your call, 2026-09-16). left/top below
+ * instead center the dot exactly on the Navigation Button icon's own
+ * top-right corner (that icon: x 183–223, y 775.07–815.07 in the same
+ * point space, read off Figma) — a small negative offset from the literal
+ * Figma badge position, perched right on the corner the way a notification
+ * badge usually sits, half on the icon and half off it.
+ */
+.badge {
+  position: absolute;
+  left: 219.5px;
+  top: 771.57px;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+}
+
+.badgeDot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-accent-coral-bold);
+  box-shadow: 0 0 0 2px var(--color-accent-coral-on-bold);
+}
+
+/*
+ * The ping ring: this badge has no dismissed/seen state anywhere in the real
+ * file (sprint-context.md, 2026-09-12), so unlike the arrow above it loops
+ * for as long as it's on screen rather than playing once. Reduced motion
+ * disables it entirely, same "decorative motion goes to zero, not gentler"
+ * rule the animate skill gives for anything that would otherwise falsely
+ * imply ongoing interactivity — the static dot alone still carries the same
+ * "new" meaning without the motion.
+ */
+.badgePing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-accent-coral-bold);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .badgePing {
+    animation: badge-ping 1.8s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+  }
+}
+
+@keyframes badge-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}

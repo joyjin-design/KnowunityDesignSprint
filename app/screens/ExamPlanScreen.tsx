@@ -86,13 +86,36 @@ function HintAnimateOverlay({
   );
 }
 
+/**
+ * 00Homescreen's exam-tab "new" badge (design-system.md's `badge`): a live
+ * dot in place of the still export's, animated with a looping ping to draw
+ * the eye toward Voice recall. Unlike 02Hint-animate's arrow, this has no
+ * "played once" gating — the badge itself has no dismissed/seen state
+ * anywhere in the real file (sprint-context.md, 2026-09-12: "dropped from
+ * voice-ux gap tracking"), so it's designed to animate for as long as it's
+ * on screen, not once. See ExamPlanScreen.module.css for the geometry and
+ * animation derivation.
+ */
+function HomescreenBadgeOverlay() {
+  return (
+    <div className={styles.badge} aria-hidden="true">
+      <span className={styles.badgePing} />
+      <span className={styles.badgeDot} />
+    </div>
+  );
+}
+
 const NOOP = () => {};
 
 /** The one frame with a live overlay on top of its still export. */
 function frameOverlay(id: FrameId, hidden: boolean, hintPlayed: boolean, onHintPlayed: () => void) {
-  return id === '02Hint-animate' ? (
-    <HintAnimateOverlay hidden={hidden} hintPlayed={hintPlayed} onHintPlayed={onHintPlayed} />
-  ) : null;
+  if (id === '02Hint-animate') {
+    return <HintAnimateOverlay hidden={hidden} hintPlayed={hintPlayed} onHintPlayed={onHintPlayed} />;
+  }
+  if (id === '00Homescreen') {
+    return <HomescreenBadgeOverlay />;
+  }
+  return null;
 }
 
 /**

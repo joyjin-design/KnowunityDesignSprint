@@ -7,13 +7,14 @@ const DESCRIPTION = `
 
 | Frame | Figma | Tap zone → goes to |
 | --- | --- | --- |
-| 00Homescreen | 13619:3109 | Exam tab (with badge) → 01Exam. Triple tap on the top-left corner → turn log (facilitator) |
+| 00Homescreen | 13619:3109 | Exam tab (with a live, animated new-voice-recall badge) → 01Exam. Triple tap on the top-left corner → turn log (facilitator) |
 | 01Exam | 13548:6324 | Show me (banner) → 02Hint-animate |
 | 02Hint-animate | 13547:5824 | Voice recall chip → 03VoicerecallON |
 | 03VoicerecallON | 13548:6325 | Organelle Identification → node 1 · Comparing Cell Types → node 2 |
 
 - Only the tap zones do anything. Zones are at least 48pt; the Exam tab and Show me are grown around their element to reach that.
 - 02Hint-animate composites a real, live purple line over its still export (Option B: the line draws itself in, ending in an arrowhead at the Voice recall chip). The curve is a transcription of the real Figma vector's geometry; everything else on the frame is still the exported image (SPEC.md: "the exam plan is out of scope as components").
+- 00Homescreen composites a real, live coral badge over its still export in place of its own baked-in one — a static dot plus a looping ping ring, since (unlike the hint arrow) this badge has no dismissed/seen state to gate a "plays once" reveal on.
 - The readiness banner on 01Exam is part of the image, not a \`Snackbar\`.
 - Frame images live in \`public/frames/\`, tap zones in \`app/_prototype/frames.ts\`. Re-export from Figma when a frame changes.
 `;
@@ -32,12 +33,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Figma 00Homescreen. The Exam tab carries the new-voice-recall badge. */
+/** Figma 00Homescreen. The Exam tab carries the new-voice-recall badge, a
+ * real live overlay (a dot plus a looping ping ring), not baked into the
+ * image. */
 export const Homescreen: Story = {
   name: 'frame=00Homescreen',
   args: { frame: '00Homescreen' },
-  play: async ({ canvas, args }) => {
-    await expect(canvas.getByRole('img', { name: /Evening study session/ })).toBeVisible();
+  play: async ({ canvas, canvasElement, args }) => {
+    await expect(canvas.getByRole('img', { name: /Study session\?/ })).toBeVisible();
+
+    const badge = canvasElement.querySelector('[aria-hidden="true"]');
+    await expect(badge).toBeTruthy();
+    await expect(badge?.querySelectorAll('span')).toHaveLength(2);
+
     await userEvent.click(canvas.getByRole('button', { name: /^Exam/ }));
     await expect(args.onZone).toHaveBeenLastCalledWith('exam-tab');
 
