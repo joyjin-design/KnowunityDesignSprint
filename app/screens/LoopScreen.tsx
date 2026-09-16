@@ -374,7 +374,10 @@ export function LoopScreen({
       bottomContent={
         <div className={styles.bottomStack}>
           {waveformBars > 0 && (
-            <VoiceWaveform heights={WAVEFORM_BAR_HEIGHTS.slice(0, waveformBars)} animate={phase === 'processing'} />
+            <VoiceWaveform
+              heights={WAVEFORM_BAR_HEIGHTS.slice(WAVEFORM_BAR_HEIGHTS.length - waveformBars)}
+              animate={phase === 'processing'}
+            />
           )}
           <ButtonGroup variant="Horizontal" size="L">
             <ButtonIcon
@@ -418,8 +421,21 @@ export function LoopScreen({
  * Processing mascot bob and the exam-plan hint arrow: no motion/decoration
  * component exists). `animate` gates the slow equalizer-style pulse — off
  * for Recording's bars, on while Processing.
+ *
+ * Bars reveal right to left (2026-09-16, your call): the caller always
+ * passes the *last* N entries of `WAVEFORM_BAR_HEIGHTS` (its own original
+ * left-to-right order preserved), and `.waveform` right-anchors them
+ * (`justify-content: flex-end`), so the newest bar takes the rightmost slot
+ * and each earlier one holds its position, unmoved, one slot further left —
+ * no reflow of already-revealed bars, only the new one animates. `key` is
+ * the bar's real position in the full 38-bar row, not its position within
+ * this slice — a positional key would make React reuse an old bar's DOM
+ * node for the new one on every reveal (since the slice's front keeps
+ * shifting), which would suppress the mount-triggered entrance animation
+ * entirely instead of firing it on the bar that's actually new.
  */
 function VoiceWaveform({ heights, animate }: { heights: number[]; animate: boolean }) {
+  const startIndex = WAVEFORM_BAR_HEIGHTS.length - heights.length;
   return (
     <div
       className={styles.waveform}
@@ -427,13 +443,16 @@ function VoiceWaveform({ heights, animate }: { heights: number[]; animate: boole
       data-bar-count={heights.length}
       aria-hidden="true"
     >
-      {heights.map((height, i) => (
-        <span
-          key={i}
-          className={styles.waveformBar}
-          style={{ height, '--waveform-bar-delay': `${-(i % 8) * 0.25}s` } as CSSProperties}
-        />
-      ))}
+      {heights.map((height, i) => {
+        const barIndex = startIndex + i;
+        return (
+          <span
+            key={barIndex}
+            className={styles.waveformBar}
+            style={{ height, '--waveform-bar-delay': `${-(barIndex % 8) * 0.25}s` } as CSSProperties}
+          />
+        );
+      })}
     </div>
   );
 }
