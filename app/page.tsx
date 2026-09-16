@@ -11,7 +11,12 @@ export default async function Home({
   const start = reviewScreen((await searchParams).screen);
   return (
     <main>
-      <PrototypeFlow initialView={start.view} initialMic={start.mic} />
+      <PrototypeFlow
+        initialView={start.view}
+        initialMic={start.mic}
+        initialSession={start.session}
+        initialLastTurn={start.lastTurn}
+      />
     </main>
   );
 }

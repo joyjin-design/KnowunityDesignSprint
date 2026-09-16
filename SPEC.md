@@ -125,22 +125,15 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 ### 8. Summary sheet
 
-A `BottomSheet` at `height="L"` over the last question's screen, with rows scrolling inside `middleSection`. There's no Figma design yet.
+✅ Built 2026-09-15 as `SummaryScreen` (`app/screens/SummaryScreen.tsx`, Storybook `Screens/SummaryScreen`), shown after the last question in a run. Modelled on `reference/Finish-quiz.png` and the matching real Figma frame (node `7366:69693`, `scaffold` / `size=iPhone 13`, in the "Design the core flow" page) — your link, 2026-09-15. This replaced an earlier same-day row-by-row build (a `BottomSheet` with per-question rows and a Try again action, the design this section used to describe); that build is fully superseded by what's below.
 
-- **Content:**
-  - A headline count: questions explained, meaning passes.
-  - One row per question: the question, a snippet of **the student's own transcript**, and the verdict (Pass / Partial / Fail / Skipped). Rows are built **inline** in the summary, token-styled, not as a component.
-  - The caption "One more try at the N you missed".
-- **Actions:** `ButtonGroup` (`variant="Vertical"`, `size="L"`) in `bottomSection`, with `Button` Primary **Continue** and `Button` Secondary **Try again**.
-
-| State | Rows | What the student can do |
-| --- | --- | --- |
-| After the first session, some non-pass | All 4 | **Continue** → exam plan image. **Try again** → reruns only the non-pass questions |
-| After the first session, all pass | All 4 | **Continue** (Try again and caption behaviour: Open) |
-| After a Try again run | **Only the rerun questions** | **Continue** only; round 2 is used |
-
-- There is no confidence rating and no review queue.
-- With no top-up, progress in a Try again run rounds to the nearest step.
+- **Composition:** a full screen, not an overlay over the loop — `MascotSlot` (`size="3XL"`) above a dynamic headline/subhead pair, then a two-card stat row (`XP`, `Score`), then `ButtonGroup` (`Horizontal`, `L`) of `Button` Secondary **Share** + `Button` Primary **Claim XP** in `bottomContent`.
+- **Headline/subhead/mascot expression are dynamic on pass count.** A clean run reuses Figma's own copy and expression verbatim: "Perfect lesson!", "You made 0 mistakes. How?!", `expression="approving"`. Some passed and none passed are authored copy, not in this file, `Voice-ux.md` or the content file: "Lesson complete!" / "You explained N of M out loud." (`approving`), and "Lesson complete" / "Let's go over these again next time." (`determined`).
+- **Stat chips:** `XP` is static "2", never counts — same convention as the loop's own XP chip. `Score` reads `passCount/totalCount`. Figma's own third card ("Blazing": a stopwatch icon + elapsed time, e.g. "2:09") is **dropped** — nothing in this mocked session tracks elapsed time, the same fabricated-metric problem already ruled out for XP. Adding a real timer (derived from the turn log's own session-start/turn timestamps) was scoped in full on 2026-09-15; your call was to leave this screen as built rather than add it.
+- **Dropped from the same-day earlier build, on your instruction:** the per-question row list (question, transcript snippet, verdict) and the Try again path — a non-pass question gets no further round from this screen. CLAUDE.md's transcript rule stays satisfied earlier in the flow regardless: every `VerdictScreen`/`WhyScreen` already shows the transcript back at the moment of judging.
+- **Close (top-left X) is a deliberate addition, not in the Figma frame at all** (its own top nav is empty). Since Share and Claim XP are both decorative this sprint and neither leaves the screen, Close is the only way out — CLAUDE.md's "never trap the student" rule.
+- **What the student can do:** **Close** → leaves the session for the exam plan (03VoicerecallON). **Share** and **Claim XP** → nothing; both are present but unwired this sprint, per your instruction.
+- **Not yet reachable from the running flow** — only by review link (`?screen=summary-some-non-pass`, `summary-all-pass`, `summary-after-try-again`). Nothing in `PrototypeFlow` tracks which question a session is on yet, so `VerdictScreen`'s and `WhyScreen`'s own Continue/Got it still return to the loop's "Not built yet" stop rather than here.
 
 ### 9. appBar (component, built before screen 10)
 
@@ -150,9 +143,13 @@ Built from Figma's `appBar` set (9003:8606: variants default / leftIconButtonOnl
 
 - **In the loop it holds:** a close icon button, `ProgressIndicator` (`thickness="16"`) in the Slot, and a static XP chip ("⚡2", never counts).
 
-### 10. Voice recall loop (hardest; blocked on Verification step 0)
+### 10. Voice recall loop (hardest) ✅ Built 2026-09-15
 
 Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08Talking-finished 13568:5313, Thinking 13642:7889.
+
+**Real STT deferred, built against a scripted stand-in.** Verification step 0's spike (real mic + `webkitSpeechRecognition` on the test iPhone) still hasn't run, so this screen doesn't block on it: `lib/recall/scriptedTranscript.ts` streams one of the question's sample answers word-by-word into `TranscriptDisplay` instead, picked by a facilitator-only "Next answer" control on `/log` (same pattern as the latency switch). It's written to the same shape (`start`/`stop`, interim + final callbacks) a real recognizer wrapper will need, so swapping one in once the spike runs is a small follow-up, not a rebuild. "Still listening…" is triggered by a scripted mid-stream pause for now; the real iOS-restart trigger returns with the real recognizer.
+
+**Try again is out, for real.** SPEC.md's older "two rounds per question" text (Session rules, below) is superseded: `SummaryScreen`'s own 2026-09-15 rebuild (matching `reference/Finish-quiz.png`) already dropped Try again — no button, no rerun rows, no caption — and this build treats that as the decision, not an oversight. A session is one pass through a node's 4 questions, then Summary, then Close; `round` stays `1` in every turn log row (Open item 12, now resolved).
 
 - **Top:** `appBar` (screen 9).
 - **Middle:**
@@ -218,16 +215,18 @@ Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08
 **Session rules**
 - 4 questions per session. Node 1 is Q1–Q4 (Organelle Identification), node 2 is Q5–Q8 (Comparing Cell Types).
 - Skip counts as non-pass.
-- A question gets two rounds at most: the original and one Try again.
+- ~~A question gets two rounds at most: the original and one Try again.~~ Superseded: Try again is out (screen 10, 2026-09-15) — every question gets exactly one round.
 - Every turn is logged on the device and shown at `/log`.
 
 **Accepted mismatch:** the Silence sheet's "Didn't catch it" copy also covers network errors and questions. When a question or a 15s timeout shows it over a visible transcript, it reads as a sheet that didn't catch words it clearly caught. Kept for this round (2026-09-15); watch for it in the usability sessions.
 
 ## Verification
 
-### 0. Spike first (decides whether screen 10 is possible)
+### 0. Spike (deferred; no longer blocks screen 10)
 
 On the test iPhone, served over a tunnel or `next dev --experimental-https`, build a throwaway page that uses the mic and `webkitSpeechRecognition`. Try it in a Safari tab and as a home-screen web app. Record which one streams interim results, restarts cleanly after a pause, and keeps mic permission across reloads. Collect real transcripts of the sample answers in `content/voice-recall-questions.md` and replace the guessed mis-hearings. Log the results in `sprint-context.md`.
+
+Screen 10 was built ahead of this spike against a scripted transcript stand-in (see screen 10's own notes) rather than waiting on it — this step is still open, but is now a follow-up to wire the real recognizer in, not a blocker.
 
 ### 1. Automated checks
 
@@ -240,6 +239,8 @@ On the test iPhone, served over a tunnel or `next dev --experimental-https`, bui
 
 Use the setup chosen in the spike: a tunnel or local HTTPS while building, the Vercel URL for sessions. Clear the log first. After each step, check the screen, then check `/log`.
 
+Real STT is deferred (step 0): wherever a step below says "speak" or "say", pick the matching sample on `/log`'s "Next answer" control first (`pass`/`partial`/`fail`/`list`/`question`/`blank`), then tap Start — it streams in on its own.
+
 1. **00Homescreen → exam tab** → 01Exam → **Show me** → 02Hint-animate → **toggle** → 03VoicerecallON → **Organelle Identification** → gate.
 2. **Gate:** **Can't talk right now** → 01Exam. Go back to the gate. **Turn on microphone** → the permission sheet → **Don't allow** → back on the gate. **Turn on microphone** → **Allow** → iOS prompt → **Don't Allow** → 01Exam. Open the node again: the gate shows Settings steps. Allow the mic in iOS Settings → **I've turned on the mic** → Q1 idle.
 3. **Q1 idle:** question in the bubble, mascot standby, disclaimer, Empty transcript placeholder, mic icon + Start, Skip, Can't talk right now; progress 0; XP chip reads 2.
@@ -250,9 +251,8 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
    - **Start** then **Send** immediately → Idle silently.
    - **Start**, say nothing, **Send** → Silence sheet. **Re-record** → "What does the cell membrane do?" → Silence sheet again, no attempt logged.
    - **Re-record** → a bare keyword list → **Partial**. **Continue**.
-7. **Q4:** an off-topic answer → **Fail** → **Continue** → summary sheet (height L): the count reads 1, 4 rows with transcript snippets (Pass / Partial / Partial / Fail), caption "One more try at the 3 you missed".
-8. **Try again:** the 3 questions rerun. On the first, tap **Skip**. The summary shows only those 3 rows, with no Try again. **Continue** → 01Exam.
-9. **Failure paths** (each from a fresh node open):
+7. **Q4:** an off-topic answer → **Fail** → summary: mascot, headline "Lesson complete!" ("You explained 1 of 4 out loud."), Score chip reads 1/4. Share and Claim XP are present but don't do anything. **Close** → 01Exam (03VoicerecallON).
+8. **Failure paths** (each from a fresh node open):
    - With `?latency=slow`: "Almost there…" appears at ~5s and holds until the verdict.
    - With `?latency=hang`: the Silence sheet at 15s.
    - Lock the phone mid-recording and unlock → Idle with the Silence copy.
@@ -260,8 +260,8 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
    - **Skip** during processing → next question straight away; no verdict sheet appears, and the turn is logged as Skipped.
    - **Close** during processing → 01Exam; reopening starts at Q1.
    - **Can't talk right now** on Q2 → 01Exam; reopening starts at Q1.
-10. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
-11. **Open `/log`:** every answered, skipped and Silence turn is there with the right round, transcript, concepts, verdict, latency and flag. Nothing is logged for the cancel or the accidental tap. **Copy as CSV** gives the same rows; **Clear log** asks, then empties it.
+9. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
+10. **Open `/log`:** every answered, skipped and Silence turn is there with the right round, transcript, concepts, verdict, latency and flag. Nothing is logged for the cancel or the accidental tap. **Copy as CSV** gives the same rows; **Clear log** asks, then empties it.
 
 **Done** means every step behaves as described and every automated check passes, with nothing skipped.
 
@@ -283,17 +283,18 @@ Use the setup chosen in the spike: a tunnel or local HTTPS while building, the V
 
 8. ✅ Resolved: `appBar` is `leftIconButtonOnly`, and the XP chip is built inline as a plain chip, not `Chip` (2026-09-15).
 9. Mascot expression while recording (idle is standby, processing is thinking).
-10. Summary: headline copy; whether Try again and its caption are hidden when everything passed; whether the summary has a mascot; how long a transcript snippet is before truncating; what a Skipped row shows in place of a snippet.
-11. Continue from the summary lands on the exam plan image, which can't show the node as completed.
+10. ✅ Resolved: Summary rebuilt 2026-09-15 to match `reference/Finish-quiz.png` and its real Figma frame (see screen 8) — mascot present (`3XL`), headline/subhead dynamic per pass count. Dropped the per-question rows and Try again entirely, so the transcript-snippet and Skipped-row questions this item used to ask about no longer apply.
+11. Closing the summary lands on the exam plan image, which can't show the node as completed. (Was "Continue"; the summary's own leaving action is now Close — screen 8.)
+12. ✅ Resolved: Try again is out, for real (screen 10, 2026-09-15) — the "Session rules" two-rounds text is marked superseded there rather than left aspirational; nothing in the built flow reaches a second round.
 
 **Content**
 
-12. Q8's concept B is loosely phrased; check it against spike transcripts. Question order within a node (as written, or random).
+13. Q8's concept B is loosely phrased; check it against spike transcripts. Question order within a node (as written, or random).
 
 **Already flagged elsewhere**
 
-13. `Partial` still uses `accent/blue` as a stand-in colour.
-14. The Phosphor icons (already used in code by `Snackbar`) differ from the Figma library's icon family (for Harry).
+14. `Partial` still uses `accent/blue` as a stand-in colour.
+15. The Phosphor icons (already used in code by `Snackbar`) differ from the Figma library's icon family (for Harry).
 
 ## Options under consideration
 

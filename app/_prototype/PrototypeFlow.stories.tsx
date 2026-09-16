@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, waitFor } from 'storybook/test';
+import { QUESTIONS } from '@/lib/recall/questions';
 import type { MicRequestResult } from '@/lib/recall/micPermission';
 import { PrototypeFlow } from './PrototypeFlow';
 import { reviewScreen } from './reviewScreens';
@@ -10,17 +11,19 @@ const DESCRIPTION = `
 | From | Tap | Goes to |
 | --- | --- | --- |
 | 03VoicerecallON | a node | the gate, or straight to the loop once the mic is allowed. Writes the turn log's "Session started" row |
-| Gate | Can't talk right now | 01Exam — a different button from the loop's own Can't talk right now, which leaves for 03VoicerecallON once the loop exists |
+| Gate | Can't talk right now | 01Exam — a different button from the loop's own Can't talk right now, which leaves for 03VoicerecallON |
 | Gate | Turn on microphone / Don't allow | opens / closes the permission sheet |
 | Gate sheet | Allow | the real iOS prompt: allowed → the loop; Don't Allow → 01Exam, and the node's gate then shows Settings steps |
 | Gate, after a denial | I've turned on the mic | asks again: allowed → the loop; still off → stays, with a "Still off" notice |
-| Verdict | Why? (Pass, Partial, Fail only) | the Why? sheet, same question and transcript. Got it → the loop (not built) |
+| Loop | Start | a real permission re-check; denied shows the mic-off sheet instead of Recording |
+| Loop | a verdict, or Silence | the Verdict sheet; Continue/Skip moves to the next question, or the summary after the 4th (no Try again — sprint-context.md, this build) |
+| Verdict | Why? (Pass, Partial, Fail only) | the Why? sheet, same question and transcript. Got it moves on the same way Continue does |
 
-**The loop (screen 10) isn't built**, so everything that leads to it stops at a temporary "Not built yet" screen (\`NotBuiltScreen\`) with a way back to 03VoicerecallON. Mic permission is remembered in memory only, so a reload starts over; iOS answers straight away if it already has.
+Mic permission is remembered in memory only, so a reload starts over; iOS answers straight away if it already has.
 
-**Review links** open one screen directly: \`/?screen=gate\`, \`gate-sheet\`, \`gate-denied\`, \`mic-off\`, \`typing\`, \`verdict-pass\`, \`verdict-partial\`, \`verdict-fail\`, \`verdict-silence\`, \`why-pass\`, \`why-partial\`, \`why-fail\`, \`summary-some-non-pass\`, \`summary-all-pass\`, \`summary-after-try-again\`. They don't write to the turn log. The mic prompt needs HTTPS (or localhost): off it, Allow acts like Don't Allow and logs a console warning.
+**Review links** open one screen directly: \`/?screen=gate\`, \`gate-sheet\`, \`gate-denied\`, \`mic-off\`, \`typing\`, \`loop-idle\`, \`verdict-pass\`, \`verdict-partial\`, \`verdict-fail\`, \`verdict-silence\`, \`why-pass\`, \`why-partial\`, \`why-fail\`, \`summary-some-non-pass\`, \`summary-all-pass\`. Opening one writes nothing to the turn log; tapping something that logs a turn in the real flow still does. The mic prompt needs HTTPS (or localhost): off it, Allow acts like Don't Allow and logs a console warning.
 
-**The summary (screen 8) isn't reachable from the flow yet**, only by review link: nothing in this mock tracks which question a session is on, so Verdict's and Why's own Continue/Got it always return to the loop's "Not built yet" stop, never to the summary. Once reached, its own Share and Claim XP are decorative this sprint (your instruction, 2026-09-15) — Close is the only way out, back to the exam plan.
+**Real STT is deferred** (verification item 0's spike hasn't run): the loop's Recording plays a scripted sample answer, picked on \`/log\`'s facilitator-only "Next answer" control (defaults to \`pass\` here, so these stories don't depend on \`/log\`'s own state).
 `;
 
 const granted = () => fn<() => Promise<MicRequestResult>>(async () => 'granted');
@@ -38,7 +41,7 @@ const meta = {
   args: {
     initialView: { screen: 'exam-plan', frame: '03VoicerecallON' },
     requestMic: granted(),
-    startSession: fn(),
+    startSession: fn(() => 1),
   },
 } satisfies Meta<typeof PrototypeFlow>;
 
@@ -55,7 +58,7 @@ function visibleFrame(canvasElement: HTMLElement) {
 /** A node opens the gate and starts a session; the gate's own Can't talk
  * right now goes to 01Exam (SPEC.md's original table; confirmed against
  * Figma 13548:6324, 2026-09-15) — not 03VoicerecallON, which is where the
- * *loop's* own Can't talk right now leaves to, once the loop exists. */
+ * *loop's* own Can't talk right now leaves to. */
 export const NodeOpensTheGate: Story = {
   name: 'Node → gate → Can’t talk right now',
   play: async ({ canvas, canvasElement, args }) => {
@@ -84,7 +87,8 @@ export const DontAllowClosesTheSheet: Story = {
   },
 };
 
-/** Allowed in iOS: on to the loop (not built yet), and later node opens skip the gate. */
+/** Allowed in iOS: on to the loop, idle on the node's first question; later
+ * node opens skip the gate straight to the loop. */
 export const AllowGranted: Story = {
   name: 'Allow → iOS allows',
   args: { requestMic: granted() },
@@ -92,14 +96,15 @@ export const AllowGranted: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /Organelle Identification/ }));
     await userEvent.click(canvas.getByRole('button', { name: 'Turn on microphone' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Allow' }));
-    await expect(await canvas.findByText('Not built yet')).toBeVisible();
+    await expect(await canvas.findByText(QUESTIONS.Q1.prompt)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
     await expect(args.requestMic).toHaveBeenCalledTimes(1);
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Back to exam plan' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
     await expect(visibleFrame(canvasElement)).toBe('03VoicerecallON');
 
     await userEvent.click(canvas.getByRole('button', { name: /Organelle Identification/ }));
-    await expect(canvas.getByText('Not built yet')).toBeVisible();
+    await expect(canvas.getByText(QUESTIONS.Q1.prompt)).toBeVisible();
     await expect(canvas.queryByText(GATE_TITLE)).not.toBeInTheDocument();
     await expect(args.startSession).toHaveBeenCalledTimes(2);
   },
@@ -154,14 +159,19 @@ export const TurnedOnMicNowAllowed: Story = {
   },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: "I've turned on the mic" }));
-    await expect(await canvas.findByText('Not built yet')).toBeVisible();
+    await expect(await canvas.findByText(QUESTIONS.Q1.prompt)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
   },
 };
 
 /** `/?screen=mic-off`: a review link. Type instead reaches the typing placeholder, whose Back to voice goes to 01Exam. */
 export const ReviewLinkMicOff: Story = {
   name: '?screen=mic-off',
-  args: { initialView: reviewScreen('mic-off').view, initialMic: reviewScreen('mic-off').mic },
+  args: {
+    initialView: reviewScreen('mic-off').view,
+    initialMic: reviewScreen('mic-off').mic,
+    initialSession: reviewScreen('mic-off').session,
+  },
   play: async ({ canvas, canvasElement, args }) => {
     await expect(canvas.getByRole('dialog', { name: 'Your mic is off' })).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Type instead' }));
@@ -176,10 +186,30 @@ export const ReviewLinkMicOff: Story = {
   },
 };
 
-/** `/?screen=verdict-partial`: Why? opens the Why? sheet with the same question and transcript; Got it moves on to the loop (not built). */
+/** `/?screen=loop-idle`: a review link straight into the loop's Idle state. */
+export const ReviewLinkLoopIdle: Story = {
+  name: '?screen=loop-idle',
+  args: {
+    initialView: reviewScreen('loop-idle').view,
+    initialMic: reviewScreen('loop-idle').mic,
+    initialSession: reviewScreen('loop-idle').session,
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(QUESTIONS.Q1.prompt)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
+  },
+};
+
+/** `/?screen=verdict-partial`: Why? opens the Why? sheet with the same
+ * question and transcript; Got it moves on to the next question — Q3, since
+ * this review link's session is already on its second question (Q2). */
 export const ReviewLinkVerdict: Story = {
   name: '?screen=verdict-partial',
-  args: { initialView: reviewScreen('verdict-partial').view },
+  args: {
+    initialView: reviewScreen('verdict-partial').view,
+    initialSession: reviewScreen('verdict-partial').session,
+    initialLastTurn: reviewScreen('verdict-partial').lastTurn,
+  },
   play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByText("They're the powerhouse of the cell.")).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Why?' }));
@@ -190,20 +220,42 @@ export const ReviewLinkVerdict: Story = {
     ]);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Got it' }));
-    await expect(await canvas.findByText('Not built yet')).toBeVisible();
+    await expect(await canvas.findByText(QUESTIONS.Q3.prompt)).toBeVisible();
   },
 };
 
 /** `/?screen=why-fail`: opens the Why? sheet directly, all three concepts missing. */
 export const ReviewLinkWhy: Story = {
   name: '?screen=why-fail',
-  args: { initialView: reviewScreen('why-fail').view },
+  args: {
+    initialView: reviewScreen('why-fail').view,
+    initialSession: reviewScreen('why-fail').session,
+    initialLastTurn: reviewScreen('why-fail').lastTurn,
+  },
   play: async ({ canvasElement }) => {
     await expect([...canvasElement.querySelectorAll('strong')].map((el) => el.textContent)).toEqual([
       'energy',
       'glucose',
       'cellular respiration',
     ]);
+  },
+};
+
+/** `/?screen=verdict-silence`: Re-record returns to the loop on the same
+ * question (the session doesn't advance); Skip moves on without a second
+ * turn-log write (the Silence row already logged when it fired). */
+export const ReviewLinkVerdictSilence: Story = {
+  name: '?screen=verdict-silence',
+  args: {
+    initialView: reviewScreen('verdict-silence').view,
+    initialSession: reviewScreen('verdict-silence').session,
+    initialLastTurn: reviewScreen('verdict-silence').lastTurn,
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole('dialog', { name: "Result: didn't catch it" })).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Re-record' }));
+    await expect(await canvas.findByText(QUESTIONS.Q1.prompt)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
   },
 };
 

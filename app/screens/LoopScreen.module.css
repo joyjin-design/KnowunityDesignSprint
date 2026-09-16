@@ -1,0 +1,155 @@
+/* Same "Knowie" question-row block as VerdictScreen/MicOffScreen/WhyScreen —
+   duplicated per screen, not shared, per SPEC.md's own instruction for this
+   inline piece. Values unchanged from those screens' own measured tokens. */
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: var(--size-space-400);
+}
+
+.knowie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-200);
+  flex-shrink: 0;
+}
+
+.questionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-200);
+}
+
+.mascot {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mascotShadow {
+  position: absolute;
+  bottom: var(--size-space-050);
+  left: 0;
+  width: 100%;
+  height: var(--size-space-300);
+  border-radius: 50%;
+  background: var(--color-background-stacking);
+}
+
+.mascotArt {
+  position: relative;
+}
+
+/* The Thinking loop (SPEC.md screen 10, Processing): a small transform-only
+   bob, so it never triggers a layout repaint. No Storybook component covers
+   a mascot motion loop (component-gaps.md) — built here, off by default
+   under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .mascot[data-thinking] .mascotArt {
+    animation: thinking-bob 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes thinking-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: var(--size-space-400);
+  padding: var(--size-space-400);
+  border-radius: var(--size-radius-400);
+  background: var(--color-background-surface);
+}
+
+.bubbleTail {
+  position: absolute;
+  right: 100%;
+  bottom: var(--size-space-400);
+  width: var(--size-space-400);
+  height: var(--size-space-400);
+  background: var(--color-background-surface);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.bubbleText {
+  margin: 0;
+  font: var(--font-greed-body-m-regular);
+  color: var(--color-text-primary);
+}
+
+/* Recording/Processing's live transcript fills the room below the question
+   row, down to the button row (Screen's own bottomContent, outside this
+   slot). No sheet to stay clear of here, unlike VerdictScreen/WhyScreen. */
+.transcriptArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.transcriptArea[data-overflowing] {
+  justify-content: flex-end;
+}
+
+.transcriptArea[data-overflowing] > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+.transcriptArea[data-overflowing] > div > p {
+  height: auto;
+  max-height: var(--size-illustration-4000);
+  min-height: 0;
+  flex: 0 1 auto;
+}
+
+/* "Still listening…" (SPEC.md): plain text/tertiary under the transcript,
+   shown ~1.5s when the scripted stream simulates iOS restarting
+   recognition on a pause. */
+.stillListening {
+  margin: 0;
+  margin-top: var(--size-space-200);
+  font: var(--font-greed-body-s-regular);
+  color: var(--color-text-tertiary);
+}
+
+.xpChip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--size-space-100);
+  padding-inline: var(--size-space-100);
+  font: var(--font-greed-headline-xs-bold);
+  color: var(--color-accent-blue-on-subtle);
+}
+
+.xpIcon {
+  width: var(--size-icon-300);
+  height: var(--size-icon-300);
+}
+
+/* Idle's own row (ButtonGroup + "Can't talk right now" below it) and
+   Processing's lone Skip icon both sit in this stack. No Figma spacing
+   check against 05Starting/06Talking this session (no live Figma access) —
+   space.300 (12px) borrows the gate's own hand-adjusted button gap
+   (GateScreen.module.css) as the closest precedent, flagged for a real
+   measurement pass. */
+.bottomStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-300);
+  width: 100%;
+}

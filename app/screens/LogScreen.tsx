@@ -10,6 +10,14 @@ import {
   subscribeLatencyOverride,
   type LatencyOverride,
 } from '@/lib/recall/latencyOverride';
+import {
+  SCRIPTED_ANSWER_LABEL,
+  getScriptedAnswer,
+  getServerScriptedAnswer,
+  setScriptedAnswer,
+  subscribeScriptedAnswer,
+  type ScriptedAnswerId,
+} from '@/lib/recall/scriptedTranscript';
 import type { LogRow, SaveStatus } from '@/lib/recall/turnLog';
 import {
   SESSION_STARTED,
@@ -48,6 +56,11 @@ export interface LogScreenProps {
   saveStatus: SaveStatus;
   latency: LatencyOverride;
   onLatencyChange: (value: LatencyOverride) => void;
+  /** Real STT is deferred (SPEC.md verification item 0's spike hasn't run):
+   * this picks which of the current question's sample answers Recording
+   * plays next, standing in for what the recognizer would have heard. */
+  scriptedAnswer: ScriptedAnswerId;
+  onScriptedAnswerChange: (value: ScriptedAnswerId) => void;
   /** Returns whether the copy actually reached the clipboard, so the button
    * can say if it didn't. */
   onCopyCsv: () => boolean | Promise<boolean>;
@@ -68,6 +81,8 @@ export function LogScreen({
   saveStatus,
   latency,
   onLatencyChange,
+  scriptedAnswer,
+  onScriptedAnswerChange,
   onCopyCsv,
   confirmingClear,
   onRequestClear,
@@ -119,6 +134,30 @@ export function LogScreen({
                 onClick={() => onLatencyChange(value)}
               >
                 {LATENCY_LABEL[value]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Real STT is deferred (SPEC.md verification item 0), so this picks
+            what Recording "hears" next — same facilitator-only control
+            pattern as Latency above, never seen by a student. */}
+        <div className={styles.latencyRow}>
+          <span className={styles.latencyLabel} id="scripted-answer-label">
+            Next answer
+          </span>
+          <div className={styles.latencyOptions} role="radiogroup" aria-labelledby="scripted-answer-label">
+            {(Object.keys(SCRIPTED_ANSWER_LABEL) as ScriptedAnswerId[]).map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={scriptedAnswer === value}
+                className={styles.latencyOption}
+                data-selected={scriptedAnswer === value || undefined}
+                onClick={() => onScriptedAnswerChange(value)}
+              >
+                {SCRIPTED_ANSWER_LABEL[value]}
               </button>
             ))}
           </div>
@@ -207,10 +246,19 @@ export function LogPage() {
     () => getLatencyOverride(() => window.localStorage),
     getServerLatencyOverride
   );
+  const scriptedAnswer = useSyncExternalStore(
+    subscribeScriptedAnswer,
+    () => getScriptedAnswer(() => window.localStorage),
+    getServerScriptedAnswer
+  );
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   function handleLatencyChange(value: LatencyOverride) {
     setLatencyOverride(() => window.localStorage, value);
+  }
+
+  function handleScriptedAnswerChange(value: ScriptedAnswerId) {
+    setScriptedAnswer(() => window.localStorage, value);
   }
 
   async function handleCopyCsv() {
@@ -233,6 +281,8 @@ export function LogPage() {
       saveStatus={saveStatus}
       latency={latency}
       onLatencyChange={handleLatencyChange}
+      scriptedAnswer={scriptedAnswer}
+      onScriptedAnswerChange={handleScriptedAnswerChange}
       onCopyCsv={handleCopyCsv}
       confirmingClear={confirmingClear}
       onRequestClear={() => setConfirmingClear(true)}

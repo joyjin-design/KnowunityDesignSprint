@@ -74,6 +74,7 @@
    the build-screen skill's step 5 — logged in component-gaps.md. */
 .latencyOptions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--size-space-100);
 }
 
