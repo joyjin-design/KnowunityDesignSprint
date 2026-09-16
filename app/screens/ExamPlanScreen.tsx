@@ -120,8 +120,10 @@ function frameOverlay(id: FrameId, hidden: boolean, hintPlayed: boolean, onHintP
 
 /**
  * SPEC.md screen 3: one exported frame (00Homescreen, 01Exam, 02Hint-animate
- * or 03VoicerecallON) with its tap zones. Rendered bare, not inside Screen, since
- * each export already draws its own status bar and tab bar.
+ * or 03VoicerecallON) with its tap zones. Rendered bare, not inside Screen,
+ * since each export already draws its own tab bar and home indicator — see
+ * frames.ts's doc comment for why the status bar strip isn't part of that
+ * any more.
  */
 export function ExamPlanScreen({ frame, onZone, hintPlayed = false, onHintPlayed = NOOP }: ExamPlanScreenProps) {
   return (

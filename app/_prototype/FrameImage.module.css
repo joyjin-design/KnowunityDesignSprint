@@ -1,8 +1,12 @@
-/* Full-bleed: each export draws its own status bar, tab bar and home
-   indicator, so nothing pads it (sprint-context.md, 2026-09-14). */
+/* Each export still draws its own tab bar and home indicator, but its baked-in
+   status bar strip is cropped off (see frames.ts's doc comment) — on a real
+   phone it doubled the real one, the same bug Screen's showStatusBar=false
+   fixed. Padded by the safe-area inset instead, exactly like Screen, so the
+   real iOS status bar shows in that space; resolves to 0 in Storybook. */
 .frame {
   position: relative;
   width: 100%;
+  padding-top: env(safe-area-inset-top);
   background: var(--color-background-page);
 }
 

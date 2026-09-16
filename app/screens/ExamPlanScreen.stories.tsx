@@ -3,11 +3,11 @@ import { expect, fn, userEvent } from 'storybook/test';
 import { ExamPlanFlow, ExamPlanScreen } from './ExamPlanScreen';
 
 const DESCRIPTION = `
-**SPEC.md screen 3: Homescreen and exam plan.** Exported Figma frames (3×, 1170×2532) with invisible tap zones. They're prototype images, not components, and render bare rather than inside \`Screen\`, because each export draws its own status bar, tab bar and home indicator.
+**SPEC.md screen 3: Homescreen and exam plan.** Exported Figma frames (3×, 1170×2364) with invisible tap zones. They're prototype images, not components, and render bare rather than inside \`Screen\`, because each export draws its own tab bar and home indicator. Each export's own baked-in status bar strip is cropped off (2026-09-16 — it doubled the real one on a phone, same as Screen's used to); \`FrameImage\` pads that space with the safe-area inset instead.
 
 | Frame | Figma | Tap zone → goes to |
 | --- | --- | --- |
-| 00Homescreen | 13619:3109 | Exam tab (with a live, animated new-voice-recall badge) → 01Exam. Triple tap on the top-left corner → turn log (facilitator) |
+| 00Homescreen | 13619:3109 | Exam tab (with a live, animated new-voice-recall badge) → 01Exam. Triple tap the blank band below the header row → turn log (facilitator) |
 | 01Exam | 13548:6324 | Show me (banner) → 02Hint-animate |
 | 02Hint-animate | 13547:5824 | Voice recall chip → 03VoicerecallON |
 | 03VoicerecallON | 13548:6325 | Organelle Identification → node 1 · Comparing Cell Types → node 2 |
