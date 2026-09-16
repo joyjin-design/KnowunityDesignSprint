@@ -43,6 +43,17 @@ const ACCIDENTAL_TAP_MS = 1000;
  * take ends — no separate auto-hide timer. */
 const SILENCE_TIMEOUT_MS = 3000;
 
+/** Waveform bars reveal one at a time on this clock while there's been
+ * recent speech (2026-09-16, your call — replaces the earlier word-count
+ * proxy). Gated by `stillListening` below: the clock only advances between
+ * "a sound has been heard" and "3s of silence" — the same two states that
+ * already drive the "Still listening…" cue, so the two read as
+ * complementary rather than two separate signals. No live amplitude signal
+ * exists (`webkitSpeechRecognition` doesn't expose one), so "a sound has
+ * been heard" means "at least one interim result has arrived," not a real
+ * volume threshold. */
+const WAVEFORM_REVEAL_INTERVAL_MS = 200;
+
 /** The waveform row's bar heights (px), left to right, transcribed from
  * Figma's own full-width waveform (nodes 13698:7196 and 13696:7029 —
  * 08Talking-finished and Processing draw the identical 38-bar row) — literal
@@ -52,19 +63,6 @@ const WAVEFORM_BAR_HEIGHTS = [
   25, 30, 23, 23, 23, 21, 19, 16, 14, 16, 10, 10, 10, 16, 10, 10, 23, 21, 19, 16, 23, 23, 23, 23, 23, 23, 23, 23, 23,
   23, 23, 21, 19, 16, 23, 21, 19, 16,
 ];
-
-/** How many bars reveal per recognized word (06Talking → 07KeepTalking →
- * 08Talking-finished, Figma's own three-frame progression of 0 → 16 → 38
- * bars): neither `webkitSpeechRecognition` nor the scripted stand-in exposes
- * live audio amplitude, so word count is the closest available proxy for
- * "as voice comes into the mic" — tuned so a typical sample answer (10-15
- * words) fills the row. */
-const BARS_PER_WORD = 3;
-
-function revealedBarCount(transcript: string): number {
-  const words = transcript.trim().split(/\s+/).filter(Boolean).length;
-  return Math.min(WAVEFORM_BAR_HEIGHTS.length, words * BARS_PER_WORD);
-}
 
 type Progress = ComponentProps<typeof ProgressIndicator>['progress'];
 
@@ -95,8 +93,9 @@ export interface LoopScreenProps {
    * TurnOutcome only has 'Left (idle)' and 'Left (judging)'; a close
    * mid-Recording is treated like Cancel (nothing committed yet), so the
    * caller shouldn't log a turn for it. `latencyMs`/`flag` are only set when
-   * `phase` is 'processing' — Close is the only way out of Processing now
-   * that Skip is hidden there (sprint-context.md, 2026-09-15). */
+   * `phase` is 'processing' — Close is the only *working* way out of
+   * Processing; the discard icon and Send are visible there but disabled
+   * (sprint-context.md, 2026-09-16, supersedes hiding them entirely). */
   onClose?: (phase: Phase, transcript: string, latencyMs?: number, flag?: LatencyFlag) => void;
   /** A call, lock or backgrounding interrupted a take mid-Recording. */
   onInterrupted?: (transcript: string) => void;
@@ -146,6 +145,7 @@ export function LoopScreen({
   const [idleNotice, setIdleNotice] = useState<'empty' | 'silence'>('empty');
   const [stillListening, setStillListening] = useState(false);
   const [processingPhrase, setProcessingPhrase] = useState<ProcessingPhrase>('think');
+  const [waveformBars, setWaveformBars] = useState(0);
 
   const speechRef = useRef<{ stop: () => void } | null>(null);
   const recordingStartedAt = useRef(0);
@@ -153,11 +153,15 @@ export function LoopScreen({
   const planRef = useRef<ProcessingPlan | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const waveformTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stillListeningRef = useRef(false);
+  const hasHeardSpeechRef = useRef(false);
   const phaseRef = useRef<Phase>('idle');
   const transcriptRef = useRef('');
   useEffect(() => {
     phaseRef.current = phase;
     transcriptRef.current = transcript;
+    stillListeningRef.current = stillListening;
   });
 
   function clearTimers() {
@@ -168,6 +172,11 @@ export function LoopScreen({
   function clearSilenceTimer() {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     silenceTimerRef.current = null;
+  }
+
+  function clearWaveformTimer() {
+    if (waveformTimerRef.current) clearInterval(waveformTimerRef.current);
+    waveformTimerRef.current = null;
   }
 
   /** Rearms the real-silence clock (SILENCE_TIMEOUT_MS): called once when
@@ -184,6 +193,7 @@ export function LoopScreen({
     speechRef.current?.stop();
     clearTimers();
     clearSilenceTimer();
+    clearWaveformTimer();
   }, []);
 
   // Interruptions (SPEC.md): a call, lock or backgrounding mid-Recording
@@ -196,11 +206,14 @@ export function LoopScreen({
       if (phaseRef.current !== 'recording') return;
       speechRef.current?.stop();
       clearSilenceTimer();
+      clearWaveformTimer();
       onInterrupted?.(transcriptRef.current);
       setPhase('idle');
       setIdleNotice('silence');
       setTranscript('');
       setStillListening(false);
+      setWaveformBars(0);
+      hasHeardSpeechRef.current = false;
     }
     document.addEventListener('visibilitychange', handleInterruption);
     window.addEventListener('pagehide', handleInterruption);
@@ -220,11 +233,20 @@ export function LoopScreen({
     setIdleNotice('empty');
     setTranscript('');
     setStillListening(false);
+    setWaveformBars(0);
     recordingStartedAt.current = Date.now();
     setPhase('recording');
     armSilenceTimer();
 
+    hasHeardSpeechRef.current = false;
+    clearWaveformTimer();
+    waveformTimerRef.current = setInterval(() => {
+      if (!hasHeardSpeechRef.current || stillListeningRef.current) return;
+      setWaveformBars((n) => Math.min(WAVEFORM_BAR_HEIGHTS.length, n + 1));
+    }, WAVEFORM_REVEAL_INTERVAL_MS);
+
     const handleInterim = (textSoFar: string) => {
+      hasHeardSpeechRef.current = true;
       setStillListening(false);
       armSilenceTimer();
       setTranscript(textSoFar);
@@ -249,9 +271,12 @@ export function LoopScreen({
   function handleCancel() {
     speechRef.current?.stop();
     clearSilenceTimer();
+    clearWaveformTimer();
     setStillListening(false);
     setPhase('idle');
     setTranscript('');
+    setWaveformBars(0);
+    hasHeardSpeechRef.current = false;
   }
 
   function handleSend() {
@@ -259,6 +284,7 @@ export function LoopScreen({
     const elapsedMs = Date.now() - recordingStartedAt.current;
     speechRef.current?.stop();
     clearSilenceTimer();
+    clearWaveformTimer();
     setStillListening(false);
     const finalTranscript = transcript;
 
@@ -295,10 +321,6 @@ export function LoopScreen({
   }
 
   const bubbleText = phase === 'processing' ? PROCESSING_COPY[processingPhrase] : question.prompt;
-  // Processing renders whatever count Recording last revealed, frozen (no
-  // more transcript updates land once processing starts) — the bars "stay,"
-  // they don't jump to a full row (your instruction, 2026-09-16).
-  const waveformBars = phase === 'idle' ? 0 : revealedBarCount(transcript);
 
   return (
     <Screen

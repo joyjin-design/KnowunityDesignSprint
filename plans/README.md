@@ -13,8 +13,8 @@ Two "missed opportunities" (additive, not corrective) also came out of the audit
 | --- | --- | --- | --- |
 | 001 | [Fix the visible snap when Recording hands off to Processing](001-waveform-pulse-restart-glitch.md) | HIGH | Done (2026-09-16) |
 | 002 | [Replace weak built-in easing keywords with real cubic-béziers](002-weak-built-in-easings.md) | MEDIUM | Done (2026-09-16) |
-| 003 | [Match the mascot bob and waveform pulse periods](003-processing-motion-cohesion.md) | MEDIUM | Not started |
-| 004 | [Waveform bars enter from the right when there's sound, pause during real silence](004-continuous-right-entry-waveform-reveal.md) | MEDIUM (user-directed) | Not started |
+| 003 | [Match the mascot bob and waveform pulse periods](003-processing-motion-cohesion.md) | MEDIUM | Done (2026-09-16) |
+| 004 | [Waveform bars enter from the right when there's sound, pause during real silence](004-continuous-right-entry-waveform-reveal.md) | MEDIUM (user-directed) | Done (2026-09-16) |
 
 ## Recommended execution order
 

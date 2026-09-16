@@ -159,13 +159,19 @@
    (space.150, 6px) and gap (space.100, 4px) match Figma's own 10px pitch
    exactly; bar heights themselves are literal, transcribed geometry (see
    LoopScreen.tsx's WAVEFORM_BAR_HEIGHTS comment). Fixed to the tallest bar's
-   height so bars can grow without shifting the row. */
+   height so bars can grow without shifting the row. `padding-inline`
+   (space.300, 12px) on top of Screen's own bottomContent padding (16px)
+   reaches Figma's cited 28px inset (space.700, node 13696:7029) for this row
+   specifically — the button row below stays at Screen's plain 16px
+   (2026-09-16, your call, plans/004). */
 .waveform {
   display: flex;
   align-items: flex-end;
   gap: var(--size-space-100);
   height: 30px;
+  padding-inline: var(--size-space-300);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .waveformBar {
@@ -176,28 +182,34 @@
   transform-origin: bottom;
 }
 
-/* Recording: each new bar pops in as it's revealed. Processing: "the lines
-   stay" (your instruction, 2026-09-16) and pulse like an equalizer, a bit
-   slower than the usual snappy version (2s, not the ~0.6-1s more typical of
-   one) — reference: https://codepen.io/MischaAbakumova/pen/jmMeaY, staggered
-   per bar via --waveform-bar-delay so they don't all pulse in lockstep. */
+/* Recording: each new bar slides in from the right on a sound-gated clock
+   (LoopScreen.tsx's WAVEFORM_REVEAL_INTERVAL_MS, 2026-09-16, your call,
+   plans/004) — never grows from nothing. Processing: "the lines stay" (your
+   instruction, 2026-09-16) and pulse like an equalizer, matched to the
+   mascot's own thinking-bob period (1.6s, plans/003) so the two loops read
+   as one "Knowie is thinking" moment instead of drifting in and out of
+   phase — reference: https://codepen.io/MischaAbakumova/pen/jmMeaY,
+   staggered per bar via --waveform-bar-delay so they don't all pulse in
+   lockstep. */
 @media (prefers-reduced-motion: no-preference) {
   .waveformBar {
-    animation: waveform-bar-in 150ms ease-out;
+    animation: waveform-bar-in 150ms cubic-bezier(0.19, 1, 0.22, 1);
   }
 
   .waveform[data-animate] .waveformBar {
-    animation: waveform-pulse 2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+    animation: waveform-pulse 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
     animation-delay: var(--waveform-bar-delay, 0s);
   }
 }
 
 @keyframes waveform-bar-in {
   from {
-    transform: scaleY(0);
+    transform: translateX(16px);
+    opacity: 0;
   }
   to {
-    transform: scaleY(1);
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
