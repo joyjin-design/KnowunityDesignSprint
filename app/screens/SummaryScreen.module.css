@@ -53,13 +53,13 @@
    VF-TRIAL" Condensed Heavy) — the same untokened family already flagged on
    ResultBtm's Error title. Size (44) and weight (heavy) both match real
    primitives exactly; line-height (48) doesn't match any --font-line-height
-   token (nearest are 44 and 60), so it's a literal value, same treatment as
-   TypingPlaceholderScreen's own 150% caption line-height. Letter-spacing
-   (-1%) is skipped — no letter-spacing group in tokens.json, same as every
-   other screen. */
+   token, so it uses the nearest one, --font-line-height-2xl (44), per the
+   token rule rather than the literal Figma value. Letter-spacing (-1%) is
+   skipped — no letter-spacing group in tokens.json, same as every other
+   screen. */
 .headline {
   margin: 0;
-  font: var(--font-weight-heavy) var(--font-size-3xl) / 48px var(--font-family-display);
+  font: var(--font-weight-heavy) var(--font-size-3xl) / var(--font-line-height-2xl) var(--font-family-display);
   color: var(--color-text-primary);
 }
 
@@ -127,10 +127,11 @@
   border-radius: var(--size-radius-400);
   background: var(--color-background-page);
   /* Figma's own value text is another off-system condensed face at 24px, no
-     matching --font-size token (nearest are 21 and 28) — the same kind of
-     gap as .headline. Weight (heavy) and line-height (20, --font-line-height-sm)
-     both match real tokens. */
-  font: var(--font-weight-heavy) 24px / var(--font-line-height-sm) var(--font-family-display);
+     matching --font-size token, so it uses the nearest one, --font-size-lg
+     (21), per the token rule rather than the literal Figma value — same
+     kind of gap as .headline. Weight (heavy) and line-height (20,
+     --font-line-height-sm) both match real tokens. */
+  font: var(--font-weight-heavy) var(--font-size-lg) / var(--font-line-height-sm) var(--font-family-display);
 }
 
 .chip[data-tone='xp'] .chipValue {

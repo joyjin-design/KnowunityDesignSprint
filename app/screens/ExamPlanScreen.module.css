@@ -143,7 +143,7 @@
   inset: 0;
   border-radius: 50%;
   background: var(--color-accent-coral-bold);
-  box-shadow: 0 0 0 2px var(--color-accent-coral-on-bold);
+  box-shadow: 0 0 0 var(--size-stroke-heavy-border) var(--color-accent-coral-on-bold);
 }
 
 /*
