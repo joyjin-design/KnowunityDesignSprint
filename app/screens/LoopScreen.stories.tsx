@@ -11,7 +11,7 @@ const DESCRIPTION = `
 **Actions:**
 - Idle: **Start** (with a brief mic re-check first — resolving \`false\` means the caller is about to show the mic-off sheet), **Skip** (next question, no attempt), **Can't talk right now** (leaves the session).
 - Recording: the discard icon **cancels** back to Idle (nothing logged), **Send** moves to Processing (or drops silently back to Idle if under ~1s with nothing heard — the accidental tap).
-- Processing: **Skip** cancels judging (logged Skipped); **Close** always leaves the session.
+- Processing: no bottom actions — Skip is hidden here (sprint-context.md, 2026-09-15); **Close** is the only way out, and always leaves the session.
 
 **Built inline (component-gaps.md):** the speech bubble with its tail, the mascot's shadow and thinking-loop animation, and the XP chip — same duplicated pattern as VerdictScreen/MicOffScreen/WhyScreen.
 `;
@@ -31,7 +31,6 @@ const meta = {
     latencyOverride: 'normal',
     onStart: fn(() => true),
     onSkipIdle: fn(),
-    onSkipProcessing: fn(),
     onCantTalk: fn(),
     onClose: fn(),
     onInterrupted: fn(),
@@ -114,10 +113,12 @@ export const AccidentalTap: Story = {
 };
 
 /** Once a real take (≥1s) is sent, Processing starts immediately: the
- * bubble swaps to "Let me think…", buttonVoice disappears, and Skip alone
- * stays reachable. Waiting out the full fake-latency window (2–8s) to see
- * the eventual verdict/Silence callback is covered by
- * lib/recall/judge.test.ts and processingLatency.test.ts, not here. */
+ * bubble swaps to "Let me think…", buttonVoice disappears, and no bottom
+ * actions remain — Skip is hidden here (sprint-context.md, 2026-09-15);
+ * Close (top app bar) is the only way out. Waiting out the full
+ * fake-latency window (2–8s) to see the eventual verdict/Silence callback
+ * is covered by lib/recall/judge.test.ts and processingLatency.test.ts,
+ * not here. */
 export const Processing: Story = {
   args: { scriptedAnswer: 'pass' },
   play: async ({ canvas, canvasElement, args }) => {
@@ -128,11 +129,15 @@ export const Processing: Story = {
     await expect(bubbleText(canvasElement)).toBe('Let me think…');
     await expect(canvas.queryByRole('button', { name: /send/i })).not.toBeInTheDocument();
     await expect(canvas.queryByRole('button', { name: /start/i })).not.toBeInTheDocument();
-    const skip = canvas.getByRole('button', { name: 'Skip' });
-    await expect(skip).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Skip' })).not.toBeInTheDocument();
 
-    await userEvent.click(skip);
-    await expect(args.onSkipProcessing).toHaveBeenCalledTimes(1);
+    await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
+    await expect(args.onClose).toHaveBeenCalledWith(
+      'processing',
+      expect.any(String),
+      expect.any(Number),
+      expect.any(String)
+    );
   },
 };
 

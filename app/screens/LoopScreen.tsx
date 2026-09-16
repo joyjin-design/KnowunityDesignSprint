@@ -60,9 +60,6 @@ export interface LoopScreenProps {
   onStart?: () => Promise<boolean> | boolean;
   /** Idle only: next question, no attempt used. */
   onSkipIdle?: () => void;
-  /** Processing only: judging is cancelled and the answer thrown away,
-   * logged as Skipped with however long judging had already run. */
-  onSkipProcessing?: (transcript: string, latencyMs: number, flag: LatencyFlag) => void;
   /** Idle only: leaves the session for 01Exam. */
   onCantTalk?: () => void;
   /** Every phase: leaves the session for 03VoicerecallON. The phase and
@@ -70,9 +67,8 @@ export interface LoopScreenProps {
    * TurnOutcome only has 'Left (idle)' and 'Left (judging)'; a close
    * mid-Recording is treated like Cancel (nothing committed yet), so the
    * caller shouldn't log a turn for it. `latencyMs`/`flag` are only set when
-   * `phase` is 'processing' — same shape as `onSkipProcessing`, since a close
-   * mid-judging is the same "give up on the verdict" moment as Skip, just a
-   * different destination. */
+   * `phase` is 'processing' — Close is the only way out of Processing now
+   * that Skip is hidden there (sprint-context.md, 2026-09-15). */
   onClose?: (phase: Phase, transcript: string, latencyMs?: number, flag?: LatencyFlag) => void;
   /** A call, lock or backgrounding interrupted a take mid-Recording. */
   onInterrupted?: (transcript: string) => void;
@@ -109,7 +105,6 @@ export function LoopScreen({
   latencyOverride,
   onStart,
   onSkipIdle,
-  onSkipProcessing,
   onCantTalk,
   onClose,
   onInterrupted,
@@ -241,12 +236,6 @@ export function LoopScreen({
     );
   }
 
-  function handleSkipProcessing() {
-    clearTimers();
-    const latencyMs = Date.now() - processingStartedAt.current;
-    onSkipProcessing?.(transcript, latencyMs, planRef.current?.flag ?? 'normal');
-  }
-
   const bubbleText = phase === 'processing' ? PROCESSING_COPY[processingPhrase] : question.prompt;
 
   return (
@@ -299,17 +288,7 @@ export function LoopScreen({
         </div>
       }
       bottomContent={
-        phase === 'processing' ? (
-          <div className={styles.bottomStack}>
-            <ButtonIcon
-              variant="Secondary"
-              size="L"
-              icon={<SkipIcon />}
-              aria-label="Skip"
-              onClick={handleSkipProcessing}
-            />
-          </div>
-        ) : (
+        phase === 'processing' ? null : (
           <div className={styles.bottomStack}>
             <ButtonGroup variant="Horizontal" size="L">
               <ButtonIcon

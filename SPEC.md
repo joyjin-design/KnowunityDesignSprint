@@ -166,7 +166,7 @@ Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08
 | Idle | Mascot `expression="standby"`, bubble shows the question, `TranscriptDisplay state="Empty"`, `ButtonVoice state="Default"` with mic icon + "Start", Skip, Can't talk right now | **Start**. **Skip** → next question. **Can't talk right now** → 01Exam (leaves the session). **Close** → 01Exam |
 | Recording | `ButtonVoice state="Recording"` with waveform + "Send" (Figma still says "Stop"; deferred); the `ButtonIcon` beside it swaps from Skip to a discard icon (Phosphor `ArrowCounterClockwise`); Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → 01Exam |
 | Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript for ~1.5s when iOS restarts recognition | Same as Recording |
-| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays. The Skip `ButtonIcon` stays visible | **Skip** → next question; judging is cancelled, the answer thrown away, logged as Skipped. **Close** → 01Exam, answer thrown away |
+| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays. No bottom actions — the Skip `ButtonIcon` is hidden too (decided 2026-09-15, sprint-context.md; was visible before) | **Close** → 01Exam, answer thrown away, logged Left (judging). No Skip in this phase any more |
 | Verdict | Screen 1 over this one | See screen 1 |
 | Interrupted | Call, lock or backgrounding mid-recording → Idle with `TranscriptDisplay state="Silence"` ("Sorry, I didn't catch that. Can you repeat?"), no attempt used | Same as Idle |
 | Accidental tap | Start then Send under ~1s with nothing heard → Idle silently | Same as Idle |
@@ -257,8 +257,7 @@ Real STT is deferred (step 0): wherever a step below says "speak" or "say", pick
    - With `?latency=hang`: the Silence sheet at 15s.
    - Lock the phone mid-recording and unlock → Idle with the Silence copy.
    - Airplane mode, then **Send** → Silence sheet.
-   - **Skip** during processing → next question straight away; no verdict sheet appears, and the turn is logged as Skipped.
-   - **Close** during processing → 01Exam; reopening starts at Q1.
+   - Processing has no bottom actions (Skip hidden there, 2026-09-15) — **Close** → 01Exam, logged Left (judging); reopening starts at Q1.
    - **Can't talk right now** on Q2 → 01Exam; reopening starts at Q1.
 9. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
 10. **Open `/log`:** every answered, skipped and Silence turn is there with the right round, transcript, concepts, verdict, latency and flag. Nothing is logged for the cancel or the accidental tap. **Copy as CSV** gives the same rows; **Clear log** asks, then empties it.

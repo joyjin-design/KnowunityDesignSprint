@@ -280,10 +280,6 @@ export function PrototypeFlow({
             logTurn(questionId, 'Skipped', { latencyFlag: null });
             advance(questionId, 'Skipped');
           }}
-          onSkipProcessing={(transcript, latencyMs, flag) => {
-            logTurn(questionId, 'Skipped', { transcript, latencyMs, latencyFlag: flag });
-            advance(questionId, 'Skipped');
-          }}
           onCantTalk={() => {
             logTurn(questionId, 'Left (idle)', { latencyFlag: null });
             leaveSession('01Exam');
