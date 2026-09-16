@@ -42,6 +42,12 @@ interface SpeechRecognitionLike extends EventTarget {
   onresult: ((event: SpeechRecognitionEventLike) => void) | null;
   onerror: ((event: Event) => void) | null;
   onend: (() => void) | null;
+  /** Fires the moment the recognizer detects speech starting — before it has
+   * transcribed anything. Real, not a proxy: unlike `onresult` (which needs
+   * actual words), this is the earliest "there is voice coming in right
+   * now" signal the API exposes, still not amplitude but a step earlier
+   * than text. */
+  onspeechstart: (() => void) | null;
 }
 
 interface SpeechRecognitionConstructor {
@@ -68,6 +74,13 @@ export interface WebSpeechCallbacks {
   /** Fired with the transcript so far (finalized text plus the current
    * interim chunk) on every recognizer result. */
   onInterim: (textSoFar: string) => void;
+  /** Fired the instant the recognizer detects speech starting, ahead of any
+   * transcribed text (2026-09-16, your call: "Still listening…" should hide
+   * the moment voice comes back in, not wait for the first recognized word
+   * — which can lag a beat behind actual speech, especially right after a
+   * long gap). Optional so a caller that doesn't care about the distinction
+   * can ignore it and rely on `onInterim` alone, same as before. */
+  onSpeechStart?: () => void;
 }
 
 export interface WebSpeechHandle {
@@ -115,6 +128,8 @@ export function startWebSpeech(callbacks: WebSpeechCallbacks): WebSpeechHandle {
       const combined = finalTranscript && interim ? `${finalTranscript} ${interim}` : finalTranscript || interim;
       callbacks.onInterim(combined.trim());
     };
+
+    recognition.onspeechstart = () => callbacks.onSpeechStart?.();
 
     // An empty or erroring take already reads as Silence on Send (SPEC.md
     // "On Send" step 3) — nothing else to do with the error itself.

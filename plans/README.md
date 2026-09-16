@@ -1,11 +1,11 @@
 # Animation improvement plans
 
-Source: `/review-animations` + `/improve-animations` audit of the voice recall loop's motion, 2026-09-16 (commit `f7251d2`). Full audit covered all animated surfaces in the repo (`LoopScreen.module.css`, `ExamPlanScreen.module.css`, `Button.module.css`); these four plans are the ones selected to act on this round. Two additional findings from that audit were **not** turned into plans yet:
+Source: `/review-animations` + `/improve-animations` audit of the voice recall loop's motion, 2026-09-16 (commit `f7251d2`). Full audit covered all animated surfaces in the repo (`LoopScreen.module.css`, `ExamPlanScreen.module.css`, `Button.module.css`); these four plans are the ones selected to act on this round. Four additional findings came out of the same audit and were presented as a numbered list (not written as `plans/00N` files) rather than executed immediately:
 
-- **MEDIUM** — `Button.module.css`'s `:active` press feedback has no `transition` anywhere in the codebase (zero `transition:` declarations exist at all) — high-leverage since it's the shared `Button` component.
-- **LOW** — the Processing waveform's `--waveform-bar-delay` stagger cycles through only 8 values, producing a ripple that repeats every 8 bars rather than reading as organic.
-
-Two "missed opportunities" (additive, not corrective) also came out of the audit and are worth a future round: bottom sheets (`VerdictScreen`, `WhyScreen`, `MicOffScreen`, `GateScreen`) have zero enter/exit animation, and "Still listening…" pops in/out with no transition.
+- **#5, MEDIUM** — `Button.module.css`'s `:active` press feedback has no `transition` anywhere in the codebase (zero `transition:` declarations exist at all) — high-leverage since it's the shared `Button` component. **Explicitly left out of scope (2026-09-16, your call).** Not planned, not touched.
+- **#6, LOW** — the Processing waveform's `--waveform-bar-delay` stagger cycles through only 8 values, producing a ripple that repeats every 8 bars rather than reading as organic. **Explicitly left out of scope (2026-09-16, your call).** Not planned, not touched.
+- **#7, missed opportunity** — bottom sheets (`VerdictScreen`, `WhyScreen`, `MicOffScreen`, `GateScreen`) have zero enter/exit animation. **Explicitly left out of scope (2026-09-16, your call).** Not planned, not touched.
+- **#8, missed opportunity** — "Still listening…" popped in/out with no transition. **Done (2026-09-16), option A** ("a short opacity fade only, no transform") — implemented directly rather than as a numbered plan file, since it was a single small, fully-specified change: `LoopScreen.tsx`'s cue now stays mounted for all of Recording and toggles a `data-visible` attribute; `LoopScreen.module.css` added a 150ms `ease` opacity transition (plus a `visibility` toggle, delayed on exit, to keep the invisible copy out of the accessibility tree — not part of the visual motion). See `sprint-context.md`'s 2026-09-16 entry for the full writeup.
 
 ## Plans
 

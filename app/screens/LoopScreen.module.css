@@ -119,12 +119,34 @@
 /* "Still listening…" (SPEC.md, retriggered on real silence 2026-09-16):
    plain text/tertiary under the transcript, shown whenever neither speech
    source has produced a new interim result for 3s, and cleared the moment
-   one does (or the take ends) — see LoopScreen.tsx's silence timer. */
+   one does (or the take ends) — see LoopScreen.tsx's silence timer. Stays
+   mounted for the whole Recording phase now (2026-09-16, your call: "go
+   with option A" — a short opacity fade instead of a hard pop) so opacity
+   has something to actually transition between; `visibility` is layered on
+   only to keep the invisible copy out of the accessibility tree between
+   fades — it isn't part of the visual motion (that's opacity alone, no
+   transform), just delayed so it doesn't cut the fade-out short. */
 .stillListening {
   margin: 0;
   margin-top: var(--size-space-200);
   font: var(--font-greed-body-s-regular);
   color: var(--color-text-tertiary);
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stillListening {
+    transition:
+      opacity 150ms ease,
+      visibility 0s linear 150ms;
+  }
+}
+
+.stillListening[data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .xpChip {

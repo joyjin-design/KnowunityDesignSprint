@@ -253,7 +253,21 @@ export function LoopScreen({
     };
 
     if (scriptedAnswer === 'live' && isWebSpeechSupported()) {
-      speechRef.current = startWebSpeech({ onInterim: handleInterim });
+      speechRef.current = startWebSpeech({
+        onInterim: handleInterim,
+        // Hides "Still listening…" the instant speech resumes, even after a
+        // long gap — doesn't wait for the recognizer to actually transcribe
+        // a word first, which can lag a beat behind real speech (2026-09-16,
+        // your call). Rearms the silence timer too, same as an interim
+        // result would: a speech-start with nothing ever transcribed behind
+        // it (a stray noise, a false positive) should still let "Still
+        // listening…" come back after another 3s of quiet, not suppress it
+        // for the rest of the take.
+        onSpeechStart: () => {
+          setStillListening(false);
+          armSilenceTimer();
+        },
+      });
     } else {
       const text = scriptedTextFor(scriptedAnswer, question);
       speechRef.current = startScriptedSpeech(text, {
@@ -366,8 +380,10 @@ export function LoopScreen({
             <AiDisclaimer />
           </div>
           <Transcript phase={phase} transcript={transcript} idleNotice={idleNotice} />
-          {stillListening && phase === 'recording' && (
-            <p className={styles.stillListening}>Still listening…</p>
+          {phase === 'recording' && (
+            <p className={styles.stillListening} data-visible={stillListening || undefined}>
+              Still listening…
+            </p>
           )}
         </div>
       }

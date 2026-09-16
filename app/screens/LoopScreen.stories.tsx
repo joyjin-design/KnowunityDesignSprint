@@ -211,12 +211,19 @@ export const Processing: Story = {
  * clock armed at Recording's start is the only thing that can trigger it —
  * a direct stand-in for genuine mic silence, not a word count or a
  * recognizer restart. It stays up (no auto-hide) until Cancel ends the
- * take. */
+ * take.
+ *
+ * The cue stays mounted for all of Recording now (2026-09-16, "option A" —
+ * a short opacity fade instead of a hard pop, so there's something to
+ * transition between) — `not.toBeVisible()` is the right check right after
+ * Start, not `not.toBeInTheDocument()`: the text is already in the DOM,
+ * just faded to opacity 0. Cancel unmounts it entirely (phase leaves
+ * 'recording'), so that check still uses toBeInTheDocument(). */
 export const StillListeningCue: Story = {
   args: { scriptedAnswer: 'blank' },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: /start/i }));
-    await expect(canvas.queryByText('Still listening…')).not.toBeInTheDocument();
+    await expect(canvas.getByText('Still listening…')).not.toBeVisible();
     await waitFor(() => expect(canvas.getByText('Still listening…')).toBeVisible(), { timeout: 4000 });
 
     await userEvent.click(canvas.getByRole('button', { name: 'Discard and start over' }));
