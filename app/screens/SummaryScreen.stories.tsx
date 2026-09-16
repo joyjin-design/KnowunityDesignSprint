@@ -3,13 +3,13 @@ import { expect, fn, userEvent } from 'storybook/test';
 import { SummaryScreen } from './SummaryScreen';
 
 const DESCRIPTION = `
-**SPEC.md screen 8: the summary**, shown after the last question in a run — the original 4, or a Try again run's rerun subset. Rebuilt 2026-09-15 to match reference/Finish-quiz.png and the matching real Figma frame (node 7366:69693, \`scaffold\` / size=iPhone 13, your link) — replacing the earlier row-by-row build.
+**SPEC.md screen 8: the summary**, shown after the last of a node's 4 questions. Rebuilt 2026-09-15 to match reference/Finish-quiz.png and the matching real Figma frame (node 7366:69693, \`scaffold\` / size=iPhone 13, your link) — replacing the earlier row-by-row build.
 
 **Composition:** \`MascotSlot\` (\`size="3XL"\`) + a headline/subhead pair, then a two-card stat row (XP, Score), then \`ButtonGroup\` (Horizontal, L) of \`Button\` Secondary **Share** + \`Button\` Primary **Claim XP** in \`bottomContent\`. No \`BottomSheet\` — this is a full screen, not an overlay.
 
 **Headline/subhead/mascot expression are dynamic** on how many questions passed (\`passCount\`/\`totalCount\`): a clean run reuses Figma's own copy and expression ("Perfect lesson!", "You made 0 mistakes. How?!", \`expression="approving"\`) verbatim; the other two states are authored copy (not in SPEC.md, \`Voice-ux.md\` or the content file) — see the build report.
 
-**Traded away from the earlier build, on your instruction:** the per-question rows (question, transcript snippet, verdict) and the Try again path. **CLAUDE.md's transcript rule** is still met earlier in the flow — every \`VerdictScreen\`/\`WhyScreen\` already shows the transcript back at the moment of judging — not repeated here.
+**Traded away from the earlier build, on your instruction:** the per-question rows (question, transcript snippet, verdict) and the Try again path — Try again is dropped for real (screen 10, 2026-09-15); a session is one pass through 4 questions, no reruns. **CLAUDE.md's transcript rule** is still met earlier in the flow — every \`VerdictScreen\`/\`WhyScreen\` already shows the transcript back at the moment of judging — not repeated here.
 
 **Close (top-left X) is a deliberate addition**, not in the Figma frame at all: CLAUDE.md's "never trap the student" rule needs a way out, since Share and Claim XP are both decorative this sprint (your instruction, 2026-09-15) and neither one leaves the screen.
 
@@ -77,14 +77,5 @@ export const NonePass: Story = {
     await expect(canvas.getByText('Lesson complete')).toBeVisible();
     await expect(canvas.getByText("Let's go over these again next time.")).toBeVisible();
     await expect(canvas.getByText('0/4')).toBeVisible();
-  },
-};
-
-/** After a Try again run: the rerun subset's own total, not the original 4. */
-export const AfterTryAgain: Story = {
-  name: 'After a Try again run',
-  args: { passCount: 2, totalCount: 3 },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText('2/3')).toBeVisible();
   },
 };

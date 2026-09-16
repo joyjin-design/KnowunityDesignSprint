@@ -16,7 +16,7 @@ A screen here is a composition of existing Storybook components inside `Screen`.
   - Earlier log entries keep the Figma screen names used at the time. The 2026-09-15 rename entry maps old names to new ones.
 - If the screen shows questions, transcripts or verdicts, read `content/voice-recall-questions.md`. Never make up question copy. Figma frames often show placeholder copy ("What is mitochondria?"); use the real copy and list the difference.
 - Check "Out of scope" and "Open" in `SPEC.md`. Don't build an out-of-scope state. If an Open item affects this screen, build the option the spec leans toward and include it in your report.
-- If `SPEC.md` marks the screen as blocked (screen 10 is blocked on Verification step 0, the spike), check `sprint-context.md` for the spike results. If they aren't logged, stop and say so.
+- If `SPEC.md` marks the screen as blocked (Verification step 0, the mic/recognizer spike, still hasn't run), check `sprint-context.md` for the spike results first. If they aren't logged, don't treat the block as automatically final — screen 10 was built ahead of the spike against a scripted transcript stand-in (`lib/recall/scriptedTranscript.ts`) rather than waiting on it, on the user's call (sprint-context.md, 2026-09-15); ask whether the same applies here before stopping.
 - Props marked **(change approved)** in `SPEC.md` are the only changes you may make to an existing component's props.
 
 ## 2. Check whether the screen has a Figma frame
@@ -24,10 +24,11 @@ A screen here is a composition of existing Storybook components inside `Screen`.
 This decides how you work and what you report at the end.
 
 - Figma file: Yummy-Knowie Design System, `VF5OpIZyDTe8ML0YITnjPe`. Page "Design the core flow", section "Design for voice recall first run experience". Screens there are named with a number prefix (00Homescreen, 01Exam, 02Hint-animate, 03VoicerecallON, 04a and 04b full-screen gate, 05Starting … 10End, plus Partial, Incorrect and Silence).
-- Start with the `Figma:` node IDs in the screen's `SPEC.md` section. **Names change often, and node IDs almost never do,** so match frames by ID. As of 2026-09-15:
-  - **Has frames:** 1 Verdict sheet (10End, Partial, Incorrect, Silence), 3 Homescreen/exam plan (00–03, exported as images), 6 Gate (two frames, one per state: 04b 13575:1934 alone, 04a 13555:8294 with the permission sheet), and 10 Voice recall loop (one frame per state).
-  - **No frame:** 2 Turn log, 4 Typing placeholder, 5 Mic-off sheet, 7 Why? sheet, 8 Summary sheet.
+- Start with the `Figma:` node IDs in the screen's `SPEC.md` section. **Names change often, and node IDs almost never do,** so match frames by ID. As of 2026-09-15 (updated the same day: screen 8 moved from "no frame" to "has a frame" once the user supplied its node):
+  - **Has frames:** 1 Verdict sheet (10End, Partial, Incorrect, Silence), 3 Homescreen/exam plan (00–03, exported as images), 6 Gate (two frames, one per state: 04b 13575:1934 alone, 04a 13555:8294 with the permission sheet), 8 Summary sheet (node `7366:69693`, a different Figma page — "Design the core flow", not the first-run section the rest of this list is drawn from), and 10 Voice recall loop (one frame per state).
+  - **No frame:** 2 Turn log, 4 Typing placeholder, 5 Mic-off sheet, 7 Why? sheet.
   - 9 appBar is already built as `AppBar`.
+  - All 10 screens are now built (SPEC.md, "Screens, in build order"). This step's workflow still applies to any new state added to one of them.
 - Don't trust that list alone. Check Figma through the `figma-console` MCP. Run `figma_get_status` first, since it needs Figma desktop open with the Desktop Bridge plugin. Then open the node IDs. For a "no frame" screen, look through the section in case a frame has been added since.
 - A frame can cover only some states. The loop has frames for 05Starting, 06Talking, 07KeepTalking, 08Talking-finished and Thinking, but none for Interrupted, Accidental tap or Still listening. Treat each state on its own: states with a frame follow the frame path, the rest follow the no-frame path.
 - Some frame details were deliberately overruled in `SPEC.md` or the log: "Send" vs "Stop", no dim behind the verdict sheet, nothing behind "Didn't catch it" when nothing was heard, Knowie 2XL on both gate states, and the Figma follow-ups list. The spec and log win. Still list each one as a difference.
@@ -123,7 +124,6 @@ Exception: if `SPEC.md` explicitly says to build something inline and not as a c
   - Mic off, and the gate after an earlier denial
   - `?latency=slow` and `?latency=hang`
   - Skip or close during processing
-  - The summary's after-Try-again variant
 - Check every state against the hard rules in `CLAUDE.md`:
   - Every idle voice turn has Skip or "Can't talk right now".
   - While recording, one tap on cancel returns to idle.
@@ -140,7 +140,7 @@ A screen isn't done when its stories pass: it also has to be reachable in the ap
 
 - **Add the screen as a view** in `PrototypeView` (`app/_prototype/reviewScreens.ts`) and a `case` in `PrototypeFlow`. Pass `showStatusBar={false}`, since the flow is what runs on the phone.
 - **Wire every action to its SPEC.md destination**, the log winning where they disagree. Leaving voice recall goes to 03VoicerecallON; only Don't Allow in the iOS prompt goes to 01Exam; typing's Back to voice goes to 01Exam.
-- **A destination that isn't built yet goes to `NotBuiltScreen`** with a caption naming what's missing, never to a dead button. When you build that destination, replace every `NotBuiltScreen` that stood in for it.
+- **A destination that isn't built yet goes to a stand-in screen** (`NotBuiltScreen` served this purpose until 2026-09-15, when the last screen it covered — the loop — was built and it was deleted; recreate the pattern if a future addition needs one again) with a caption naming what's missing, never to a dead button. When you build that destination, replace every stand-in that stood in for it.
 - **Add a review link** in `REVIEW_SCREENS` (`/?screen=<name>`) for every state the flow can't reach yet. Review links don't write to the turn log.
 - **Anything the flow decides** (a route, what an unbuilt stop says, what a failure does) goes in your report as a decision, same as any other.
 - Add or update a click-through story in `app/_prototype/PrototypeFlow.stories.tsx`. Inject `requestMic` and `startSession` there instead of touching the real mic or turn log.
@@ -172,7 +172,7 @@ Always include:
 - Token substitutions.
 - Mismatches between `SPEC.md` and `sprint-context.md`.
 - Preview URLs and test/lint results.
-- How to reach the screen in the app: the tap path from 00Homescreen, or its `/?screen=` review link, and any `NotBuiltScreen` stops it leads to.
+- How to reach the screen in the app: the tap path from 00Homescreen, or its `/?screen=` review link, and any not-built-yet stops it leads to.
 
 **If the screen (or state) has a Figma frame:** list **every** difference between the build and the frame, grouped by state. Cover layout, spacing, sizes, copy, icons, component or variant choices, token substitutions, and elements added or left out. Note which differences the spec intended (for example "Send" vs "Stop") and which aren't yet explained. Don't summarise ("minor spacing tweaks"); name each one.
 

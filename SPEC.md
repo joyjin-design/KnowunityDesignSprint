@@ -121,7 +121,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 - **States:** after Pass, Partial or Fail — only the concepts the (mocked) judge found missing are bold; Success has nothing missing, so nothing's bold. Silence has no Why? button (`ResultBtm` doesn't render one for it).
 - **What the student can do:** only **Got it** → next question, or the summary. It can't be dragged down or closed from the backdrop; **Close**, in the top app bar, is still this screen's own way out (the same rule `VerdictScreen` follows), separate from the sheet's own dismissal rules.
 - **Not carried over:** the shipped quiz's "How can I help?" input.
-- **Wired into `PrototypeFlow`:** reached from the verdict view's own Why? (Pass/Partial/Fail only); Got it goes to the loop's "Not built yet" stop, same as the verdict screen's own Continue. Review links: `?screen=why-pass`, `why-partial`, `why-fail`.
+- **Wired into `PrototypeFlow`:** reached from the verdict view's own Why? (Pass/Partial/Fail only); Got it → next question, or the summary after the last one, same as the verdict screen's own Continue (`advance()` in `PrototypeFlow`). Review links: `?screen=why-pass`, `why-partial`, `why-fail`.
 
 ### 8. Summary sheet
 
@@ -133,7 +133,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 - **Dropped from the same-day earlier build, on your instruction:** the per-question row list (question, transcript snippet, verdict) and the Try again path — a non-pass question gets no further round from this screen. CLAUDE.md's transcript rule stays satisfied earlier in the flow regardless: every `VerdictScreen`/`WhyScreen` already shows the transcript back at the moment of judging.
 - **Close (top-left X) is a deliberate addition, not in the Figma frame at all** (its own top nav is empty). Since Share and Claim XP are both decorative this sprint and neither leaves the screen, Close is the only way out — CLAUDE.md's "never trap the student" rule.
 - **What the student can do:** **Close** → leaves the session for the exam plan (03VoicerecallON). **Share** and **Claim XP** → nothing; both are present but unwired this sprint, per your instruction.
-- **Not yet reachable from the running flow** — only by review link (`?screen=summary-some-non-pass`, `summary-all-pass`, `summary-after-try-again`). Nothing in `PrototypeFlow` tracks which question a session is on yet, so `VerdictScreen`'s and `WhyScreen`'s own Continue/Got it still return to the loop's "Not built yet" stop rather than here.
+- **Reached from the running flow** (screen 10, 2026-09-15): `advance()` shows Summary once the 4th question's outcome is recorded, with the session's real `passCount`/`totalCount`. Also reachable by review link (`?screen=summary-some-non-pass`, `summary-all-pass`) with fixed sample data. There's no `summary-after-try-again` link — Try again is out for real (screen 10), so no session reaches Summary by any route other than a single pass through 4 questions.
 
 ### 9. appBar (component, built before screen 10)
 
