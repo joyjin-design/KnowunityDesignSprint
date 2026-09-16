@@ -26,6 +26,11 @@
  * than a raw px; the cubic-beziers and every animation timing below have no
  * motion token in this system, same gap already flagged for the loop's
  * Processing bob and Option A's build before it.
+ *
+ * The matrix's ty (translate y) is 56px less than Figma's own relativeTransform
+ * gives (91.978, not 147.978) — 2026-09-16's status-bar crop shortened the
+ * 390×844 frame this was positioned against to 390×788, the same 56pt every
+ * zone in frames.ts shifted by. tx is untouched: the crop was vertical only.
  */
 
 .arrowBox {
@@ -34,7 +39,7 @@
   top: 0;
   width: 113px;
   height: 117px;
-  transform: matrix(0.8242865800857544, -0.5661728382110596, 0.5661728382110596, 0.8242865800857544, 172, 147.97752380371094);
+  transform: matrix(0.8242865800857544, -0.5661728382110596, 0.5661728382110596, 0.8242865800857544, 172, 91.97752380371094);
   transform-origin: 0 0;
   pointer-events: none;
 }
@@ -128,11 +133,16 @@
  * point space, read off Figma) — a small negative offset from the literal
  * Figma badge position, perched right on the corner the way a notification
  * badge usually sits, half on the icon and half off it.
+ *
+ * top is 56px less than that derivation gives (715.57, not 771.57) —
+ * 2026-09-16's status-bar crop shortened the 390×844 frame this was measured
+ * against to 390×788, the same 56pt every zone in frames.ts shifted by.
+ * left is untouched: the crop was vertical only.
  */
 .badge {
   position: absolute;
   left: 219.5px;
-  top: 771.57px;
+  top: 715.57px;
   width: 7px;
   height: 7px;
   pointer-events: none;

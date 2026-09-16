@@ -2,12 +2,23 @@
    status bar strip is cropped off (see frames.ts's doc comment) — on a real
    phone it doubled the real one, the same bug Screen's showStatusBar=false
    fixed. Padded by the safe-area inset instead, exactly like Screen, so the
-   real iOS status bar shows in that space; resolves to 0 in Storybook. */
+   real iOS status bar shows in that space; resolves to 0 in Storybook.
+   Not `position: relative` any more — see .content below for why the
+   positioned ancestor moved. */
 .frame {
-  position: relative;
   width: 100%;
   padding-top: env(safe-area-inset-top);
   background: var(--color-background-page);
+}
+
+/* The positioned ancestor for the image, tap zones and overlay children —
+   see FrameImage.tsx's doc comment for why this can't be `.frame` itself.
+   Has no size of its own beyond what `.image` gives it (block, width 100%,
+   height auto), so it's exactly the image's box — every child's px/percent
+   coordinate stays a correct image-relative value in Storybook and on a
+   real phone alike. */
+.content {
+  position: relative;
 }
 
 .image {

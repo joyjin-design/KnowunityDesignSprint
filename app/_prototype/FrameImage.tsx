@@ -43,36 +43,49 @@ export function FrameImage({ frame, onZone, hidden, children }: FrameImageProps)
 
   return (
     <div className={styles.frame} hidden={hidden} data-frame={frame.id}>
-      {/* Served as exported (3×): recompressing would blur the UI text. */}
-      <Image
-        className={styles.image}
-        src={frame.src}
-        alt={frame.alt}
-        width={FRAME_SIZE.width}
-        height={FRAME_SIZE.height}
-        loading="eager"
-        unoptimized
-      />
-      {frame.zones.map((zone) => {
-        const [x, y, w, h] = zone.box;
-        return (
-          <button
-            key={zone.id}
-            type="button"
-            className={styles.zone}
-            aria-label={zone.label}
-            data-zone={zone.id}
-            style={{
-              left: `${(x / FRAME_SIZE.width) * 100}%`,
-              top: `${(y / FRAME_SIZE.height) * 100}%`,
-              width: `${(w / FRAME_SIZE.width) * 100}%`,
-              height: `${(h / FRAME_SIZE.height) * 100}%`,
-            }}
-            onClick={(event) => handleTap(zone.id, zone.taps ?? 1, event.timeStamp)}
-          />
-        );
-      })}
-      {children}
+      {/* The positioned ancestor for the image, tap zones and any overlay
+          (badge/arrow) children — deliberately not `.frame` itself. A CSS
+          `position: absolute` child's containing block is its ancestor's
+          padding edge, which sits at the ancestor's border-box top regardless
+          of how much padding-top that ancestor has — so if these children
+          were positioned against `.frame` directly, `.frame`'s own
+          safe-area padding-top (below) would shift the image down without
+          shifting them, misaligning both by the safe-area inset on a real
+          phone (invisible in Storybook, where the inset is 0). Nesting them
+          in their own wrapper that starts right where the image starts
+          keeps every image-relative coordinate correct in both places. */}
+      <div className={styles.content}>
+        {/* Served as exported (3×): recompressing would blur the UI text. */}
+        <Image
+          className={styles.image}
+          src={frame.src}
+          alt={frame.alt}
+          width={FRAME_SIZE.width}
+          height={FRAME_SIZE.height}
+          loading="eager"
+          unoptimized
+        />
+        {frame.zones.map((zone) => {
+          const [x, y, w, h] = zone.box;
+          return (
+            <button
+              key={zone.id}
+              type="button"
+              className={styles.zone}
+              aria-label={zone.label}
+              data-zone={zone.id}
+              style={{
+                left: `${(x / FRAME_SIZE.width) * 100}%`,
+                top: `${(y / FRAME_SIZE.height) * 100}%`,
+                width: `${(w / FRAME_SIZE.width) * 100}%`,
+                height: `${(h / FRAME_SIZE.height) * 100}%`,
+              }}
+              onClick={(event) => handleTap(zone.id, zone.taps ?? 1, event.timeStamp)}
+            />
+          );
+        })}
+        {children}
+      </div>
     </div>
   );
 }
