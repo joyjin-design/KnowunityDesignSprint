@@ -15,6 +15,7 @@ A design prototype for a voice-based active-recall step in Knowunity's exam plan
 - Transcript is always shown back to the student.
 - Judging is mocked (an on-device keyword judge). Transcripts come from the browser's built-in recognizer (`webkitSpeechRecognition`); no custom STT engine.
 - Any color, size, weight, or line height comes from `tokens/tokens.json`. Never invent one.
+- `npm run check:tokens` catches raw hex colors in `app/` and `stories/`; run it after building or editing anything.
 - Component usage, states, and naming follow `design-system.md` exactly.
 - Build from the components that already exist, and stop before making a new one. Only add a new component if `design-system.md` has no existing match for the need.
 - Append every new decision to `sprint-context.md` as it's made.

@@ -16,7 +16,7 @@ Each question also carries sample answers for the end-to-end check in `SPEC.md`.
 
 | Concept | Counts if the transcript says |
 | --- | --- |
-| A. Holds the genetic material | DNA, genetic material, genes, chromosomes, instructions · *mis-heard:* "D and A", "the NA" |
+| A. Holds the genetic material | DNA, genetic material, genes, chromosomes, instructions · *mis-heard:* "D and A", "the NA", "NDA" (confirmed on-device, spike 2026-09-16) |
 | B. Controls the cell | controls, control center, command center, brain of the cell, tells the cell what to do, directs |
 | C. Wrapped in its own membrane | nuclear membrane, nuclear envelope, membrane around it, surrounded by a membrane · *mis-heard:* "new clear membrane", "nuclear envelop" |
 

@@ -23,7 +23,7 @@ Mic permission is remembered in memory only, so a reload starts over; iOS answer
 
 **Review links** open one screen directly: \`/?screen=gate\`, \`gate-sheet\`, \`gate-denied\`, \`mic-off\`, \`typing\`, \`loop-idle\`, \`verdict-pass\`, \`verdict-partial\`, \`verdict-fail\`, \`verdict-silence\`, \`why-pass\`, \`why-partial\`, \`why-fail\`, \`summary-some-non-pass\`, \`summary-all-pass\`. Opening one writes nothing to the turn log; tapping something that logs a turn in the real flow still does. The mic prompt needs HTTPS (or localhost): off it, Allow acts like Don't Allow and logs a console warning.
 
-**Real STT is deferred** (verification item 0's spike hasn't run): the loop's Recording plays a scripted sample answer, picked on \`/log\`'s facilitator-only "Next answer" control (defaults to \`pass\` here, so these stories don't depend on \`/log\`'s own state).
+**Recording defaults to the real recognizer** (\`live\`, \`lib/recall/webSpeech.ts\`) here, same as the app — but no story below taps Start on a loop reached through \`PrototypeFlow\` itself, so none of them exercise it (it needs an actual mic). A facilitator can switch \`/log\`'s "Next answer" control to a scripted sample instead, to test without speaking; \`LoopScreen\`'s own stories always pass \`scriptedAnswer\` as a fixed arg for exactly that reason.
 `;
 
 const granted = () => fn<() => Promise<MicRequestResult>>(async () => 'granted');

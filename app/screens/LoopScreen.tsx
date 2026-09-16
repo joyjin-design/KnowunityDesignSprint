@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ComponentProps, type CSSProperties } from 'react';
 import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
 import { Lightning } from '@phosphor-icons/react/dist/csr/Lightning';
 import { Microphone } from '@phosphor-icons/react/dist/csr/Microphone';
-import { Waveform } from '@phosphor-icons/react/dist/csr/Waveform';
+import { Waveform as WaveformIcon } from '@phosphor-icons/react/dist/csr/Waveform';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { AiDisclaimer } from '@/app/components/AiDisclaimer';
 import { AppBar } from '@/app/components/AppBar';
@@ -21,6 +21,7 @@ import type { LatencyOverride } from '@/lib/recall/latencyOverride';
 import { planProcessing, type ProcessingPlan } from '@/lib/recall/processingLatency';
 import type { Question } from '@/lib/recall/questions';
 import { scriptedTextFor, startScriptedSpeech, type ScriptedAnswerId } from '@/lib/recall/scriptedTranscript';
+import { isWebSpeechSupported, startWebSpeech } from '@/lib/recall/webSpeech';
 import type { ConceptId, LatencyFlag, Verdict } from '@/lib/recall/types';
 import styles from './LoopScreen.module.css';
 
@@ -36,8 +37,34 @@ const PROCESSING_COPY: Record<ProcessingPhrase, string> = {
 /** How long a take has to run before Send counts as a real attempt, not the
  * accidental-tap case (SPEC.md "On Send" step 1). */
 const ACCIDENTAL_TAP_MS = 1000;
-/** How long "Still listening…" shows once triggered (SPEC.md: ~1.5s). */
-const STILL_LISTENING_VISIBLE_MS = 1500;
+/** "Still listening…" fires on real silence (2026-09-16, your call): no new
+ * transcript from either speech source for this long, not a word count or a
+ * recognizer restart. Clears the moment a new interim result arrives, or the
+ * take ends — no separate auto-hide timer. */
+const SILENCE_TIMEOUT_MS = 3000;
+
+/** The waveform row's bar heights (px), left to right, transcribed from
+ * Figma's own full-width waveform (nodes 13698:7196 and 13696:7029 —
+ * 08Talking-finished and Processing draw the identical 38-bar row) — literal
+ * decorative geometry, not tokens, same exemption component-gaps.md already
+ * gives the hint arrow and the summary stat chip. */
+const WAVEFORM_BAR_HEIGHTS = [
+  25, 30, 23, 23, 23, 21, 19, 16, 14, 16, 10, 10, 10, 16, 10, 10, 23, 21, 19, 16, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+  23, 23, 21, 19, 16, 23, 21, 19, 16,
+];
+
+/** How many bars reveal per recognized word (06Talking → 07KeepTalking →
+ * 08Talking-finished, Figma's own three-frame progression of 0 → 16 → 38
+ * bars): neither `webkitSpeechRecognition` nor the scripted stand-in exposes
+ * live audio amplitude, so word count is the closest available proxy for
+ * "as voice comes into the mic" — tuned so a typical sample answer (10-15
+ * words) fills the row. */
+const BARS_PER_WORD = 3;
+
+function revealedBarCount(transcript: string): number {
+  const words = transcript.trim().split(/\s+/).filter(Boolean).length;
+  return Math.min(WAVEFORM_BAR_HEIGHTS.length, words * BARS_PER_WORD);
+}
 
 type Progress = ComponentProps<typeof ProgressIndicator>['progress'];
 
@@ -49,8 +76,9 @@ export interface LoopScreenProps {
   progress: Progress;
   /** Figma parity in Storybook; the app passes false on the test iPhone. */
   showStatusBar?: ScreenProps['showStatusBar'];
-  /** The facilitator's current pick on /log — real STT is deferred (spike
-   * pending), so this decides what "recording" actually hears. */
+  /** The facilitator's current pick on /log — `live` (the default) uses the
+   * real recognizer (`lib/recall/webSpeech.ts`); every other value streams a
+   * scripted stand-in instead, for testing without speaking. */
   scriptedAnswer: ScriptedAnswerId;
   /** The facilitator's latency override, already wired into /log. */
   latencyOverride: LatencyOverride;
@@ -91,11 +119,12 @@ export interface LoopScreenProps {
  * separate screens the caller composes on top, the same "sits over this one"
  * model those screens already established while this one didn't exist yet.
  *
- * Real STT is deferred (SPEC.md verification item 0, the mic/recognizer
- * spike, hasn't run) — Recording's transcript comes from
- * lib/recall/scriptedTranscript.ts, a facilitator-controlled stand-in
- * written to the shape a real `webkitSpeechRecognition` wrapper will need,
- * so swapping one in later is a small change.
+ * Recording's transcript comes from lib/recall/webSpeech.ts (the real
+ * `webkitSpeechRecognition` wrapper, wired in once SPEC.md verification item
+ * 0's spike ran, 2026-09-16) when the facilitator's /log pick is `live`, or
+ * from lib/recall/scriptedTranscript.ts's stand-in otherwise — both return
+ * the same `{ stop() }` shape, so this screen doesn't otherwise care which
+ * one is streaming.
  */
 export function LoopScreen({
   question,
@@ -118,11 +147,12 @@ export function LoopScreen({
   const [stillListening, setStillListening] = useState(false);
   const [processingPhrase, setProcessingPhrase] = useState<ProcessingPhrase>('think');
 
-  const speechRef = useRef<ReturnType<typeof startScriptedSpeech> | null>(null);
+  const speechRef = useRef<{ stop: () => void } | null>(null);
   const recordingStartedAt = useRef(0);
   const processingStartedAt = useRef(0);
   const planRef = useRef<ProcessingPlan | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>('idle');
   const transcriptRef = useRef('');
   useEffect(() => {
@@ -135,11 +165,25 @@ export function LoopScreen({
     timersRef.current = [];
   }
 
+  function clearSilenceTimer() {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    silenceTimerRef.current = null;
+  }
+
+  /** Rearms the real-silence clock (SILENCE_TIMEOUT_MS): called once when
+   * Recording starts, then again on every interim result so genuine speech
+   * keeps pushing "Still listening…" off. */
+  function armSilenceTimer() {
+    clearSilenceTimer();
+    silenceTimerRef.current = setTimeout(() => setStillListening(true), SILENCE_TIMEOUT_MS);
+  }
+
   // Cleanup on unmount (the caller swaps screens once an outcome fires, but
   // Storybook/tests may unmount mid-take).
   useEffect(() => () => {
     speechRef.current?.stop();
     clearTimers();
+    clearSilenceTimer();
   }, []);
 
   // Interruptions (SPEC.md): a call, lock or backgrounding mid-Recording
@@ -151,6 +195,7 @@ export function LoopScreen({
     function handleInterruption() {
       if (phaseRef.current !== 'recording') return;
       speechRef.current?.stop();
+      clearSilenceTimer();
       onInterrupted?.(transcriptRef.current);
       setPhase('idle');
       setIdleNotice('silence');
@@ -177,23 +222,34 @@ export function LoopScreen({
     setStillListening(false);
     recordingStartedAt.current = Date.now();
     setPhase('recording');
+    armSilenceTimer();
 
-    const text = scriptedTextFor(scriptedAnswer, question);
-    speechRef.current = startScriptedSpeech(text, {
-      onInterim: setTranscript,
-      onStillListening: () => {
-        setStillListening(true);
-        setTimeout(() => setStillListening(false), STILL_LISTENING_VISIBLE_MS);
-      },
-      onFinal: () => {
-        // Streaming finished, but push-to-talk means recording keeps going
-        // (no auto-endpointing, CLAUDE.md) until the student taps Send.
-      },
-    });
+    const handleInterim = (textSoFar: string) => {
+      setStillListening(false);
+      armSilenceTimer();
+      setTranscript(textSoFar);
+    };
+
+    if (scriptedAnswer === 'live' && isWebSpeechSupported()) {
+      speechRef.current = startWebSpeech({ onInterim: handleInterim });
+    } else {
+      const text = scriptedTextFor(scriptedAnswer, question);
+      speechRef.current = startScriptedSpeech(text, {
+        onInterim: handleInterim,
+        onFinal: () => {
+          // Streaming finished, but push-to-talk means recording keeps going
+          // (no auto-endpointing, CLAUDE.md) until the student taps Send —
+          // and no further interim ever arrives, so the silence timer above
+          // will fire "Still listening…" on its own if Send isn't tapped.
+        },
+      });
+    }
   }
 
   function handleCancel() {
     speechRef.current?.stop();
+    clearSilenceTimer();
+    setStillListening(false);
     setPhase('idle');
     setTranscript('');
   }
@@ -202,6 +258,8 @@ export function LoopScreen({
     if (phase !== 'recording') return;
     const elapsedMs = Date.now() - recordingStartedAt.current;
     speechRef.current?.stop();
+    clearSilenceTimer();
+    setStillListening(false);
     const finalTranscript = transcript;
 
     if (elapsedMs < ACCIDENTAL_TAP_MS && finalTranscript.trim() === '') {
@@ -237,6 +295,10 @@ export function LoopScreen({
   }
 
   const bubbleText = phase === 'processing' ? PROCESSING_COPY[processingPhrase] : question.prompt;
+  // Processing renders whatever count Recording last revealed, frozen (no
+  // more transcript updates land once processing starts) — the bars "stay,"
+  // they don't jump to a full row (your instruction, 2026-09-16).
+  const waveformBars = phase === 'idle' ? 0 : revealedBarCount(transcript);
 
   return (
     <Screen
@@ -288,38 +350,69 @@ export function LoopScreen({
         </div>
       }
       bottomContent={
-        phase === 'processing' ? null : (
-          <div className={styles.bottomStack}>
-            <ButtonGroup variant="Horizontal" size="L">
-              <ButtonIcon
-                variant="Secondary"
-                size="L"
-                icon={phase === 'recording' ? <ArrowCounterClockwise size="100%" aria-hidden="true" /> : <SkipIcon />}
-                aria-label={phase === 'recording' ? 'Discard and start over' : 'Skip'}
-                onClick={phase === 'recording' ? handleCancel : onSkipIdle}
-              />
-              <ButtonVoice
-                state={startingMic ? 'Loading' : phase === 'recording' ? 'Recording' : 'Default'}
-                ctaText={phase === 'recording' ? 'Send' : 'Start'}
-                leftIcon={
-                  phase === 'recording' ? (
-                    <Waveform size="100%" aria-hidden="true" />
-                  ) : (
-                    <Microphone size="100%" aria-hidden="true" />
-                  )
-                }
-                onClick={phase === 'recording' ? handleSend : handleStart}
-              />
-            </ButtonGroup>
-            {phase === 'idle' && (
-              <Button variant="Secondary" size="L" onClick={onCantTalk}>
-                Can&apos;t talk right now
-              </Button>
-            )}
-          </div>
-        )
+        <div className={styles.bottomStack}>
+          {waveformBars > 0 && (
+            <VoiceWaveform heights={WAVEFORM_BAR_HEIGHTS.slice(0, waveformBars)} animate={phase === 'processing'} />
+          )}
+          <ButtonGroup variant="Horizontal" size="L">
+            <ButtonIcon
+              variant="Secondary"
+              size="L"
+              icon={phase !== 'idle' ? <ArrowCounterClockwise size="100%" aria-hidden="true" /> : <SkipIcon />}
+              aria-label={phase !== 'idle' ? 'Discard and start over' : 'Skip'}
+              disabled={phase === 'processing'}
+              onClick={phase === 'recording' ? handleCancel : phase === 'idle' ? onSkipIdle : undefined}
+            />
+            <ButtonVoice
+              state={startingMic ? 'Loading' : phase !== 'idle' ? 'Recording' : 'Default'}
+              ctaText={phase !== 'idle' ? 'Send' : 'Start'}
+              disabled={phase === 'processing'}
+              leftIcon={
+                phase !== 'idle' ? (
+                  <WaveformIcon size="100%" aria-hidden="true" />
+                ) : (
+                  <Microphone size="100%" aria-hidden="true" />
+                )
+              }
+              onClick={phase === 'recording' ? handleSend : phase === 'idle' ? handleStart : undefined}
+            />
+          </ButtonGroup>
+          {phase === 'idle' && (
+            <Button variant="Secondary" size="L" onClick={onCantTalk}>
+              Can&apos;t talk right now
+            </Button>
+          )}
+        </div>
       }
     />
+  );
+}
+
+/**
+ * The bar row above the button group in Recording (Figma 06Talking →
+ * 07KeepTalking → 08Talking-finished) and Processing (Figma's "Processing"
+ * frame — the same 38-bar row, held over rather than reset). No Storybook
+ * component covers this (component-gaps.md, same root cause as the
+ * Processing mascot bob and the exam-plan hint arrow: no motion/decoration
+ * component exists). `animate` gates the slow equalizer-style pulse — off
+ * for Recording's bars, on while Processing.
+ */
+function VoiceWaveform({ heights, animate }: { heights: number[]; animate: boolean }) {
+  return (
+    <div
+      className={styles.waveform}
+      data-animate={animate || undefined}
+      data-bar-count={heights.length}
+      aria-hidden="true"
+    >
+      {heights.map((height, i) => (
+        <span
+          key={i}
+          className={styles.waveformBar}
+          style={{ height, '--waveform-bar-delay': `${-(i % 8) * 0.25}s` } as CSSProperties}
+        />
+      ))}
+    </div>
   );
 }
 

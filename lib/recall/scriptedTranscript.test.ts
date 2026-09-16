@@ -39,17 +39,17 @@ describe('scriptedTextFor', () => {
 });
 
 describe('scripted answer override', () => {
-  it('defaults to pass and round-trips through storage', () => {
+  it('defaults to live and round-trips through storage', () => {
     const storage = memoryStorage();
-    expect(getScriptedAnswer(() => storage)).toBe('pass');
+    expect(getScriptedAnswer(() => storage)).toBe('live');
     setScriptedAnswer(() => storage, 'fail');
     expect(getScriptedAnswer(() => storage)).toBe<ScriptedAnswerId>('fail');
   });
 
-  it('falls back to pass for garbage storage', () => {
+  it('falls back to live for garbage storage', () => {
     const storage = memoryStorage();
     storage.setItem('voice-recall:scripted-answer:v1', 'nonsense');
-    expect(getScriptedAnswer(() => storage)).toBe('pass');
+    expect(getScriptedAnswer(() => storage)).toBe('live');
   });
 });
 
@@ -80,24 +80,6 @@ describe('startScriptedSpeech', () => {
     vi.advanceTimersByTime(1000);
     expect(onInterim).not.toHaveBeenCalled();
     expect(onFinal).toHaveBeenCalledWith('');
-  });
-
-  it('fires onStillListening once, roughly mid-stream, only on long enough answers', () => {
-    const onStillListening = vi.fn();
-    startScriptedSpeech('one two three four five six seven eight', {
-      onInterim: () => {},
-      onFinal: () => {},
-      onStillListening,
-    });
-    vi.runAllTimers();
-    expect(onStillListening).toHaveBeenCalledTimes(1);
-  });
-
-  it('never fires onStillListening on a short answer', () => {
-    const onStillListening = vi.fn();
-    startScriptedSpeech('too short', { onInterim: () => {}, onFinal: () => {}, onStillListening });
-    vi.runAllTimers();
-    expect(onStillListening).not.toHaveBeenCalled();
   });
 
   it('stop() ends the stream early: no further interim or final callbacks', () => {

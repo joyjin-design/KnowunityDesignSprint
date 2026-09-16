@@ -147,7 +147,10 @@ Built from Figma's `appBar` set (9003:8606: variants default / leftIconButtonOnl
 
 Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08Talking-finished 13568:5313, Thinking 13642:7889.
 
-**Real STT deferred, built against a scripted stand-in.** Verification step 0's spike (real mic + `webkitSpeechRecognition` on the test iPhone) still hasn't run, so this screen doesn't block on it: `lib/recall/scriptedTranscript.ts` streams one of the question's sample answers word-by-word into `TranscriptDisplay` instead, picked by a facilitator-only "Next answer" control on `/log` (same pattern as the latency switch). It's written to the same shape (`start`/`stop`, interim + final callbacks) a real recognizer wrapper will need, so swapping one in once the spike runs is a small follow-up, not a rebuild. "Still listening…" is triggered by a scripted mid-stream pause for now; the real iOS-restart trigger returns with the real recognizer.
+**Real STT wired in, 2026-09-16**, once Verification step 0's spike ran on the test iPhone (Safari tab, iOS 18.7): `lib/recall/webSpeech.ts` wraps `webkitSpeechRecognition` to the same `{ stop() }` shape `lib/recall/scriptedTranscript.ts`'s stand-in already used, so LoopScreen doesn't otherwise care which one is streaming. The facilitator's "Next answer" control on `/log` picks between them: `live` (the default, since 2026-09-16) uses the real recognizer, every other value (`pass`/`partial`/.../`blank`) still streams a scripted sample, for testing without speaking or in Storybook, where `live` isn't exercised (no real mic — every Storybook story that taps Start does so on `LoopScreen` directly with `scriptedAnswer` fixed as an explicit arg, bypassing this default).
+- **"Still listening…" retriggered on real silence, 2026-09-16 (your call).** It no longer fires off a recognizer restart or a word count: `LoopScreen.tsx` arms a 3s timer on every interim result from either speech source (live or scripted) and shows the cue the moment that timer elapses with nothing new — real silence, not a proxy for it. It clears the instant a new interim result lands, or the take ends; there's no separate auto-hide any more. (The earlier restart-based trigger, and the spike data point about a 49s take with no restart, are both moot now — restarting recognition on an iOS pause still happens in `webSpeech.ts`, it just isn't what shows the cue.)
+- **The waveform row is real, 2026-09-16 (your call).** Recording reveals bars from `WAVEFORM_BAR_HEIGHTS` (`LoopScreen.tsx`, transcribed off Figma's own 06Talking → 07KeepTalking → 08Talking-finished progression) as words are recognized — `webkitSpeechRecognition` exposes no live amplitude, so word count is the proxy, tuned to fill the row over a typical sample answer. Processing holds that same count frozen (Figma's own "Processing" frame draws the identical row) and pulses it like a slow equalizer (`animation: waveform-pulse`, 2s, per-bar stagger) instead of leaving it static.
+- **Not yet done:** the rest of the spike (Q3–Q8, the home-screen-web-app pass, a deliberate long-pause take, and the reload-after-grant permission-persistence check — SPEC's Open #1) is still open. `content/voice-recall-questions.md`'s mis-heard lists get corrected as more real transcripts come in, same as Q1's "NDA" fix from the first batch (sprint-context.md, 2026-09-16).
 
 **Try again is out, for real.** SPEC.md's older "two rounds per question" text (Session rules, below) is superseded: `SummaryScreen`'s own 2026-09-15 rebuild (matching `reference/Finish-quiz.png`) already dropped Try again — no button, no rerun rows, no caption — and this build treats that as the decision, not an oversight. A session is one pass through a node's 4 questions, then Summary, then Close; `round` stays `1` in every turn log row (Open item 12, now resolved).
 
@@ -164,9 +167,9 @@ Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08
 | State | What's on screen | What the student can do |
 | --- | --- | --- |
 | Idle | Mascot `expression="standby"`, bubble shows the question, `TranscriptDisplay state="Empty"`, `ButtonVoice state="Default"` with mic icon + "Start", Skip, Can't talk right now | **Start**. **Skip** → next question. **Can't talk right now** → 01Exam (leaves the session). **Close** → 01Exam |
-| Recording | `ButtonVoice state="Recording"` with waveform + "Send" (Figma still says "Stop"; deferred); the `ButtonIcon` beside it swaps from Skip to a discard icon (Phosphor `ArrowCounterClockwise`); Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → 01Exam |
-| Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript for ~1.5s when iOS restarts recognition | Same as Recording |
-| Processing | `ButtonVoice` hidden. Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays. No bottom actions — the Skip `ButtonIcon` is hidden too (decided 2026-09-15, sprint-context.md; was visible before) | **Close** → 01Exam, answer thrown away, logged Left (judging). No Skip in this phase any more |
+| Recording | `ButtonVoice state="Recording"` with waveform + "Send" (Figma still says "Stop"; deferred); the `ButtonIcon` beside it swaps from Skip to a discard icon (Phosphor `ArrowCounterClockwise`); Can't talk right now hidden. Transcript streams live (`Filled`, then `Overflow` anchored to the newest text). Above the button row, a bar-waveform reveals bars as words are recognized (2026-09-16 — see below) | **Send** → processing. **Cancel** → idle, take thrown away. **Close** → 01Exam |
+| Still listening | Recording, plus "Still listening…" in `text/tertiary` under the transcript whenever neither speech source has produced a new result for 3s (2026-09-16: real silence, not a word count or a recognizer restart) — clears on the next result or when the take ends | Same as Recording |
+| Processing | The discard `ButtonIcon` and `ButtonVoice` stay on screen, frozen at Recording's exact look ("Send", waveform icon, `background/inverse`), but disabled (2026-09-16, supersedes the 2026-09-15 "hidden entirely" decision below). Bubble swaps the question for "Let me think…" (0s) → "Checking your answer…" (~2s) → "Almost there…" (~5s, holds). Mascot `expression="thinking"` with a CSS motion loop (transform only; static under reduced motion). Transcript stays. The waveform row stays too, frozen at whatever count Recording last revealed, and pulses like a slow equalizer (2026-09-16) | **Close** → 01Exam, answer thrown away, logged Left (judging). The discard icon and Send are visible but do nothing while disabled |
 | Verdict | Screen 1 over this one | See screen 1 |
 | Interrupted | Call, lock or backgrounding mid-recording → Idle with `TranscriptDisplay state="Silence"` ("Sorry, I didn't catch that. Can you repeat?"), no attempt used | Same as Idle |
 | Accidental tap | Start then Send under ~1s with nothing heard → Idle silently | Same as Idle |
@@ -196,7 +199,7 @@ Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08
 
 **Recording**
 - Real mic and the browser's built-in recognizer (`webkitSpeechRecognition`), English, streaming interim results into `TranscriptDisplay`.
-- Only Send ends a take. If iOS ends recognition on a pause while still recording, it restarts, keeps adding to the same transcript, and shows "Still listening…".
+- Only Send ends a take. If iOS ends recognition on a pause while still recording, it restarts and keeps adding to the same transcript — that restart is silent now (2026-09-16); "Still listening…" is its own 3s-silence timer, not tied to it (see screen 10).
 
 **On Send, in order**
 1. **Under ~1s and nothing heard:** dropped, back to Idle, nothing logged.
@@ -222,11 +225,11 @@ Figma: 05Starting 13548:6327, 06Talking 13548:6328, 07KeepTalking 13568:5231, 08
 
 ## Verification
 
-### 0. Spike (deferred; no longer blocks screen 10)
+### 0. Spike (in progress — real recognizer already wired into screen 10)
 
-On the test iPhone, served over a tunnel or `next dev --experimental-https`, build a throwaway page that uses the mic and `webkitSpeechRecognition`. Try it in a Safari tab and as a home-screen web app. Record which one streams interim results, restarts cleanly after a pause, and keeps mic permission across reloads. Collect real transcripts of the sample answers in `content/voice-recall-questions.md` and replace the guessed mis-hearings. Log the results in `sprint-context.md`.
+On the test iPhone, served over a tunnel (`public/prototypes/stt-spike/index.html`, a throwaway page, tunneled with `npx cloudflared tunnel --url http://localhost:3000` since `next dev --experimental-https` couldn't generate a cert headlessly — `mkcert -install` needs an interactive keychain password prompt). Try it in a Safari tab and as a home-screen web app. Record which one streams interim results, restarts cleanly after a pause, and keeps mic permission across reloads. Collect real transcripts of the sample answers in `content/voice-recall-questions.md` and replace the guessed mis-hearings. Log the results in `sprint-context.md`.
 
-Screen 10 was built ahead of this spike against a scripted transcript stand-in (see screen 10's own notes) rather than waiting on it — this step is still open, but is now a follow-up to wire the real recognizer in, not a blocker.
+Screen 10 was built ahead of this spike against a scripted transcript stand-in (see screen 10's own notes), then had the real recognizer wired in on 2026-09-16 without waiting for the spike to fully finish — the stand-in's shape made that swap small, as planned. Still open: Q3–Q8 in Safari tab, the same 8 as a home-screen web app, a deliberate long-pause take, and the reload-after-grant permission check.
 
 ### 1. Automated checks
 
@@ -244,7 +247,7 @@ Real STT is deferred (step 0): wherever a step below says "speak" or "say", pick
 1. **00Homescreen → exam tab** → 01Exam → **Show me** → 02Hint-animate → **toggle** → 03VoicerecallON → **Organelle Identification** → gate.
 2. **Gate:** **Can't talk right now** → 01Exam. Go back to the gate. **Turn on microphone** → the permission sheet → **Don't allow** → back on the gate. **Turn on microphone** → **Allow** → iOS prompt → **Don't Allow** → 01Exam. Open the node again: the gate shows Settings steps. Allow the mic in iOS Settings → **I've turned on the mic** → Q1 idle.
 3. **Q1 idle:** question in the bubble, mascot standby, disclaimer, Empty transcript placeholder, mic icon + Start, Skip, Can't talk right now; progress 0; XP chip reads 2.
-4. **Start** → waveform + Send, cancel icon instead of Skip, Can't talk right now hidden. Speak a 2-concept sentence with a pause → "Still listening…" appears and nothing is sent. **Send** → button hidden, phrases advance, mascot moves → **Success**. **Why?** → explanation with no bold terms, mascot and Got it above the sheet, can't be dragged down. **Got it** → Q2, progress 25.
+4. **Start** → waveform + Send, cancel icon instead of Skip, Can't talk right now hidden. Speak a 2-concept sentence, then pause 3s+ → "Still listening…" appears and nothing is sent. **Send** → button hidden, phrases advance, mascot moves → **Success**. **Why?** → explanation with no bold terms, mascot and Got it above the sheet, can't be dragged down. **Got it** → Q2, progress 25.
 5. **Q2:** a 1-concept answer → **Partial**. Why? shows the missed concepts in bold → Got it → Q3.
 6. **Q3:**
    - Answer at length: the transcript keeps the newest words visible. **Cancel** → Idle, nothing logged.
@@ -257,7 +260,7 @@ Real STT is deferred (step 0): wherever a step below says "speak" or "say", pick
    - With `?latency=hang`: the Silence sheet at 15s.
    - Lock the phone mid-recording and unlock → Idle with the Silence copy.
    - Airplane mode, then **Send** → Silence sheet.
-   - Processing has no bottom actions (Skip hidden there, 2026-09-15) — **Close** → 01Exam, logged Left (judging); reopening starts at Q1.
+   - Processing's discard icon and Send are visible but disabled, frozen at Recording's look (2026-09-16) — only **Close** actually does anything → 01Exam, logged Left (judging); reopening starts at Q1.
    - **Can't talk right now** on Q2 → 01Exam; reopening starts at Q1.
 9. **Revoke the mic in iOS Settings**, open a node, tap **Start** → mic-off sheet. **Type instead** → placeholder; **Back to voice** → idle. **Skip** → next question.
 10. **Open `/log`:** every answered, skipped and Silence turn is there with the right round, transcript, concepts, verdict, latency and flag. Nothing is logged for the cancel or the accidental tap. **Copy as CSV** gives the same rows; **Clear log** asks, then empties it.

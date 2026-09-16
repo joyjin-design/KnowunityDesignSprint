@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STT spike — webkitSpeechRecognition</title>
+<style>
+/* Throwaway page for SPEC.md Verification §0 (the spike). Not part of the
+   app: no design-system.md components, no tokens/tokens.json values — this
+   is a diagnostic tool for the test iPhone, not a shipped screen, same
+   status as the other public/prototypes/ pages. Colors below are just
+   copied from build/css/tokens.css for a readable dark UI, not sourced from
+   the token file at build time. Delete this whole folder once the spike's
+   results are logged in sprint-context.md and a real recognizer wrapper
+   replaces lib/recall/scriptedTranscript.ts. */
+:root {
+  color-scheme: dark;
+  --bg: #090c18;
+  --surface: #12162a;
+  --border: rgba(255, 255, 255, 0.102);
+  --text: #f4f2ff;
+  --text-dim: #9a96b3;
+  --accent: #a78bfa;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --err: #f87171;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, system-ui, sans-serif;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+}
+h1 { font-size: 18px; margin: 0 0 4px; }
+h2 { font-size: 14px; margin: 24px 0 8px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+p { margin: 0 0 8px; }
+.muted { color: var(--text-dim); font-size: 13px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.status-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+.status-row .label { color: var(--text-dim); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot.ok { background: var(--ok); }
+.dot.warn { background: var(--warn); }
+.dot.err { background: var(--err); }
+select, textarea, button {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+}
+select { margin-bottom: 8px; }
+button {
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+}
+button:active { opacity: 0.7; }
+button.primary { background: var(--accent); color: #1c1030; border-color: var(--accent); }
+button.danger { background: var(--err); color: #2b0b0b; border-color: var(--err); }
+button:disabled { opacity: 0.4; cursor: default; }
+.btn-row { display: flex; gap: 8px; margin-top: 8px; }
+.btn-row button { flex: 1; }
+.sample-text {
+  font-size: 16px;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.transcript {
+  min-height: 60px;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  font-size: 15px;
+}
+.transcript .interim { color: var(--text-dim); font-style: italic; }
+.log {
+  max-height: 220px;
+  overflow-y: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}
+.log div { padding: 2px 0; border-bottom: 1px solid var(--border); }
+.takes { font-size: 13px; }
+.takes .take { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.takes .take:last-child { border-bottom: none; }
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  margin-left: 6px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎙️ Speech recognition spike</h1>
+<p class="muted">SPEC.md Verification §0 — not part of the app. Run this on the test iPhone, once as a normal Safari tab and once as a home-screen web app (Share → Add to Home Screen), and compare results.</p>
+
+<h2>Environment</h2>
+<div class="card" id="envCard"></div>
+
+<h2>1. Pick a sample answer, read it aloud</h2>
+<div class="card">
+  <select id="questionPicker"></select>
+  <div class="sample-text" id="sampleText"></div>
+  <div class="btn-row">
+    <button class="primary" id="startBtn">Start</button>
+    <button class="danger" id="stopBtn" disabled>Stop</button>
+  </div>
+</div>
+
+<h2>2. Live transcript</h2>
+<div class="card">
+  <div class="transcript" id="transcript">—</div>
+  <div class="muted" id="recStatus" style="margin-top:8px;">Idle</div>
+</div>
+
+<h2>3. Save this take</h2>
+<div class="card">
+  <textarea id="noteField" rows="2" placeholder="Optional note (e.g. mis-heard word, felt like it needed more pausing than expected)"></textarea>
+  <div class="btn-row">
+    <button id="saveTakeBtn">Save this take</button>
+  </div>
+</div>
+
+<h2>Saved takes (<span id="takeCount">0</span>)</h2>
+<div class="card takes" id="takesList">
+  <span class="muted">None yet.</span>
+</div>
+
+<h2>Event log</h2>
+<div class="card">
+  <div class="log" id="eventLog"></div>
+</div>
+
+<h2>4. Export</h2>
+<div class="card">
+  <div class="btn-row">
+    <button class="primary" id="copyBtn">Copy report as text</button>
+  </div>
+  <p class="muted" id="copyStatus" style="margin-top:8px;"></p>
+</div>
+
+<script>
+(function () {
+  const SAMPLES = [
+    { q: 'Q1', question: 'What does the nucleus do in a cell?', text: 'The nucleus is like the control center, it holds the DNA.' },
+    { q: 'Q2', question: 'What do mitochondria do, and why does a cell need them?', text: 'They make energy for the cell by breaking down glucose.' },
+    { q: 'Q3', question: 'What does the cell membrane do?', text: 'It goes around the cell and controls what comes in and out.' },
+    { q: 'Q4', question: 'What do chloroplasts do, and which cells have them?', text: 'They use sunlight to make food, and plants have them.' },
+    { q: 'Q5', question: 'Where is the DNA in a prokaryotic cell, and where is it in a eukaryotic cell?', text: "In bacteria the DNA just floats in the cytoplasm, but in animal cells it's in the nucleus." },
+    { q: 'Q6', question: 'Why do plant cells need a cell wall and chloroplasts?', text: 'The cell wall keeps the plant stiff and chloroplasts make its food from sunlight.' },
+    { q: 'Q7', question: 'What do ribosomes do, and where are they found?', text: 'Ribosomes make proteins and every cell has them.' },
+    { q: 'Q8', question: 'What is cytoplasm, and what happens there?', text: "It's the jelly stuff that fills the cell and holds the organelles." },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const envCard = $('envCard');
+  const questionPicker = $('questionPicker');
+  const sampleText = $('sampleText');
+  const startBtn = $('startBtn');
+  const stopBtn = $('stopBtn');
+  const transcriptEl = $('transcript');
+  const recStatus = $('recStatus');
+  const noteField = $('noteField');
+  const saveTakeBtn = $('saveTakeBtn');
+  const takesList = $('takesList');
+  const takeCount = $('takeCount');
+  const eventLog = $('eventLog');
+  const copyBtn = $('copyBtn');
+  const copyStatus = $('copyStatus');
+
+  const startedAt = Date.now();
+  const events = [];
+  const takes = [];
+  let finalTranscript = '';
+  let interimTranscript = '';
+  let recognizing = false;
+  let userStopped = true;
+  let restartCount = 0;
+  let recognition = null;
+  let takeStartedAt = null;
+
+  function ts() {
+    return ((Date.now() - startedAt) / 1000).toFixed(1) + 's';
+  }
+
+  function log(msg) {
+    events.push(`[${ts()}] ${msg}`);
+    const div = document.createElement('div');
+    div.textContent = `[${ts()}] ${msg}`;
+    eventLog.appendChild(div);
+    eventLog.scrollTop = eventLog.scrollHeight;
+  }
+
+  function statusRow(label, ok, detail) {
+    const dotClass = ok === true ? 'ok' : ok === false ? 'err' : 'warn';
+    return `<div class="status-row"><span class="label"><span class="dot ${dotClass}"></span>${label}</span><span>${detail}</span></div>`;
+  }
+
+  // --- Environment checks ---
+  const SR = window.webkitSpeechRecognition || window.SpeechRecognition;
+  const isStandalone = window.navigator.standalone === true;
+  const isSecure = window.isSecureContext;
+
+  let envHtml = '';
+  envHtml += statusRow('Secure context', isSecure, isSecure ? 'yes' : 'no — mic/STT will be blocked');
+  envHtml += statusRow('SpeechRecognition API', !!SR, SR ? (window.webkitSpeechRecognition ? 'webkitSpeechRecognition' : 'SpeechRecognition') : 'not available');
+  envHtml += statusRow('Launch mode', null, isStandalone ? 'Home-screen web app' : 'Safari tab');
+  envHtml += statusRow('User agent', null, `<span class="muted" style="font-size:11px;">${navigator.userAgent.replace('Mozilla/5.0 ', '')}</span>`);
+  envCard.innerHTML = envHtml;
+  log(`Loaded. secureContext=${isSecure} standalone=${isStandalone} SR=${!!SR}`);
+
+  // Mic permission persistence across reloads, where queryable.
+  if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions.query({ name: 'microphone' })
+      .then((status) => {
+        envCard.insertAdjacentHTML('beforeend', statusRow('Mic permission (on load)', status.state === 'granted', status.state));
+        log(`Mic permission on load: ${status.state}`);
+      })
+      .catch(() => {
+        envCard.insertAdjacentHTML('beforeend', statusRow('Mic permission (on load)', null, 'query unsupported on this browser'));
+        log('Mic permission query unsupported (threw)');
+      });
+  } else {
+    envCard.insertAdjacentHTML('beforeend', statusRow('Mic permission (on load)', null, 'permissions API unsupported'));
+    log('navigator.permissions unsupported');
+  }
+
+  // --- Sample picker ---
+  SAMPLES.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${s.q} — ${s.question}`;
+    questionPicker.appendChild(opt);
+  });
+  function renderSample() {
+    sampleText.textContent = SAMPLES[questionPicker.value].text;
+  }
+  questionPicker.addEventListener('change', renderSample);
+  renderSample();
+
+  // --- Recognition ---
+  function renderTranscript() {
+    transcriptEl.innerHTML = (finalTranscript ? finalTranscript : '') +
+      (interimTranscript ? `<span class="interim">${interimTranscript}</span>` : (finalTranscript ? '' : '—'));
+  }
+
+  function startRecognition(isRestart) {
+    if (!SR) {
+      recStatus.textContent = 'SpeechRecognition unsupported on this browser.';
+      return;
+    }
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      recognizing = true;
+      recStatus.textContent = isRestart ? `Listening (auto-restarted, #${restartCount})…` : 'Listening…';
+      log(isRestart ? `onstart (auto-restart #${restartCount})` : 'onstart');
+    };
+
+    recognition.onresult = (event) => {
+      interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const chunk = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += (finalTranscript ? ' ' : '') + chunk.trim();
+          log(`final result: "${chunk.trim()}"`);
+        } else {
+          interimTranscript = chunk;
+        }
+      }
+      renderTranscript();
+    };
+
+    recognition.onerror = (event) => {
+      log(`onerror: ${event.error}`);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        recStatus.textContent = 'Mic permission denied.';
+        userStopped = true;
+      }
+    };
+
+    recognition.onend = () => {
+      recognizing = false;
+      log('onend');
+      if (!userStopped) {
+        restartCount += 1;
+        log(`restarting (gap caused by iOS ending recognition on pause) — restart #${restartCount}`);
+        startRecognition(true);
+      } else {
+        recStatus.textContent = `Stopped. ${restartCount} auto-restart(s) during this take.`;
+      }
+    };
+
+    recognition.start();
+  }
+
+  startBtn.addEventListener('click', () => {
+    finalTranscript = '';
+    interimTranscript = '';
+    restartCount = 0;
+    takeStartedAt = Date.now();
+    userStopped = false;
+    renderTranscript();
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    questionPicker.disabled = true;
+    log(`--- take started: ${SAMPLES[questionPicker.value].q} ---`);
+    startRecognition(false);
+  });
+
+  stopBtn.addEventListener('click', () => {
+    userStopped = true;
+    if (recognition) recognition.stop();
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    questionPicker.disabled = false;
+    log('--- take stopped by user ---');
+  });
+
+  saveTakeBtn.addEventListener('click', () => {
+    const sample = SAMPLES[questionPicker.value];
+    const take = {
+      question: sample.q,
+      expected: sample.text,
+      actual: finalTranscript || '(empty)',
+      restarts: restartCount,
+      note: noteField.value.trim(),
+      mode: isStandalone ? 'home-screen' : 'safari-tab',
+      durationMs: takeStartedAt ? Date.now() - takeStartedAt : null,
+    };
+    takes.push(take);
+    log(`saved take for ${sample.q}: "${take.actual}"`);
+    noteField.value = '';
+    renderTakes();
+  });
+
+  function renderTakes() {
+    takeCount.textContent = takes.length;
+    if (!takes.length) {
+      takesList.innerHTML = '<span class="muted">None yet.</span>';
+      return;
+    }
+    takesList.innerHTML = takes.map((t, i) => `
+      <div class="take">
+        <strong>${t.question}</strong> <span class="pill">${t.mode}</span> <span class="pill">${t.restarts} restart${t.restarts === 1 ? '' : 's'}</span><br>
+        <span class="muted">expected:</span> ${t.expected}<br>
+        <span class="muted">heard:</span> ${t.actual}
+        ${t.note ? `<br><span class="muted">note:</span> ${t.note}` : ''}
+      </div>
+    `).join('');
+  }
+
+  // --- Export ---
+  copyBtn.addEventListener('click', () => {
+    const report = [
+      `STT spike report — ${new Date().toISOString()}`,
+      `Mode: ${isStandalone ? 'home-screen web app' : 'Safari tab'}`,
+      `User agent: ${navigator.userAgent}`,
+      '',
+      '--- Saved takes ---',
+      ...takes.map((t) => [
+        `${t.question} (${t.mode}, ${t.restarts} restart${t.restarts === 1 ? '' : 's'})`,
+        `  expected: ${t.expected}`,
+        `  heard:    ${t.actual}`,
+        t.note ? `  note:     ${t.note}` : null,
+      ].filter(Boolean).join('\n')),
+      '',
+      '--- Event log ---',
+      ...events,
+    ].join('\n');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(report)
+        .then(() => { copyStatus.textContent = 'Copied to clipboard.'; })
+        .catch(() => fallbackCopy(report));
+    } else {
+      fallbackCopy(report);
+    }
+  });
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      copyStatus.textContent = 'Copied to clipboard.';
+    } catch {
+      copyStatus.textContent = 'Could not copy automatically — select the text below and copy manually.';
+      const pre = document.createElement('textarea');
+      pre.value = text;
+      pre.rows = 10;
+      pre.style.marginTop = '8px';
+      copyStatus.insertAdjacentElement('afterend', pre);
+    }
+    document.body.removeChild(ta);
+  }
+
+  renderTakes();
+})();
+</script>
+</body>
+</html>

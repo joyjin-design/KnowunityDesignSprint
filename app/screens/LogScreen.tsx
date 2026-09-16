@@ -56,9 +56,10 @@ export interface LogScreenProps {
   saveStatus: SaveStatus;
   latency: LatencyOverride;
   onLatencyChange: (value: LatencyOverride) => void;
-  /** Real STT is deferred (SPEC.md verification item 0's spike hasn't run):
-   * this picks which of the current question's sample answers Recording
-   * plays next, standing in for what the recognizer would have heard. */
+  /** Picks which of the current question's sample answers Recording plays
+   * next, standing in for what the recognizer would have heard — or, for
+   * `live`, tells it to use the real recognizer instead
+   * (`lib/recall/webSpeech.ts`). */
   scriptedAnswer: ScriptedAnswerId;
   onScriptedAnswerChange: (value: ScriptedAnswerId) => void;
   /** Returns whether the copy actually reached the clipboard, so the button
@@ -139,9 +140,9 @@ export function LogScreen({
           </div>
         </div>
 
-        {/* Real STT is deferred (SPEC.md verification item 0), so this picks
-            what Recording "hears" next — same facilitator-only control
-            pattern as Latency above, never seen by a student. */}
+        {/* Picks what Recording "hears" next, including the real recognizer
+            (`live`) — same facilitator-only control pattern as Latency
+            above, never seen by a student. */}
         <div className={styles.latencyRow}>
           <span className={styles.latencyLabel} id="scripted-answer-label">
             Next answer

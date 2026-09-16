@@ -2,12 +2,15 @@ import type { Question } from './questions';
 import type { StorageLike } from './turnLog';
 
 /**
- * Real STT is deferred (spike pending — SPEC.md verification item 0 hasn't
- * run). Recording gets its transcript from one of these scripted answers
- * instead: a facilitator picks which one plays next, on `/log`, the same way
- * they already pick the latency override. Never seen by a student.
+ * Recording gets its transcript from one of these scripted answers, or from
+ * the real recognizer (`live`, `lib/recall/webSpeech.ts`, wired in
+ * 2026-09-16 once SPEC.md verification item 0's spike ran) — a facilitator
+ * picks which one plays next, on `/log`, the same way they already pick the
+ * latency override. Never seen by a student. `live` is the default (see
+ * `DEFAULT_ANSWER` below); a facilitator switches to a scripted value
+ * deliberately to test without speaking.
  */
-export type ScriptedAnswerId = 'pass' | 'partial' | 'fail' | 'list' | 'question' | 'blank';
+export type ScriptedAnswerId = 'pass' | 'partial' | 'fail' | 'list' | 'question' | 'blank' | 'live';
 
 export const SCRIPTED_ANSWER_LABEL: Record<ScriptedAnswerId, string> = {
   pass: 'Pass',
@@ -16,9 +19,10 @@ export const SCRIPTED_ANSWER_LABEL: Record<ScriptedAnswerId, string> = {
   list: 'Keyword list',
   question: 'Asks a question',
   blank: "Silence (didn't hear anything)",
+  live: 'Live mic (real speech)',
 };
 
-const VALUES: readonly ScriptedAnswerId[] = ['pass', 'partial', 'fail', 'list', 'question', 'blank'];
+const VALUES: readonly ScriptedAnswerId[] = ['pass', 'partial', 'fail', 'list', 'question', 'blank', 'live'];
 
 /** A generic question-shaped reply, for exercising the question-detection
  * Silence path (SPEC.md "On Send" step 4) independent of any one question's
@@ -29,7 +33,10 @@ const GENERIC_QUESTION = 'Wait, can you say that again?';
  * `list` falls back to the question's own Partial sample when it has no
  * list sample of its own (content/voice-recall-questions.md gives one only
  * for Q1, the stuffing-cap demonstration) — still a real, judgeable answer,
- * just not the bare-keyword-list case specifically. */
+ * just not the bare-keyword-list case specifically. `live` has no scripted
+ * text of its own (LoopScreen sources it from `lib/recall/webSpeech.ts`
+ * instead) — this only fires if `live` is picked without recognizer support,
+ * where it behaves like `blank`. */
 export function scriptedTextFor(answer: ScriptedAnswerId, question: Question): string {
   switch (answer) {
     case 'pass':
@@ -43,6 +50,7 @@ export function scriptedTextFor(answer: ScriptedAnswerId, question: Question): s
     case 'question':
       return GENERIC_QUESTION;
     case 'blank':
+    case 'live':
       return '';
   }
 }
@@ -52,7 +60,14 @@ export function scriptedTextFor(answer: ScriptedAnswerId, question: Question): s
 // are unrelated and a shared helper would need generics for no real benefit.
 
 const STORAGE_KEY = 'voice-recall:scripted-answer:v1';
-const DEFAULT_ANSWER: ScriptedAnswerId = 'pass';
+/** `live` by default (2026-09-16, your call): a fresh session — real
+ * participant or a plain page load with nothing saved to `/log` yet — should
+ * hear the student, not a canned sample. A facilitator switches this back to
+ * a scripted value on `/log` when testing without speaking. Safe for every
+ * existing Storybook story: `LoopScreen`'s own stories always pass
+ * `scriptedAnswer` as an explicit arg (bypassing this default entirely), and
+ * no `PrototypeFlow` story taps Start, so none of them read this value. */
+const DEFAULT_ANSWER: ScriptedAnswerId = 'live';
 
 export function getScriptedAnswer(getStorage: () => StorageLike | null): ScriptedAnswerId {
   try {
@@ -95,10 +110,6 @@ export function setScriptedAnswer(getStorage: () => StorageLike | null, value: S
 export interface ScriptedSpeechCallbacks {
   /** Fired as each new word arrives, with the transcript so far. */
   onInterim: (textSoFar: string) => void;
-  /** Fired once, roughly mid-stream, on answers long enough to show it —
-   * standing in for iOS restarting recognition on a pause (SPEC.md). Only
-   * fires if streaming runs to completion past that point. */
-  onStillListening?: () => void;
   /** Fired once streaming finishes on its own (not stopped early). */
   onFinal: (text: string) => void;
 }
@@ -110,9 +121,6 @@ export interface ScriptedSpeechHandle {
 }
 
 const WORD_INTERVAL_MS = 220;
-/** Words in before "Still listening…" fires — only on answers with enough
- * of them left afterward for the cue to be visible. */
-const STILL_LISTENING_MIN_WORDS = 7;
 
 /**
  * Streams `fullText` into `onInterim` one word at a time, at a natural
@@ -120,11 +128,14 @@ const STILL_LISTENING_MIN_WORDS = 7;
  * context.md decision, this build): written to the same shape — interim
  * callbacks while "listening", one final result, a `stop()` an in-progress
  * take can cancel — that a real `webkitSpeechRecognition` wrapper will need,
- * so swapping one in later is a small change, not a rewrite.
+ * so swapping one in later is a small change, not a rewrite. Once streaming
+ * finishes, this fires no further callbacks — a facilitator sitting on that
+ * finished take, not yet tapping Send, is genuine silence, so LoopScreen's
+ * own real-silence timer (2026-09-16) picks it up the same as it would a
+ * live pause.
  */
 export function startScriptedSpeech(fullText: string, callbacks: ScriptedSpeechCallbacks): ScriptedSpeechHandle {
   const tokens = fullText.split(/\s+/).filter(Boolean);
-  const stillListeningAt = tokens.length >= STILL_LISTENING_MIN_WORDS ? Math.floor(tokens.length / 2) : -1;
   let index = 0;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -137,7 +148,6 @@ export function startScriptedSpeech(fullText: string, callbacks: ScriptedSpeechC
     }
     index += 1;
     callbacks.onInterim(tokens.slice(0, index).join(' '));
-    if (index === stillListeningAt) callbacks.onStillListening?.();
     if (index >= tokens.length) {
       callbacks.onFinal(fullText);
       return;
