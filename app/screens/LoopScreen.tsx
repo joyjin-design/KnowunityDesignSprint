@@ -64,6 +64,32 @@ const WAVEFORM_BAR_HEIGHTS = [
   23, 23, 21, 19, 16, 23, 21, 19, 16,
 ];
 
+/** Bar width (`--size-space-150`) and gap (`--size-space-100`) as plain
+ * numbers, for computing the reveal group's own shift below — real tokens,
+ * just needed as arithmetic here rather than CSS. */
+const WAVEFORM_BAR_WIDTH_PX = 6;
+const WAVEFORM_BAR_GAP_PX = 4;
+/** The waveform viewport's real interior width in this 390px-only design
+ * (CLAUDE.md: "390px width. No other platform/size."): 390 minus Screen's
+ * own `.bottomContent` padding (`--size-space-400`, 16px each side) minus
+ * `.waveform`'s own `padding-inline` (`--size-space-300`, 12px each side).
+ * Used below to keep the newest bar flush against the row's right edge as
+ * the group grows (2026-09-16, your call — "show them as a group... move
+ * from right to left," replacing the earlier per-bar pop-in). */
+const WAVEFORM_VIEWPORT_WIDTH_PX = 390 - 16 * 2 - 12 * 2;
+
+/** How far to shift the bar group so its newest (rightmost) bar stays
+ * flush against the viewport's right edge, whatever the current count.
+ * Bars are appended in their natural, already-correct Figma order
+ * (`WAVEFORM_BAR_HEIGHTS.slice(0, n)`), so appending never reflows a bar
+ * that's already on screen — only this one group-level `transform` value
+ * changes, which is what lets the whole group glide left together via a
+ * plain CSS `transition` instead of each bar animating independently. */
+function waveformGroupShift(barCount: number): number {
+  const groupWidth = barCount === 0 ? 0 : barCount * WAVEFORM_BAR_WIDTH_PX + (barCount - 1) * WAVEFORM_BAR_GAP_PX;
+  return WAVEFORM_VIEWPORT_WIDTH_PX - groupWidth;
+}
+
 type Progress = ComponentProps<typeof ProgressIndicator>['progress'];
 
 export interface LoopScreenProps {
@@ -390,10 +416,7 @@ export function LoopScreen({
       bottomContent={
         <div className={styles.bottomStack}>
           {phase !== 'idle' && (
-            <VoiceWaveform
-              heights={WAVEFORM_BAR_HEIGHTS.slice(WAVEFORM_BAR_HEIGHTS.length - waveformBars)}
-              animate={phase === 'processing'}
-            />
+            <VoiceWaveform heights={WAVEFORM_BAR_HEIGHTS.slice(0, waveformBars)} animate={phase === 'processing'} />
           )}
           <ButtonGroup variant="Horizontal" size="L">
             <ButtonIcon
@@ -452,20 +475,20 @@ export function LoopScreen({
  * component exists). `animate` gates the slow equalizer-style pulse — off
  * for Recording's bars, on while Processing.
  *
- * Bars reveal right to left (2026-09-16, your call): the caller always
- * passes the *last* N entries of `WAVEFORM_BAR_HEIGHTS` (its own original
- * left-to-right order preserved), and `.waveform` right-anchors them
- * (`justify-content: flex-end`), so the newest bar takes the rightmost slot
- * and each earlier one holds its position, unmoved, one slot further left —
- * no reflow of already-revealed bars, only the new one animates. `key` is
- * the bar's real position in the full 38-bar row, not its position within
- * this slice — a positional key would make React reuse an old bar's DOM
- * node for the new one on every reveal (since the slice's front keeps
- * shifting), which would suppress the mount-triggered entrance animation
- * entirely instead of firing it on the bar that's actually new.
+ * Bars reveal as a group, not one at a time (2026-09-16, your call): the
+ * caller always passes the *first* N entries of `WAVEFORM_BAR_HEIGHTS`
+ * (natural, already-correct Figma order), appended at the end — appending
+ * never reflows a bar that's already on screen, so every bar's own local
+ * position is fixed the moment it's added. The only thing that moves is
+ * `.waveformGroup`'s own `transform`, recomputed every render
+ * (`waveformGroupShift`) to keep the newest bar flush against the row's
+ * right edge — a plain CSS `transition` on that one value is what makes the
+ * whole group glide left together as it grows, instead of each bar having
+ * its own separate pop-in. Keys are the bars' own natural index again
+ * (stable under this append order, unlike the previous right-anchored
+ * scheme this replaces).
  */
 function VoiceWaveform({ heights, animate }: { heights: number[]; animate: boolean }) {
-  const startIndex = WAVEFORM_BAR_HEIGHTS.length - heights.length;
   return (
     <div
       className={styles.waveform}
@@ -473,16 +496,15 @@ function VoiceWaveform({ heights, animate }: { heights: number[]; animate: boole
       data-bar-count={heights.length}
       aria-hidden="true"
     >
-      {heights.map((height, i) => {
-        const barIndex = startIndex + i;
-        return (
+      <div className={styles.waveformGroup} style={{ transform: `translateX(${waveformGroupShift(heights.length)}px)` }}>
+        {heights.map((height, i) => (
           <span
-            key={barIndex}
+            key={i}
             className={styles.waveformBar}
-            style={{ height, '--waveform-bar-delay': `${-(barIndex % 8) * 0.25}s` } as CSSProperties}
+            style={{ height, '--waveform-bar-delay': `${-(i % 8) * 0.25}s` } as CSSProperties}
           />
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }

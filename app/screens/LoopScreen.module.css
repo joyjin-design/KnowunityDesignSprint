@@ -185,21 +185,37 @@
    (space.300, 12px) on top of Screen's own bottomContent padding (16px)
    reaches Figma's cited 28px inset (space.700, node 13696:7029) for this row
    specifically — the button row below stays at Screen's plain 16px
-   (2026-09-16, your call, plans/004). */
+   (2026-09-16, your call, plans/004). `align-items: flex-end` here keeps
+   the group bottom-anchored inside this fixed 30px row regardless of which
+   bars are currently tallest; the group's own horizontal position is
+   handled entirely by its `transform` (LoopScreen.tsx's
+   `waveformGroupShift`), not by this container. */
 .waveform {
   display: flex;
   align-items: flex-end;
-  /* Right-anchored (2026-09-16, your call): the newest bar always takes the
-     rightmost slot and every earlier bar holds still, one slot further
-     left — the row reads as building from the right edge toward the left,
-     not the reverse. Without this, the default flex-start anchor would pack
-     bars against the *left* edge instead, growing rightward. */
-  justify-content: flex-end;
-  gap: var(--size-space-100);
   height: 30px;
   padding-inline: var(--size-space-300);
   overflow: hidden;
   box-sizing: border-box;
+}
+
+/* The group all bars sit in (2026-09-16, your call: "show them as a group
+   ... move from right to left," replacing the earlier one-bar-at-a-time
+   pop-in). As a plain flex item (not stretched), this shrinks to exactly
+   the width of its own bars — the container above stays full-width. Its
+   `transform` is set inline per-render from `waveformGroupShift`; this
+   transition is what makes the whole group glide left as it grows, rather
+   than snapping to each new width instantly. */
+.waveformGroup {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--size-space-100);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .waveformGroup {
+    transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1);
+  }
 }
 
 .waveformBar {
@@ -210,39 +226,16 @@
   transform-origin: bottom;
 }
 
-/* Recording: each new bar slides in from the right on a sound-gated clock
-   (LoopScreen.tsx's WAVEFORM_REVEAL_INTERVAL_MS, 2026-09-16, your call,
-   plans/004) — never grows from nothing. Processing: "the lines stay" (your
-   instruction, 2026-09-16) and pulse like an equalizer, matched to the
-   mascot's own thinking-bob period (1.6s, plans/003) so the two loops read
-   as one "Knowie is thinking" moment instead of drifting in and out of
-   phase — reference: https://codepen.io/MischaAbakumova/pen/jmMeaY,
-   staggered per bar via --waveform-bar-delay so they don't all pulse in
-   lockstep. */
+/* Processing: "the lines stay" (your instruction, 2026-09-16) and pulse
+   like an equalizer, matched to the mascot's own thinking-bob period (1.6s,
+   plans/003) so the two loops read as one "Knowie is thinking" moment
+   instead of drifting in and out of phase — reference:
+   https://codepen.io/MischaAbakumova/pen/jmMeaY, staggered per bar via
+   --waveform-bar-delay so they don't all pulse in lockstep. */
 @media (prefers-reduced-motion: no-preference) {
-  .waveformBar {
-    /* 220ms (was 150ms) and a 24px throw (was 16px, --size-space-600): a
-       quick flick barely reads as motion at this bar's small scale — this
-       is still comfortably under the sub-300ms UI budget, just slow enough
-       to actually see the glide (2026-09-16, your call: "move more
-       smoothly"). */
-    animation: waveform-bar-in 220ms cubic-bezier(0.19, 1, 0.22, 1);
-  }
-
   .waveform[data-animate] .waveformBar {
     animation: waveform-pulse 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
     animation-delay: var(--waveform-bar-delay, 0s);
-  }
-}
-
-@keyframes waveform-bar-in {
-  from {
-    transform: translateX(var(--size-space-600));
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
   }
 }
 
