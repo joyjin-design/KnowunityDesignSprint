@@ -214,7 +214,21 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .waveformGroup {
-    transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1);
+    /* linear, not a strong ease-out-expo (2026-09-16, your call: "smoother
+       ... a little bit faster"): this transform updates on a steady clock
+       (LoopScreen.tsx's WAVEFORM_REVEAL_INTERVAL_MS, 200ms) by roughly the
+       same distance each time, so it's a repeated/continuous motion, not a
+       one-shot entrance — the course's own exception for `linear` (marquee,
+       ticker, constant motion) applies here. A strong decelerating curve
+       restarts its "fast, then slow" shape on every single tick, which
+       reads as a stutter across ticks rather than one continuous sweep;
+       constant velocity composes cleanly instead. 200ms (was 220ms) matches
+       the reveal clock exactly, so each glide finishes right as the next
+       one begins — no gap, no queued backlog, and the overall motion only
+       ever moves during Recording (Processing freezes the bar count, so
+       this transform never changes there — nothing to smooth or speed up
+       on that screen). */
+    transition: transform 200ms linear;
   }
 }
 
