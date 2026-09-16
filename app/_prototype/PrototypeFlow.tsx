@@ -93,6 +93,13 @@ export function PrototypeFlow({
   const [micStillOff, setMicStillOff] = useState(false);
   const [session, setSession] = useState<Session | undefined>(initialSession);
   const [lastTurn, setLastTurn] = useState<LastTurn | undefined>(initialLastTurn);
+  // 02Hint-animate's Knowie bounce, played once for the whole session: kept
+  // here rather than inside ExamPlanFlow because the gate's Don't Allow/
+  // denial and the loop's Can't talk right now both exit to 01Exam by fully
+  // unmounting ExamPlanFlow (this switch statement renders a different
+  // screen type in between) and later remounting a fresh one, which would
+  // otherwise reset any state kept inside that tree and replay the hint.
+  const [hintPlayed, setHintPlayed] = useState(false);
   const asking = useRef(false);
 
   // Real STT is deferred (SPEC.md verification item 0's spike hasn't run):
@@ -222,7 +229,15 @@ export function PrototypeFlow({
 
   switch (view.screen) {
     case 'exam-plan':
-      return <ExamPlanFlow initialFrame={view.frame} onOpenNode={openNode} onOpenLog={() => router.push('/log')} />;
+      return (
+        <ExamPlanFlow
+          initialFrame={view.frame}
+          onOpenNode={openNode}
+          onOpenLog={() => router.push('/log')}
+          hintPlayed={hintPlayed}
+          onHintPlayed={() => setHintPlayed(true)}
+        />
+      );
 
     case 'gate':
       return (

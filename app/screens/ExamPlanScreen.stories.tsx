@@ -13,7 +13,7 @@ const DESCRIPTION = `
 | 03VoicerecallON | 13548:6325 | Organelle Identification → node 1 · Comparing Cell Types → node 2 |
 
 - Only the tap zones do anything. Zones are at least 48pt; the Exam tab and Show me are grown around their element to reach that.
-- 02Hint-animate is a still: the Show me hint animation isn't decided (SPEC.md, Options under consideration).
+- 02Hint-animate composites a real, live purple line over its still export (Option B: the line draws itself in, ending in an arrowhead at the Voice recall chip). The curve is a transcription of the real Figma vector's geometry; everything else on the frame is still the exported image (SPEC.md: "the exam plan is out of scope as components").
 - The readiness banner on 01Exam is part of the image, not a \`Snackbar\`.
 - Frame images live in \`public/frames/\`, tap zones in \`app/_prototype/frames.ts\`. Re-export from Figma when a frame changes.
 `;
@@ -62,11 +62,14 @@ export const Exam: Story = {
   },
 };
 
-/** Figma 02Hint-animate, as a still. */
+/** Figma 02Hint-animate: still export plus a live, self-drawing arrow. */
 export const HintAnimate: Story = {
   name: 'frame=02Hint-animate',
   args: { frame: '02Hint-animate' },
-  play: async ({ canvas, args }) => {
+  play: async ({ canvas, canvasElement, args }) => {
+    // The arrow is a real, live SVG overlay, not baked into the image: the
+    // curve plus its two arrowhead strokes, three <path>s in total.
+    await expect(canvasElement.querySelectorAll('svg path')).toHaveLength(3);
     await userEvent.click(canvas.getByRole('button', { name: 'Voice recall' }));
     await expect(args.onZone).toHaveBeenCalledWith('voice-recall-toggle');
   },

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { FRAME_SIZE, type PrototypeFrame, type ZoneId } from './frames';
 import styles from './FrameImage.module.css';
 
@@ -13,13 +13,20 @@ export interface FrameImageProps {
   onZone?: (zone: ZoneId) => void;
   /** Kept mounted but not shown, so the next frame is already loaded. */
   hidden?: boolean;
+  /**
+   * A real, live component composited over the still export (02Hint-animate's
+   * animated Knowie) — not part of the exported image itself. Rendered after
+   * the tap zones, inside the same `hidden`-toggled wrapper, so its CSS
+   * animations restart every time this frame becomes current again.
+   */
+  children?: ReactNode;
 }
 
 /**
  * An exported Figma frame with invisible tap zones over it. Prototype
  * scaffolding for SPEC.md screen 3, not a design-system component.
  */
-export function FrameImage({ frame, onZone, hidden }: FrameImageProps) {
+export function FrameImage({ frame, onZone, hidden, children }: FrameImageProps) {
   const taps = useRef<{ zone: ZoneId | null; count: number; last: number }>({ zone: null, count: 0, last: 0 });
 
   function handleTap(zone: ZoneId, needed: number, now: number) {
@@ -65,6 +72,7 @@ export function FrameImage({ frame, onZone, hidden }: FrameImageProps) {
           />
         );
       })}
+      {children}
     </div>
   );
 }

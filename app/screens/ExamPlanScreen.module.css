@@ -1,0 +1,109 @@
+/*
+ * 02Hint-animate's hint (SPEC.md "Options under consideration", Option B —
+ * lined arrow, decided over Option A 2026-09-16, sprint-context.md). The
+ * purple line/arrow is composited live over the still frame export
+ * (public/frames/02-hint-animate.png — already mascot-free, since the real
+ * Figma frame for this option, Hint-animate01 13651:2244, has no mascotSlot
+ * at all) so it can actually draw itself in; everything else on the frame
+ * (banner, chip, node icons, tab bar, status bar) stays the exported image,
+ * per SPEC.md's "the exam plan is out of scope as components."
+ *
+ * The curve is a real transcription of Vector 1's (13651:2316) own
+ * vectorNetwork (5 vertices, 4 cubic-bezier segments), not redrawn by eye,
+ * positioned/rotated into the 390×844 frame with Figma's own
+ * relativeTransform (34.48°) as a single CSS matrix() — see
+ * public/prototypes/hint-arrow/index.html, where this was worked out and
+ * verified against the live file, for the derivation. The arrowhead is the
+ * one approximation: Figma's native "Arrow lines" end cap is rendered
+ * internally and isn't exposed as path data (its strokeCap reads back as
+ * figma.mixed, a Symbol, confirmed while inspecting the live vector), so
+ * it's a hand-built two-stroke open chevron angled off the curve's own real
+ * exit tangent, not a pixel transcription like the curve itself.
+ *
+ * left/top/width/height and the matrix below are frame geometry, not design
+ * values — the same exemption frames.ts's tap-zone boxes already use.
+ * stroke-width borrows size.space.150 (6px), the nearest real token, rather
+ * than a raw px; the cubic-beziers and every animation timing below have no
+ * motion token in this system, same gap already flagged for the loop's
+ * Processing bob and Option A's build before it.
+ */
+
+.arrowBox {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 113px;
+  height: 117px;
+  transform: matrix(0.8242865800857544, -0.5661728382110596, 0.5661728382110596, 0.8242865800857544, 172, 147.97752380371094);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.arrowBox svg {
+  overflow: visible;
+}
+
+.arrowBox path {
+  fill: none;
+  stroke: var(--color-mascot-body);
+  stroke-width: var(--size-space-150);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* pathLength="100" normalizes dash math regardless of the path's real
+ * length (animate skill, svg-animation.md). Drawn (dashoffset 0) by
+ * default — reduced motion means gentler, not hidden, so "fully drawn" is
+ * the base state and the reveal animation below is what gets added. */
+.arrowBox path {
+  stroke-dasharray: 100 101;
+  stroke-dashoffset: 0;
+}
+
+/* .drawing is only attached on the frame's first reveal (ExamPlanScreen.tsx)
+ * — plays once per session, not every time the student taps back to Show
+ * me. Motion only when the visitor hasn't opted out, same convention
+ * LoopScreen's Processing bob and Option A's build both used.
+ *
+ * `path.drawing`, not `.drawing`: the unqualified class (specificity 0,1,0)
+ * loses to `.arrowBox path` (0,1,1) above regardless of source order, so its
+ * `stroke-dashoffset: 100` never actually applied — confirmed via
+ * `getAnimations()`, which showed the animation interpolating dashoffset
+ * 0 → 0, a no-op, even though `animationName` and `playState` both looked
+ * correct. The extra type selector matches `.arrowBox path`'s own
+ * specificity so source order (this rule comes later) decides it — the same
+ * fix already logged in this file's history for `GateScreen`'s
+ * `.sheetButtons div[...]` and `ResultBtm`'s `.skipButton`. */
+@media (prefers-reduced-motion: no-preference) {
+  path.drawing {
+    stroke-dashoffset: 100;
+    animation-fill-mode: forwards;
+  }
+
+  path.drawing.line {
+    animation-name: draw;
+    animation-duration: 720ms;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-delay: 200ms;
+  }
+
+  path.drawing.wingA {
+    animation-name: draw;
+    animation-duration: 160ms;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation-delay: 900ms;
+  }
+
+  path.drawing.wingB {
+    animation-name: draw;
+    animation-duration: 160ms;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation-delay: 940ms;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Show me hint — Option B, purple line</title>
+<style>
+/* Design tokens, copied verbatim from build/css/tokens.css (this page lives
+   in public/ and can't import that file — if a token changes, re-copy it,
+   never edit a value here). */
+:root {
+  --color-navy-950: #090c18;
+  --color-alpha-light-10: rgba(255, 255, 255, 0.102);
+  --color-background-page: var(--color-navy-950);
+  --color-text-primary: #f4f2ff;
+  --color-interactive-primary: #f4f2ff;
+  --color-interactive-on-primary: var(--color-navy-950);
+  --color-border-default: var(--color-alpha-light-10);
+  --color-border-focus: #a78bfa;
+  --color-mascot-body: #9178e6;
+  --font-family-default: 'Greed Standard-TRIAL';
+  --font-weight-semibold: 600;
+  --font-size-sm: 15px;
+  --font-line-height-sm: 20px;
+  --font-greed-body-s-bold: var(--font-weight-semibold) var(--font-size-sm)/var(--font-line-height-sm) var(--font-family-default);
+  --size-space-0: 0px;
+  --size-space-200: 8px;
+  --size-space-400: 16px;
+  --size-space-1200: 48px;
+  --size-radius-full: 9999px;
+  --size-stroke-border: 1px;
+  --size-stroke-heavy-border: 2px;
+}
+
+/* Figma frame geometry, not design tokens: the purple line/arrow is Vector 1
+   (13651:2316) on Hint-animate01 (13651:2244, Option B's own frame — never
+   renamed in the 2026-09-15 pass, unlike 13547:5824 which became
+   02Hint-animate/Option A). Read directly off the live file via the Figma
+   plugin bridge, not eyeballed:
+   - Vector 1's local (pre-rotation) geometry is a 113×117 box; its five
+     vertices/four cubic-bezier segments below are transcribed from its real
+     vectorNetwork, not redrawn by eye.
+   - relativeTransform positions + rotates (34.48°) that local box into the
+     390×844 frame: matrix(0.8243, -0.5662, 0.5662, 0.8243, 172, 147.978).
+   - Backdrop reuses public/frames/02-hint-animate.png (this session's
+     Knowie-hidden re-export of 02Hint-animate/13547:5824) rather than a
+     fresh export of 13651:2244 itself: both frames share the same
+     `scaffold` structure and sizing (checked node-for-node), so the same
+     dimmed, mascot-free background is correct under either overlay. */
+.stage {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-space-400);
+  padding-block: var(--size-space-400);
+}
+
+.phone {
+  --frame-w: 390px;
+  --frame-h: 844px;
+  position: relative;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  overflow: hidden;
+  background: var(--color-background-page);
+  box-shadow: 0 0 0 var(--size-stroke-border) var(--color-border-default);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 420px) {
+  .stage { padding-block: var(--size-space-0); }
+  .phone { box-shadow: none; }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--color-background-page);
+  color: var(--color-text-primary);
+  font: var(--font-greed-body-s-bold);
+}
+
+.backdrop {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The arrow's own 113×117 local box, positioned and rotated to match
+   Figma's relativeTransform exactly. transform-origin 0 0 matches Figma's
+   convention (the matrix already carries the translation). */
+.arrowBox {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 113px;
+  height: 117px;
+  transform: matrix(0.8242865800857544, -0.5661728382110596, 0.5661728382110596, 0.8242865800857544, 172, 147.97752380371094);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.arrowBox svg {
+  overflow: visible;
+}
+
+.arrowBox path {
+  fill: none;
+  stroke: var(--color-mascot-body);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* pathLength="100" normalizes every path to the same unit length regardless
+   of its real geometry (animate skill, svg-animation.md) — dash covers the
+   whole path, gap is slightly larger than the round cap so it doesn't peek
+   through at 0. Drawn (dashoffset 0) by default: reduced motion means
+   gentler, not hidden, so the fully-drawn line is the base state and the
+   reveal animation is what gets added, not the other way round. */
+.arrowBox path {
+  stroke-dasharray: 100 101;
+  stroke-dashoffset: 0;
+}
+
+/* Motion only when the visitor hasn't opted out (LoopScreen's Processing
+   bob convention, also used for 02Hint-animate's Knowie bounce): with no
+   preference set, the line and arrowhead start hidden and draw in. */
+@media (prefers-reduced-motion: no-preference) {
+  .arrowBox path {
+    stroke-dashoffset: 100;
+  }
+  .arrowBox path {
+    animation-fill-mode: forwards;
+  }
+  .line {
+    animation-name: draw;
+    animation-duration: 720ms;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-delay: 200ms;
+  }
+  .wingA {
+    animation-name: draw;
+    animation-duration: 160ms;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation-delay: 900ms;
+  }
+  .wingB {
+    animation-name: draw;
+    animation-duration: 160ms;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation-delay: 940ms;
+  }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ---------- Controls, outside the phone ---------- */
+
+.controls {
+  display: flex;
+  gap: var(--size-space-400);
+}
+
+.replay {
+  appearance: none;
+  border: var(--size-stroke-border) solid var(--color-border-default);
+  border-radius: var(--size-radius-full);
+  background: var(--color-interactive-primary);
+  color: var(--color-interactive-on-primary);
+  font: var(--font-greed-body-s-bold);
+  padding: var(--size-space-200) var(--size-space-400);
+  min-height: var(--size-space-1200);
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.replay:hover { transform: scale(1.02); }
+.replay:active { transform: scale(0.97); }
+.replay:focus-visible { outline: var(--size-stroke-heavy-border) solid var(--color-border-focus); outline-offset: 2px; }
+
+.note {
+  max-width: 390px;
+  padding-inline: var(--size-space-400);
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.6;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <img class="backdrop" src="hint-base.png" alt="Biology exam plan, dimmed, no Voice recall hint yet" width="390" height="844">
+    <div class="arrowBox" aria-hidden="true">
+      <svg width="113" height="117" viewBox="0 0 113 117">
+        <path class="line" pathLength="100"
+          d="M0,117
+             C22.036,113.992 79.665,93.043 74.130,66.279
+             C70.562,49.028 49.685,52.929 49.685,68.529
+             C49.685,87.472 74.130,92.486 90.822,80.786
+             C111.831,66.060 119.770,28.005 106.493,0" />
+        <path class="wingA" pathLength="100" d="M106.493,0 L106.60,18.00" />
+        <path class="wingB" pathLength="100" d="M106.493,0 L120.35,11.48" />
+      </svg>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="replay" type="button" id="replay">Replay</button>
+  </div>
+  <p class="note">
+    Plays once, on load — matches "only animate once." The arrowhead is a hand-built open
+    chevron approximating Figma's native "Arrow lines" end cap: that cap is rendered
+    internally by Figma and isn't exposed as editable path data through the plugin API,
+    so it isn't a pixel-exact transcription the way the curve itself is (real vectorNetwork
+    vertices/tangents from Vector 1, 13651:2316).
+  </p>
+</div>
+<script>
+  // Restart the CSS animations by leaving and re-entering the DOM — the
+  // same technique the show-me-hint prototype's own Replay button uses.
+  document.getElementById('replay').addEventListener('click', () => {
+    const box = document.querySelector('.arrowBox');
+    const clone = box.cloneNode(true);
+    box.replaceWith(clone);
+  });
+</script>
+</body>
+</html>

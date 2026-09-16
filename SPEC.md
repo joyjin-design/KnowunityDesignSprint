@@ -59,7 +59,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 - **What the student can do:** only the tap zones above.
 - The only snackbar in the whole flow is 01Exam's readiness banner. It's part of the image, not a `Snackbar` instance.
-- **Show me hint animation: not decided.** Two options are prototyped for the moment after **Show me** (02Hint-animate). See **Options under consideration**.
+- **Show me hint animation: decided, 2026-09-16 — Option B (lined arrow).** Reconsidered the same day, after Option A was already built: see **Options under consideration** for the two options and sprint-context.md for both builds. 02Hint-animate composites a real, live SVG arrow (drawn from Vector 1's own vectorNetwork, 13651:2316) over its still export for this reason; everything else on the frame (banner, chip, node icons, tab bar, status bar) stays the exported image, so "exported Figma frames with tap zones" above still holds except for that one live element.
 
 ### 4. Typing placeholder
 
@@ -298,22 +298,25 @@ Real STT is deferred (step 0): wherever a step below says "speak" or "say", pick
 
 ## Options under consideration
 
-Prototyped alternatives, not decisions. Nothing here is chosen or built into the app. When one is picked, log the decision in `sprint-context.md` and move it into the screen it belongs to.
+Prototyped alternatives, not decisions. Nothing here is chosen or built into the app unless marked otherwise. When one is picked, log the decision in `sprint-context.md` and move it into the screen it belongs to.
 
 ### Show me hint animation
 
+**Decided 2026-09-16: Option B (lined arrow), built into 02Hint-animate.** Reconsidered the same day, after Option A (Knowie bounce) was already built and shipped first — both builds are in sprint-context.md. See screen 3 above for the current build.
+
 What the student sees right after tapping **Show me** on the 01Exam banner: the exam plan dims, and something points them at the **Voice recall** chip.
 
-- **Prototype:** `public/prototypes/show-me-hint/index.html` (local; full-bleed 390px, for the test iPhone).
-- **Preview link:** https://claude.ai/artifact/R2DHRWYxYu5Q9D4bM6VHMS (private). It has a fallback font and 16px side gutters, so it isn't exactly 390px wide on a phone.
+- **Comparison prototypes (both superseded by the real build, kept for the record):** `public/prototypes/show-me-hint/index.html` (the original side-by-side comparison; its Option B guessed at a Knowie slide-in that the live file doesn't have) and `public/prototypes/hint-arrow/index.html` (Option B rebuilt against the live Figma file, no Knowie, which is what the real build below ported from).
+- **Preview link:** https://claude.ai/artifact/R2DHRWYxYu5Q9D4bM6VHMS (private, `show-me-hint` only). It has a fallback font and 16px side gutters, so it isn't exactly 390px wide on a phone.
 - **Both options:** play once, over the dimmed exam plan. Tapping the chip goes to 03VoicerecallON. Under reduced motion both simply fade in, with no movement.
+- **The table below is stale for Option B and kept for the record only:** the live Figma frame (Hint-animate01, 13651:2244) has no `mascotSlot` instance at all, only the one arrow vector — checked directly against the file on 2026-09-16 while building the real version. No Knowie slide-in, no "hand-drawn looping arrow" hand-guess: the curve is a direct transcription of that vector's own geometry. Built to match the live file, not this table.
 
-| | Option A: Knowie bounce | Option B: Lined arrow |
+| | Option A: Knowie bounce (built, then superseded) | Option B: Lined arrow (built, current) |
 | --- | --- | --- |
 | Figma | 02Hint-animate, 13547:5824 | Hint-animate01, 13651:2244 |
-| Knowie | `mascotSlot` 2XL at (129, 95), tucked just under the chip | `mascotSlot` 2XL at (19, 145), off to the left |
-| Motion | Knowie rises into place (420ms), two light hops straight up at the chip (8px, then 4px, each landing with a slight squash), then the chip pops (106% → 100% → 102% → 100%) | Knowie slides in from the left (360ms), the hand-drawn looping arrow (`mascot/body`, 6px) draws from Knowie to the chip (720ms), then the arrowhead lines draw in |
-| Length | About 2s | About 1.3s |
+| Knowie | `mascotSlot` 2XL at (129, 95), tucked just under the chip | None on the live frame — see note above |
+| Motion | Knowie rises into place (420ms), two light hops straight up at the chip (8px, then 4px, each landing with a slight squash), then the chip pops (106% → 100% → 102% → 100%) | The purple line (`mascot/body`, 6px) draws itself in (720ms) from the "Grade Goal" area up to the chip, then its arrowhead draws in (two quick strokes, ~160ms) |
+| Length | About 2s | About 1.1s |
 | What points at the chip | Knowie's direction of movement, then the chip itself | A drawn line that ends at the chip |
 | Motion on the button itself | Yes (the pop) | No |
 
