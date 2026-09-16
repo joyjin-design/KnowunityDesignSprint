@@ -389,7 +389,7 @@ export function LoopScreen({
       }
       bottomContent={
         <div className={styles.bottomStack}>
-          {waveformBars > 0 && (
+          {phase !== 'idle' && (
             <VoiceWaveform
               heights={WAVEFORM_BAR_HEIGHTS.slice(WAVEFORM_BAR_HEIGHTS.length - waveformBars)}
               animate={phase === 'processing'}
@@ -399,7 +399,17 @@ export function LoopScreen({
             <ButtonIcon
               variant="Secondary"
               size="L"
-              icon={phase !== 'idle' ? <ArrowCounterClockwise size="100%" aria-hidden="true" /> : <SkipIcon />}
+              icon={
+                phase !== 'idle' ? (
+                  <span key="discard" className={styles.iconSwap}>
+                    <ArrowCounterClockwise size="100%" aria-hidden="true" />
+                  </span>
+                ) : (
+                  <span key="skip" className={styles.iconSwap}>
+                    <SkipIcon />
+                  </span>
+                )
+              }
               aria-label={phase !== 'idle' ? 'Discard and start over' : 'Skip'}
               disabled={phase === 'processing'}
               onClick={phase === 'recording' ? handleCancel : phase === 'idle' ? onSkipIdle : undefined}
@@ -410,9 +420,13 @@ export function LoopScreen({
               disabled={phase === 'processing'}
               leftIcon={
                 phase !== 'idle' ? (
-                  <WaveformIcon size="100%" aria-hidden="true" />
+                  <span key="waveform" className={styles.iconSwap}>
+                    <WaveformIcon size="100%" aria-hidden="true" />
+                  </span>
                 ) : (
-                  <Microphone size="100%" aria-hidden="true" />
+                  <span key="mic" className={styles.iconSwap}>
+                    <Microphone size="100%" aria-hidden="true" />
+                  </span>
                 )
               }
               onClick={phase === 'recording' ? handleSend : phase === 'idle' ? handleStart : undefined}

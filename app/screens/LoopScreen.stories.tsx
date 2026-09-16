@@ -119,8 +119,11 @@ export const Recording: Story = {
       resolvedColor(canvasElement, '--color-background-inverse')
     );
 
-    // Nothing recognized yet: no waveform bars (Figma's 06Talking).
-    await expect(canvasElement.querySelector('[data-bar-count]')).not.toBeInTheDocument();
+    // Nothing recognized yet: the row is reserved but empty (Figma's
+    // 06Talking never shows a waveform pre-recording, but this container
+    // exists throughout Recording/Processing now, plans/005, to reserve its
+    // own space and avoid a layout jump when the first bar appears).
+    await expect(canvasElement.querySelector('[data-bar-count]')).toHaveAttribute('data-bar-count', '0');
 
     // The scripted answer streams in, revealing bars as words arrive.
     await waitFor(() => expect(canvas.getByText(/./, { selector: 'p[data-state]' })).toBeVisible());

@@ -255,3 +255,35 @@
     transform: scaleY(0.4);
   }
 }
+
+/* The button-row icon swaps at Idle<->Recording (Skip<->discard, mic<->
+   waveform, 2026-09-16, plans/006): each option is a genuinely different
+   element (SkipIcon vs ArrowCounterClockwise, etc.), so React remounts
+   rather than patching one in place — a mount-triggered `animation`, same
+   reasoning as waveform-bar-in, not a `transition` (there's no stable node
+   to retarget). Width/height 100% keeps the size="100%" icons resolving
+   against a real pixel box: Button/ButtonIcon's own .icon span carries the
+   actual dimensions (Button.module.css), and an unsized wrapper in between
+   would break that percentage chain. Fade-in only, no fade-out — the
+   outgoing icon is removed instantly on unmount, which needs no CSS of its
+   own; see plans/006's Notes for why that asymmetry is deliberate here. */
+.iconSwap {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .iconSwap {
+    animation: icon-fade-in 150ms ease;
+  }
+}
+
+@keyframes icon-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
