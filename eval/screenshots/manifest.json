@@ -1,0 +1,261 @@
+[
+  {
+    "screen": "ExamPlanScreen",
+    "storyId": "screens-examplanscreen--homescreen",
+    "file": "eval/screenshots/ExamPlanScreen/screens-examplanscreen--homescreen.png",
+    "hash": "0b7b706a47d88799e3f4b9210555b02cdcdc22876a525be3fc500d682a81bb9c",
+    "method": "direct-load"
+  },
+  {
+    "screen": "ExamPlanScreen",
+    "storyId": "screens-examplanscreen--exam",
+    "file": "eval/screenshots/ExamPlanScreen/screens-examplanscreen--exam.png",
+    "hash": "2e5fa37041cbd844fe36e3f8ade6e80e7023fe15d063ff484e0cc45b1088dd7c",
+    "method": "direct-load"
+  },
+  {
+    "screen": "ExamPlanScreen",
+    "storyId": "screens-examplanscreen--hint-animate",
+    "file": "eval/screenshots/ExamPlanScreen/screens-examplanscreen--hint-animate.png",
+    "hash": "7d8a64d547b2b5253eae182014d46d294557ab8b013097a58e29ad5e9c9ca389",
+    "method": "direct-load"
+  },
+  {
+    "screen": "ExamPlanScreen",
+    "storyId": "screens-examplanscreen--voicerecall-on",
+    "file": "eval/screenshots/ExamPlanScreen/screens-examplanscreen--voicerecall-on.png",
+    "hash": "ac776b1f6cb6ed2151bf62084a708ae756b895bcbae49a63e9cc467b48ebc7c9",
+    "method": "direct-load"
+  },
+  {
+    "screen": "GateScreen",
+    "storyId": "screens-gatescreen--first-time",
+    "file": "eval/screenshots/GateScreen/screens-gatescreen--first-time.png",
+    "hash": "a8681f272570cbf6c305b7281fc849ce03634ced426e65d2792f99d4c477881e",
+    "method": "direct-load"
+  },
+  {
+    "screen": "GateScreen",
+    "storyId": "screens-gatescreen--permission-sheet-open",
+    "file": "eval/screenshots/GateScreen/screens-gatescreen--permission-sheet-open.png",
+    "hash": "49aa0ae3811823ea346bb7ee030ca43d5c99304d07f8140e88e0226bec001bcb",
+    "method": "direct-load"
+  },
+  {
+    "screen": "GateScreen",
+    "storyId": "screens-gatescreen--after-an-earlier-denial",
+    "file": "eval/screenshots/GateScreen/screens-gatescreen--after-an-earlier-denial.png",
+    "hash": "e2071c23b4ad6775ed16c1f4594e9ab519aaad457dd385217f8944c2413cdf10",
+    "method": "direct-load"
+  },
+  {
+    "screen": "GateScreen",
+    "storyId": "screens-gatescreen--still-off-after-rechecking",
+    "file": "eval/screenshots/GateScreen/screens-gatescreen--still-off-after-rechecking.png",
+    "hash": "176ebc823ac4e065124b36df4639af26d1284a224d31b2e559b16b9d6f8add0a",
+    "method": "direct-load"
+  },
+  {
+    "screen": "GateScreen",
+    "storyId": "screens-gatescreen--on-device",
+    "file": "eval/screenshots/GateScreen/screens-gatescreen--on-device.png",
+    "hash": "972acfbbaa4649c6db0aca4b403afe3fb0f8bfa688507be1dad64d009e410e7e",
+    "method": "direct-load"
+  },
+  {
+    "screen": "MicOffScreen",
+    "storyId": "screens-micoffscreen--default",
+    "file": "eval/screenshots/MicOffScreen/screens-micoffscreen--default.png",
+    "hash": "b129a1744b7272acabc105740c4b9c6e96ed73c059ce569b1b43643e68df33f7",
+    "method": "direct-load"
+  },
+  {
+    "screen": "MicOffScreen",
+    "storyId": "screens-micoffscreen--dimmed-behind-the-sheet",
+    "file": "eval/screenshots/MicOffScreen/screens-micoffscreen--dimmed-behind-the-sheet.png",
+    "hash": "fb12620875f4998520c6af31683e2dae02d22decee1c23ec2cab80a0bc2d8dff",
+    "method": "direct-load"
+  },
+  {
+    "screen": "MicOffScreen",
+    "storyId": "screens-micoffscreen--on-device",
+    "file": "eval/screenshots/MicOffScreen/screens-micoffscreen--on-device.png",
+    "hash": "f11e158a8ff02317e5a02876397aa1bf86f28353a09c3ae77983337e327d521f",
+    "method": "direct-load"
+  },
+  {
+    "screen": "TypingPlaceholderScreen",
+    "storyId": "screens-typingplaceholderscreen--default",
+    "file": "eval/screenshots/TypingPlaceholderScreen/screens-typingplaceholderscreen--default.png",
+    "hash": "4fcc4a0bd1b0d5a80eb97d9a717b2ad4c752a49fedfd07bf2557fce00eed2c06",
+    "method": "direct-load"
+  },
+  {
+    "screen": "TypingPlaceholderScreen",
+    "storyId": "screens-typingplaceholderscreen--on-device",
+    "file": "eval/screenshots/TypingPlaceholderScreen/screens-typingplaceholderscreen--on-device.png",
+    "hash": "b96c21948ab970a8dd14f624bb749400f55996b028d36735db07b13eecbd7b31",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--pass",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--pass.png",
+    "hash": "7dc1fadf33e2b78f833b1b23760430137eedda6b9fbc72528b3c4dcb9d8a1420",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--partial",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--partial.png",
+    "hash": "8bd5a521f04a5af5f1af5028433ff085ba102f744c5976ff2ea062239d693b7f",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--fail",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--fail.png",
+    "hash": "49fbec3884e141f787784f0051fff2c81290e1ddbdc98ed7560309a3e8f092c6",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--pass-with-long-answer",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--pass-with-long-answer.png",
+    "hash": "b5e3b90bbfcf76c667d63ccbaf5eacafca534b0fa251cab1e9dcfbf0ee0a345d",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--silence-with-long-answer",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--silence-with-long-answer.png",
+    "hash": "b2362abadfb9c894c0d3201765d05fdb75c8203272271afb65a9c86e76dff21e",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--silence-nothing-heard",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--silence-nothing-heard.png",
+    "hash": "bbdfd6d53f92e29495bebf7af5456cdbeb00d69b4bf1c9c47f56709edbfa4557",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--silence-question-asked",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--silence-question-asked.png",
+    "hash": "8b4bdb59cab45b7ef528585c107b143cc3dcbfc32488de5028c013049048b7d9",
+    "method": "direct-load"
+  },
+  {
+    "screen": "VerdictScreen",
+    "storyId": "screens-verdictscreen--on-device",
+    "file": "eval/screenshots/VerdictScreen/screens-verdictscreen--on-device.png",
+    "hash": "4da912b02b182e090e13c0193f9dfc72bb13929502d53a7c215a54f38e6ef07d",
+    "method": "direct-load"
+  },
+  {
+    "screen": "WhyScreen",
+    "storyId": "screens-whyscreen--after-pass",
+    "file": "eval/screenshots/WhyScreen/screens-whyscreen--after-pass.png",
+    "hash": "a410c0151cb113478ac2e733c403843485e4a23742d88e28248db8d7b913f8c1",
+    "method": "direct-load"
+  },
+  {
+    "screen": "WhyScreen",
+    "storyId": "screens-whyscreen--after-partial",
+    "file": "eval/screenshots/WhyScreen/screens-whyscreen--after-partial.png",
+    "hash": "de213d76f338144320ce4421bb06c78bba46bc6bfea221ec0f7531a028a38deb",
+    "method": "direct-load"
+  },
+  {
+    "screen": "WhyScreen",
+    "storyId": "screens-whyscreen--after-fail",
+    "file": "eval/screenshots/WhyScreen/screens-whyscreen--after-fail.png",
+    "hash": "e5538c3bcb28449570a81aa26042e771ef1ca004ae043b72c4fcbcbf85ed4039",
+    "method": "direct-load"
+  },
+  {
+    "screen": "WhyScreen",
+    "storyId": "screens-whyscreen--after-pass-long-answer",
+    "file": "eval/screenshots/WhyScreen/screens-whyscreen--after-pass-long-answer.png",
+    "hash": "ac11f2807b42d6fc41d2f8615ae047a72ab20babb07d3d380562bfa5aab4cc07",
+    "method": "direct-load"
+  },
+  {
+    "screen": "SummaryScreen",
+    "storyId": "screens-summaryscreen--all-pass",
+    "file": "eval/screenshots/SummaryScreen/screens-summaryscreen--all-pass.png",
+    "hash": "fc199a1aecef71ec2a112610e37bf6168e888bf23faa8ab1388bce1717e2250b",
+    "method": "direct-load"
+  },
+  {
+    "screen": "SummaryScreen",
+    "storyId": "screens-summaryscreen--some-non-pass",
+    "file": "eval/screenshots/SummaryScreen/screens-summaryscreen--some-non-pass.png",
+    "hash": "ac91fad427cd1ac1b4be09c7689020511cb95cc26ed6a2e2575f4e2debed501b",
+    "method": "direct-load"
+  },
+  {
+    "screen": "SummaryScreen",
+    "storyId": "screens-summaryscreen--none-pass",
+    "file": "eval/screenshots/SummaryScreen/screens-summaryscreen--none-pass.png",
+    "hash": "c1bf7f534fd43c512eff3ed9b818c71e94df706aa57e8f9f064c197650610d5e",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--idle",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--idle.png",
+    "hash": "f0e56e929a3efe735cc0fc93a5db9326591f9b0e0885cda004b7560b544b2283",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--mic-unavailable",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--mic-unavailable.png",
+    "hash": "032e4b81b801dac2ad7b807c40cc536046f9a47af5595093866246cc9b9edcc5",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--accidental-tap",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--accidental-tap.png",
+    "hash": "032e4b81b801dac2ad7b807c40cc536046f9a47af5595093866246cc9b9edcc5",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--processing",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--processing.png",
+    "hash": "c2c0eaa4591e9925a9bea51e3a157a5af291a0656d1bb1faf544627255fb197b",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--interrupted-mid-recording",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--interrupted-mid-recording.png",
+    "hash": "f59c61086c6f4573e25706ca995628cd4bc354d56328837ce1afe8df828b85f0",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--on-device",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--on-device.png",
+    "hash": "2b03fa582ad8c185b39b1f16611bc5862d801cea4a7c074d07508aad92440cbe",
+    "method": "direct-load"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--recording",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--recording.png",
+    "hash": "f88fbcdd5fe06aed07dd1c3f81cc5735ee23e89d23fbec7753e339f79b0445ae",
+    "method": "manual-drive (idle shell, args scriptedAnswer:pass, clicked Start, waited for bars)"
+  },
+  {
+    "screen": "LoopScreen",
+    "storyId": "screens-loopscreen--still-listening-cue",
+    "file": "eval/screenshots/LoopScreen/screens-loopscreen--still-listening-cue.png",
+    "hash": "9939a22a4ef32f090beb184d61833fec3539a2e89aeee47258961a2366a6483c",
+    "method": "manual-drive (idle shell, args scriptedAnswer:blank, clicked Start, waited for cue text)"
+  }
+]
