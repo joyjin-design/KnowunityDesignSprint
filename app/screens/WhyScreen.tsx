@@ -28,7 +28,11 @@ export interface WhyScreenProps {
   progress: Progress;
   /** The authored explanation (content/voice-recall-questions.md), with the
    * concepts the judge found missing already marked bold by the caller —
-   * Success has nothing missing, so nothing's bold there. */
+   * on any verdict, including Pass. A Pass only needs 2 of 3 concepts
+   * (SPEC.md's judge rules), so bolding the one it still missed lets the
+   * student double-check themselves even after passing (2026-09-16, your
+   * call — supersedes this comment's own earlier "Success has nothing
+   * missing" assumption, which held only for a clean 3-of-3 Pass). */
   explanation: ReactNode;
   /** Leaves the session for the exam plan (03VoicerecallON), same as
    * VerdictScreen's own close — this sheet can't be dragged or backdrop-

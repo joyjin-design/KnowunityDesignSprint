@@ -28,10 +28,21 @@ export interface SnackbarProps {
   className?: string;
 }
 
+// `size="100%"` matches every other Phosphor icon usage in the file (e.g.
+// LoopScreen.tsx's <X size="100%">) — without it these default to Phosphor's
+// own 1em, which resolved to 16px against this box's real 24px
+// (`--size-icon-300`, `.icon` below), sitting undersized and flush at the
+// span's top-left corner rather than filling and centering in it (found
+// 2026-09-16 double-checking the Error icon swap against Figma 13719:9060,
+// but the same missing prop affected Default/Success too).
 const STATUS_ICON: Record<SnackbarVariant, ReactNode> = {
-  Default: <Info weight="fill" />,
-  Success: <CheckCircle weight="fill" />,
-  Error: <WarningCircle weight="fill" />,
+  Default: <Info weight="fill" size="100%" />,
+  Success: <CheckCircle weight="fill" size="100%" />,
+  // Outline, not filled, unlike Default/Success (2026-09-16, your edit to
+  // the real placed instance, Figma 13719:9060) — the mainComponent is
+  // still named `warning-circle`, same icon concept, just a stroke weight
+  // instead of a solid one now.
+  Error: <WarningCircle weight="regular" size="100%" />,
 };
 
 // The action chip was blue/green/red per variant in the file, but that came

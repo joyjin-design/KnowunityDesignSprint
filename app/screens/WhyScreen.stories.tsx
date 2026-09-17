@@ -57,7 +57,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Pass: "They make energy for the cell by breaking down glucose." hits A and C — only B is missing. */
+/** Pass: "They make energy for the cell by breaking down glucose." hits A and C —
+ * only B is missing, and it's still bolded on purpose (2026-09-16, your call): a
+ * Pass only needs 2 of 3 concepts, so the miss is a chance to double-check, not
+ * a mistake to hide. */
 export const AfterPass: Story = {
   args: {
     outcome: 'Pass',

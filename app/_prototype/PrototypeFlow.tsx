@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSyncExternalStore } from 'react';
 import { ExamPlanFlow } from '@/app/screens/ExamPlanScreen';
 import { GateScreen } from '@/app/screens/GateScreen';
@@ -227,6 +227,29 @@ export function PrototypeFlow({
     return false;
   }
 
+  // Passive recheck for LoopScreen's Idle-only mic-unavailable snackbar
+  // (2026-09-16, your call): Gate already confirmed the mic once, but
+  // permission can be revoked, or hardware unplugged, after that with
+  // nothing tapped since. Unlike handleLoopStart's own recheck (Start
+  // tapped), this never itself navigates to the mic-off sheet — only
+  // `mic` flips, which LoopScreen reads to show or hide its snackbar.
+  // Re-runs per fresh question (session.index) so a newly-lost mic is
+  // caught even if the student never leaves the loop.
+  useEffect(() => {
+    if (view.screen !== 'loop') return;
+    let cancelled = false;
+    ask().then((result) => {
+      if (cancelled || result === 'granted') return;
+      if (result === 'unavailable') {
+        console.warn('Voice recall: the microphone is unavailable (no microphone, or the page is not on HTTPS).');
+      }
+      setMic('denied');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [view.screen, session?.index, ask]);
+
   switch (view.screen) {
     case 'exam-plan':
       return (
@@ -276,6 +299,13 @@ export function PrototypeFlow({
           scriptedAnswer={scriptedAnswer}
           latencyOverride={latencyOverride}
           onStart={handleLoopStart}
+          micUnavailable={mic === 'denied'}
+          // Reuses Gate's own after-denial Settings-instructions state
+          // wholesale (2026-09-16, your call) rather than a second copy of
+          // it here — `session` is never cleared by this path, so Gate's own
+          // "I've turned on the mic" recheck resumes this exact question via
+          // beginSession's existing same-node guard, not a fresh session.
+          onGoToSettings={() => setView({ screen: 'gate', node: session.node, sheetOpen: false })}
           onSkipIdle={() => {
             logTurn(questionId, 'Skipped', { latencyFlag: null });
             advance(questionId, 'Skipped');

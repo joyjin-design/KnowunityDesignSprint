@@ -294,3 +294,20 @@
     opacity: 1;
   }
 }
+
+/* Send's accidental-tap guard (LoopScreen.tsx, ACCIDENTAL_TAP_MS/sendGuarded,
+   2026-09-16): a real `disabled` would swallow the click event entirely
+   (native disabled buttons never fire onClick) and break the accidental-tap
+   case's own logic in handleSend, which still needs that click to land — so
+   this is a plain `style={{ opacity: 0.4 }}` override from LoopScreen.tsx
+   itself, matching ButtonVoice's own disabled dim amount (0.4, same
+   color/alpha/light-40 proportion) without going through its `disabled`
+   prop. This transition just gives that opacity swap something to animate
+   between: same short, one-shot, discrete-state fade as .stillListening's
+   own 150ms ease above (not `linear`, which this file reserves for the
+   waveform's continuous, repeated glide instead). */
+@media (prefers-reduced-motion: no-preference) {
+  .sendGuard {
+    transition: opacity 150ms ease;
+  }
+}

@@ -15,6 +15,7 @@ import { ButtonVoice } from '@/app/components/ButtonVoice';
 import { MascotSlot } from '@/app/components/MascotSlot';
 import { ProgressIndicator } from '@/app/components/ProgressIndicator';
 import { Screen, type ScreenProps } from '@/app/components/Screen';
+import { Snackbar } from '@/app/components/Snackbar';
 import { TranscriptDisplay } from '@/app/components/TranscriptDisplay';
 import { judge } from '@/lib/recall/judge';
 import type { LatencyOverride } from '@/lib/recall/latencyOverride';
@@ -35,7 +36,10 @@ const PROCESSING_COPY: Record<ProcessingPhrase, string> = {
 };
 
 /** How long a take has to run before Send counts as a real attempt, not the
- * accidental-tap case (SPEC.md "On Send" step 1). */
+ * accidental-tap case (SPEC.md "On Send" step 1). Also drives `sendGuarded`
+ * (2026-09-16, your call): Send now visibly dims for this same window,
+ * rather than a too-early tap being a silent dead click, and clears the
+ * instant either this timer fires or the first word is heard. */
 const ACCIDENTAL_TAP_MS = 1000;
 /** "Still listening…" fires on real silence (2026-09-16, your call): no new
  * transcript from either speech source for this long, not a word count or a
@@ -110,6 +114,19 @@ export interface LoopScreenProps {
    * Resolving `false` means the caller is about to show the mic-off sheet
    * (SPEC.md screen 5) over this one instead — LoopScreen just stays put. */
   onStart?: () => Promise<boolean> | boolean;
+  /** Idle only (2026-09-16, your call — narrower than the Figma reference,
+   * which didn't distinguish): the caller has passively found the mic gone
+   * since Gate last confirmed it (permission revoked, hardware unplugged),
+   * without the student tapping anything yet. Shows the `Snackbar` above the
+   * app bar (Figma 13719:8829/9060, variant Error). Tapping Start still
+   * works exactly as before — this is only a heads-up, not a block; Start's
+   * own `onStart` recheck is still what actually stops Recording. */
+  micUnavailable?: boolean;
+  /** The snackbar's one action ("Go to Setting"). Not a real OS deep link —
+   * no web page can open iOS Settings — so the caller sends the student back
+   * to Gate's own after-denial Settings-instructions state instead of
+   * inventing a second copy of it here (2026-09-16, your call). */
+  onGoToSettings?: () => void;
   /** Idle only: next question, no attempt used. */
   onSkipIdle?: () => void;
   /** Idle only: leaves the session for 01Exam. */
@@ -164,6 +181,8 @@ export function LoopScreen({
   onInterrupted,
   onSilence,
   onVerdict,
+  micUnavailable = false,
+  onGoToSettings,
 }: LoopScreenProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [startingMic, setStartingMic] = useState(false);
@@ -172,6 +191,14 @@ export function LoopScreen({
   const [stillListening, setStillListening] = useState(false);
   const [processingPhrase, setProcessingPhrase] = useState<ProcessingPhrase>('think');
   const [waveformBars, setWaveformBars] = useState(0);
+  /** True for the accidental-tap guard window (ACCIDENTAL_TAP_MS) right
+   * after Start, so Send can visibly dim instead of the tap being a silent
+   * dead click — see the .sendGuard usage below. Cleared the instant either
+   * the timer below fires or `transcript` goes non-empty (checked together
+   * where this is read), matching handleSend's own guard condition exactly
+   * so a genuinely fast real answer is never blocked, only dimmed briefly
+   * before any speech has landed. */
+  const [sendGuarded, setSendGuarded] = useState(false);
 
   const speechRef = useRef<{ stop: () => void } | null>(null);
   const recordingStartedAt = useRef(0);
@@ -180,6 +207,7 @@ export function LoopScreen({
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const waveformTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sendGuardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stillListeningRef = useRef(false);
   const hasHeardSpeechRef = useRef(false);
   const phaseRef = useRef<Phase>('idle');
@@ -205,6 +233,11 @@ export function LoopScreen({
     waveformTimerRef.current = null;
   }
 
+  function clearSendGuardTimer() {
+    if (sendGuardTimerRef.current) clearTimeout(sendGuardTimerRef.current);
+    sendGuardTimerRef.current = null;
+  }
+
   /** Rearms the real-silence clock (SILENCE_TIMEOUT_MS): called once when
    * Recording starts, then again on every interim result so genuine speech
    * keeps pushing "Still listening…" off. */
@@ -220,6 +253,7 @@ export function LoopScreen({
     clearTimers();
     clearSilenceTimer();
     clearWaveformTimer();
+    clearSendGuardTimer();
   }, []);
 
   // Interruptions (SPEC.md): a call, lock or backgrounding mid-Recording
@@ -240,6 +274,8 @@ export function LoopScreen({
       setStillListening(false);
       setWaveformBars(0);
       hasHeardSpeechRef.current = false;
+      clearSendGuardTimer();
+      setSendGuarded(false);
     }
     document.addEventListener('visibilitychange', handleInterruption);
     window.addEventListener('pagehide', handleInterruption);
@@ -263,6 +299,10 @@ export function LoopScreen({
     recordingStartedAt.current = Date.now();
     setPhase('recording');
     armSilenceTimer();
+
+    setSendGuarded(true);
+    clearSendGuardTimer();
+    sendGuardTimerRef.current = setTimeout(() => setSendGuarded(false), ACCIDENTAL_TAP_MS);
 
     hasHeardSpeechRef.current = false;
     clearWaveformTimer();
@@ -312,6 +352,8 @@ export function LoopScreen({
     speechRef.current?.stop();
     clearSilenceTimer();
     clearWaveformTimer();
+    clearSendGuardTimer();
+    setSendGuarded(false);
     setStillListening(false);
     setPhase('idle');
     setTranscript('');
@@ -325,6 +367,7 @@ export function LoopScreen({
     speechRef.current?.stop();
     clearSilenceTimer();
     clearWaveformTimer();
+    clearSendGuardTimer();
     setStillListening(false);
     const finalTranscript = transcript;
 
@@ -366,25 +409,32 @@ export function LoopScreen({
     <Screen
       showStatusBar={showStatusBar}
       topNavigation={
-        <AppBar
-          variant="leftIconButtonOnly"
-          leftIcon={<X size="100%" aria-hidden="true" />}
-          leftLabel="Close"
-          onLeftClick={() => {
-            if (phase === 'processing') {
-              const latencyMs = Date.now() - processingStartedAt.current;
-              onClose?.(phase, transcript, latencyMs, planRef.current?.flag ?? 'normal');
-            } else {
-              onClose?.(phase, transcript);
+        <>
+          {phase === 'idle' && micUnavailable && (
+            <Snackbar variant="Error" action={{ label: 'Go to Setting', onClick: () => onGoToSettings?.() }}>
+              Mic is not available.
+            </Snackbar>
+          )}
+          <AppBar
+            variant="leftIconButtonOnly"
+            leftIcon={<X size="100%" aria-hidden="true" />}
+            leftLabel="Close"
+            onLeftClick={() => {
+              if (phase === 'processing') {
+                const latencyMs = Date.now() - processingStartedAt.current;
+                onClose?.(phase, transcript, latencyMs, planRef.current?.flag ?? 'normal');
+              } else {
+                onClose?.(phase, transcript);
+              }
+            }}
+            slot={
+              <>
+                <ProgressIndicator thickness="16" progress={progress} />
+                <XpChip />
+              </>
             }
-          }}
-          slot={
-            <>
-              <ProgressIndicator thickness="16" progress={progress} />
-              <XpChip />
-            </>
-          }
-        />
+          />
+        </>
       }
       middleContent={
         <div className={styles.content}>
@@ -441,6 +491,10 @@ export function LoopScreen({
               state={startingMic ? 'Loading' : phase !== 'idle' ? 'Recording' : 'Default'}
               ctaText={phase !== 'idle' ? 'Send' : 'Start'}
               disabled={phase === 'processing'}
+              className={styles.sendGuard}
+              style={
+                phase === 'recording' && sendGuarded && transcript.trim() === '' ? { opacity: 0.4 } : undefined
+              }
               leftIcon={
                 phase !== 'idle' ? (
                   <span key="waveform" className={styles.iconSwap}>

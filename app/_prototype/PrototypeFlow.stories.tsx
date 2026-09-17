@@ -98,7 +98,9 @@ export const AllowGranted: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Allow' }));
     await expect(await canvas.findByText(QUESTIONS.Q1.prompt)).toBeVisible();
     await expect(canvas.getByRole('button', { name: /start/i })).toBeVisible();
-    await expect(args.requestMic).toHaveBeenCalledTimes(1);
+    // 2, not 1: Gate's own Allow, plus the loop's new passive Idle recheck
+    // for its mic-unavailable snackbar (2026-09-16) firing once on arrival.
+    await expect(args.requestMic).toHaveBeenCalledTimes(2);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
     await expect(visibleFrame(canvasElement)).toBe('03VoicerecallON');

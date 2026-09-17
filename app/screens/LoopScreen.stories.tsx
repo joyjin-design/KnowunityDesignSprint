@@ -14,7 +14,7 @@ const DESCRIPTION = `
 
 **Actions:**
 - Idle: **Start** (with a brief mic re-check first — resolving \`false\` means the caller is about to show the mic-off sheet), **Skip** (next question, no attempt), **Can't talk right now** (leaves the session).
-- Recording: the discard icon **cancels** back to Idle (nothing logged), **Send** moves to Processing (or drops silently back to Idle if under ~1s with nothing heard — the accidental tap).
+- Recording: the discard icon **cancels** back to Idle (nothing logged), **Send** moves to Processing (or drops silently back to Idle if under ~1s with nothing heard — the accidental tap; Send visibly dims for that same brief window now, 2026-09-16, rather than an early tap being a dead click, and undims the instant either the window passes or the first word is heard).
 - Processing: the discard icon and buttonVoice stay on screen, frozen at Recording's exact look, but disabled (2026-09-16 — supersedes the 2026-09-15 "hidden entirely" decision); **Close** (top app bar) is the only actually working way out, and always leaves the session.
 
 **Built inline (component-gaps.md):** the speech bubble with its tail, the mascot's shadow and thinking-loop animation, the XP chip, and the waveform row — same duplicated pattern as VerdictScreen/MicOffScreen/WhyScreen.
@@ -101,6 +101,28 @@ export const MicUnavailable: Story = {
   },
 };
 
+/** Idle-only, passive (Figma 13719:8829/9060, 2026-09-16, your call):
+ * the caller found the mic gone since Gate last confirmed it, without the
+ * student tapping anything. The Error `Snackbar` sits above the app bar;
+ * Start still works exactly as before (`MicUnavailable` above covers that
+ * reactive path) — this is only a heads-up. */
+export const IdleMicSnackbar: Story = {
+  args: { micUnavailable: true, onGoToSettings: fn() },
+  play: async ({ canvas, args }) => {
+    await expect(canvas.getByText('Mic is not available.')).toBeVisible();
+    const startButton = canvas.getByRole('button', { name: /start/i });
+    await expect(startButton).toBeVisible();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Go to Setting' }));
+    await expect(args.onGoToSettings).toHaveBeenCalledTimes(1);
+
+    // Recording: the snackbar is Idle-only, so it drops the instant Start
+    // succeeds — even though the mic is still flagged unavailable in args.
+    await userEvent.click(startButton);
+    await expect(canvas.queryByText('Mic is not available.')).not.toBeInTheDocument();
+  },
+};
+
 export const Recording: Story = {
   args: { scriptedAnswer: 'pass' },
   play: async ({ canvas, canvasElement }) => {
@@ -141,7 +163,11 @@ export const Recording: Story = {
 };
 
 /** Send before ~1s with nothing heard yet drops silently back to Idle —
- * nothing logged, no verdict, no Silence sheet. */
+ * nothing logged, no verdict, no Silence sheet. The button also visibly
+ * dims for that same window now (2026-09-16, sendGuarded in LoopScreen.tsx),
+ * so the tap reads as "not yet" rather than a dead click; this play()
+ * doesn't assert on that, since it's a CSS-only opacity cue, not
+ * interaction-blocking (the click still fires and is still ignored). */
 export const AccidentalTap: Story = {
   args: { onVerdict: fn(), onSilence: fn() },
   play: async ({ canvas, args }) => {
