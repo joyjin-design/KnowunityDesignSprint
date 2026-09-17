@@ -13,7 +13,7 @@ Transcripts come from the browser's own speech recognizer, judging is a mocked k
 
 Component names are Storybook titles under `Components/` (source in `app/components/`). Props named here exist in the source today, unless marked **(change approved)**.
 
-Every screen is composed inside `Screen` (`app/components/Screen.tsx`), 390px, dark mode. Sheets go in its `bottomSheetOnly` slot with `showBottomSheetBackground`, except the verdict sheet (screen 1), which has no dim. Questions and their content come from `content/voice-recall-questions.md`.
+Every screen is composed inside `Screen` (`app/components/Screen.tsx`), 390px, dark mode. Sheets go in its `bottomSheetOnly` slot with `showBottomSheetBackground`, except the verdict sheet (screen 1) and the mic-off sheet (screen 5, revised 2026-09-17), which have no dim — the scrim paints over that screen's own behind-the-sheet text, not just the space around it. Questions and their content come from `content/voice-recall-questions.md`.
 
 ### 1. Verdict sheet
 
@@ -74,7 +74,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 
 ✅ Built 2026-09-15 as `MicOffScreen` (`app/screens/MicOffScreen.tsx`, Storybook `Screens/MicOffScreen`). No Figma frame at build time; a reference mockup was added afterward ("Permission ask (invented — no system equivalent)", Figma 13666:3837) and the build was revised to match it. Shown when the student taps **Start** but mic permission has since been revoked.
 
-- **Behind the sheet:** the loop's Idle look (mascot, question bubble, disclaimer, `TranscriptDisplay` Empty), reconstructed inline since screen 10 isn't built yet — the tap never reaches Recording. Dimmed (`showBottomSheetBackground`), per the general sheet rule; the verdict sheet (screen 1) is the one documented exception, not this one.
+- **Behind the sheet:** the loop's Idle look (mascot, question bubble, disclaimer, `TranscriptDisplay` Empty), reconstructed inline since screen 10 isn't built yet — the tap never reaches Recording. **No dim** (revised 2026-09-17, was `showBottomSheetBackground` per the general sheet rule): an eval panel found the scrim painting over the transcript/disclaimer text itself, not just the space behind it, crushing both below the 4.5:1 contrast floor. Now a second documented exception alongside the verdict sheet (screen 1).
 - **Components:** `BottomSheet` (with `aria-label`) + `BottomSheetAppBar` (`variant="withTitle"`, title "Your mic is off", caption "Open Settings, find Voice recall, then turn on Microphone.") — not a separate `TextBlock` in `middleSection`, which is unused. `ButtonGroup` (Horizontal, L) of `ButtonIcon` Skip + `Button` Primary "Type instead" in `bottomSection`.
 - **Settings copy is still a placeholder**, pending Open #2 (blocked on the Verification-step-0 spike).
 - **What the student can do:** **Type instead** → typing placeholder; **Skip** → next question. There's no Open Settings button (a web app can't link there).
@@ -91,7 +91,7 @@ The exam plan is out of scope as components. These screens are exported Figma fr
 - **Content:** headline "Say it, don't just tap it"; body "Tap Start and explain it out loud, in your own words. Tap Stop when you're done. Knowie's listening for what you know, not perfect grammar."; mascot; two buttons.
 - **Components:** `Screen`, `TextBlock` (`variant="L"`; title/caption fonts, their gap, and centering are all local overrides — see below), `MascotSlot` (`size="2XL"`, `expression="approving"` in both states), and `ButtonGroup` (`variant="Vertical"`, `size="L"`) of `Button` Primary **Turn on microphone** + `Button` Secondary **Can't talk right now**.
 - **Permission sheet:** `BottomSheet` in `bottomSheetOnly`, with `BottomSheetAppBar` (`variant="withTitle"`) showing the title "Allow microphone access?" and caption "Knowie needs this to hear you explain answers out loud.", and `ButtonGroup` (`variant="Vertical"`, `size="L"`) of `Button` Primary **Allow** + `Button` Secondary **Don't allow**.
-- **Dimmed** (`showBottomSheetBackground`) while the sheet is open — the general sheet rule; the verdict sheet (screen 1) is the one documented exception, not this one. Figma's own "sheet open" frame has the dim off and its scrim hidden, possibly an authoring gap rather than a deliberate choice — flagged, not resolved.
+- **Dimmed** (`showBottomSheetBackground`) while the sheet is open — the general sheet rule; the verdict sheet (screen 1) and the mic-off sheet (screen 5) are the two documented exceptions, not this one. Figma's own "sheet open" frame has the dim off and its scrim hidden, possibly an authoring gap rather than a deliberate choice — flagged, not resolved. (This screen's caption text was also measured at ~2.82:1 while dimmed, 2026-09-17 — same root cause as screen 5's fix, left open here rather than silently applied, since the sheet here is transient and Figma's own frame is ambiguous about whether the dim should be on at all; see sprint-context.md.)
 - **After an earlier denial:** the body copy swaps to Settings steps (reusing the mic-off sheet's own placeholder copy, "Open Settings, find Voice recall, then turn on Microphone." — pending Open #2), and the primary button becomes **I've turned on the mic**.
 
 | State | What the student can do |

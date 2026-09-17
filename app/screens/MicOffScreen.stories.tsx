@@ -5,7 +5,7 @@ import { MicOffScreen } from './MicOffScreen';
 const DESCRIPTION = `
 **SPEC.md screen 5: the mic-off sheet.** Shown when the student taps Start but mic permission has since been revoked.
 
-**Behind the sheet:** the loop's Idle look — mascot, question bubble, disclaimer, \`TranscriptDisplay\` Empty. The tap never reaches Recording, since the permission check fails first, so nothing behind the sheet changes from Idle. Screen 10 isn't built yet, so this reconstructs Idle inline, the same way \`VerdictScreen\` (screen 1) reconstructs it behind the verdict sheet. **Dimmed**, unlike the verdict sheet: this is the general sheet rule from SPEC.md's intro (\`showBottomSheetBackground\`), and the verdict sheet is the one documented exception, not this one.
+**Behind the sheet:** the loop's Idle look — mascot, question bubble, disclaimer, \`TranscriptDisplay\` Empty. The tap never reaches Recording, since the permission check fails first, so nothing behind the sheet changes from Idle. Screen 10 isn't built yet, so this reconstructs Idle inline, the same way \`VerdictScreen\` (screen 1) reconstructs it behind the verdict sheet. **No dim** (revised 2026-09-17): this screen originally followed SPEC.md's general sheet rule (\`showBottomSheetBackground\`), but that scrim paints over the transcript/disclaimer text itself, not just the space around it, and was found to crush both below the 4.5:1 contrast floor (an eval panel's Accessibility hard-gate finding). Now a second documented exception alongside the verdict sheet, for the same reason: the content needs to stay legible, not just present.
 
 **Sheet content, revised 2026-09-15 against a reference mockup** ("Permission ask (invented — no system equivalent)", Figma 13666:3837): \`BottomSheetAppBar\` (\`variant="withTitle"\`) now carries the title and Settings instructions directly, not a separate \`TextBlock\` in \`middleSection\` — \`middleSection\` is unused. \`ButtonGroup\` (Horizontal, L) of \`ButtonIcon\` Skip + \`Button\` Primary "Type instead" stays in \`bottomSection\`.
 
@@ -84,12 +84,18 @@ export const Default: Story = {
   },
 };
 
-/** The sheet dims the screen behind it, unlike the verdict sheet. */
-export const DimmedBehindTheSheet: Story = {
-  name: 'Dimmed behind the sheet',
-  play: async ({ canvasElement }) => {
+/** No dim behind the sheet (2026-09-17) — same as the verdict sheet, and for
+ * the same reason: the scrim painted over the transcript/disclaimer text
+ * itself, not just the space around it, crushing both below the 4.5:1
+ * contrast floor. */
+export const NoDimBehindTheSheet: Story = {
+  name: 'No dim behind the sheet',
+  play: async ({ canvas, canvasElement }) => {
     const scrim = canvasElement.querySelector<HTMLElement>('[class*="bottomSheetBackground"]');
-    await expect(scrim).toBeVisible();
+    await expect(scrim).not.toBeInTheDocument();
+    await expect(
+      canvas.getByText("I'm listening. Feel free to say your answer out loud")
+    ).toBeVisible();
   },
 };
 

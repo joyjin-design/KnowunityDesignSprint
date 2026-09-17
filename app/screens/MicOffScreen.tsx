@@ -70,6 +70,15 @@ function XpChip() {
  * behind the sheet changes from Idle. Same inline mascot/bubble pattern as
  * VerdictScreen (screen 1), duplicated rather than promoted: SPEC.md's
  * screen 10 says to keep it inline, not as a component.
+ *
+ * No dim behind the sheet (2026-09-17, supersedes the original "dimmed,
+ * per the general sheet rule" decision) — `showBottomSheetBackground`'s
+ * scrim paints over the transcript/disclaimer text itself (Screen.tsx
+ * layers it after `middleContent`, `position: absolute; inset: 0`), not
+ * just the space around it, which crushed `text-tertiary`/`text-secondary`
+ * on this screen below the 4.5:1 contrast floor. Now a second documented
+ * exception alongside the verdict sheet (screen 1), for the same reason:
+ * the content behind the sheet needs to stay legible, not just present.
  */
 export function MicOffScreen({
   question,
@@ -82,7 +91,6 @@ export function MicOffScreen({
   return (
     <Screen
       showStatusBar={showStatusBar}
-      showBottomSheetBackground
       topNavigation={
         <AppBar
           variant="leftIconButtonOnly"
