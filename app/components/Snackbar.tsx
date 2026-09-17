@@ -80,7 +80,7 @@ export function Snackbar({
             </Button>
           )}
         </div>
-        <Chip size="S" onClick={action.onClick} style={ACTION_CHIP_STYLE[variant]}>
+        <Chip size="S" onClick={action.onClick} style={ACTION_CHIP_STYLE[variant]} className={styles.actionHitArea}>
           {action.label}
         </Chip>
       </div>

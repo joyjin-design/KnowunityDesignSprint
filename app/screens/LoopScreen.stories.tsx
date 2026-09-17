@@ -109,17 +109,17 @@ export const MicUnavailable: Story = {
 export const IdleMicSnackbar: Story = {
   args: { micUnavailable: true, onGoToSettings: fn() },
   play: async ({ canvas, args }) => {
-    await expect(canvas.getByText('Mic is not available.')).toBeVisible();
+    await expect(canvas.getByText('Your microphone is not available.')).toBeVisible();
     const startButton = canvas.getByRole('button', { name: /start/i });
     await expect(startButton).toBeVisible();
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Go to Setting' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Go back' }));
     await expect(args.onGoToSettings).toHaveBeenCalledTimes(1);
 
     // Recording: the snackbar is Idle-only, so it drops the instant Start
     // succeeds — even though the mic is still flagged unavailable in args.
     await userEvent.click(startButton);
-    await expect(canvas.queryByText('Mic is not available.')).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Your microphone is not available.')).not.toBeInTheDocument();
   },
 };
 

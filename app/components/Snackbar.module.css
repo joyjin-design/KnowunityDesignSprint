@@ -46,6 +46,28 @@
   color: var(--color-feedback-error-bold);
 }
 
+/* The action chip is Figma's real `chips/S` — a fixed 32px tall, under the
+   48px tap-target floor every other real control in this file is held to
+   (Button/ButtonIcon's own min-height, --size-space-1200; sprint-context.md
+   2026-09-17). Rather than grow the chip itself (which would diverge from
+   Figma), a ::before pseudo-element extends the button's own hit box to
+   that floor without changing its visible size — clicks anywhere in the
+   enlarged box still land on the real <button>, since the pseudo-element is
+   part of its painted area, not a separate element. */
+.actionHitArea {
+  position: relative;
+}
+
+.actionHitArea::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, var(--size-space-1200));
+  height: var(--size-space-1200);
+  transform: translate(-50%, -50%);
+}
+
 .textContainer {
   display: flex;
   flex-direction: column;

@@ -122,7 +122,7 @@ export interface LoopScreenProps {
    * works exactly as before — this is only a heads-up, not a block; Start's
    * own `onStart` recheck is still what actually stops Recording. */
   micUnavailable?: boolean;
-  /** The snackbar's one action ("Go to Setting"). Not a real OS deep link —
+  /** The snackbar's one action ("Go back"). Not a real OS deep link —
    * no web page can open iOS Settings — so the caller sends the student back
    * to Gate's own after-denial Settings-instructions state instead of
    * inventing a second copy of it here (2026-09-16, your call). */
@@ -411,8 +411,8 @@ export function LoopScreen({
       topNavigation={
         <>
           {phase === 'idle' && micUnavailable && (
-            <Snackbar variant="Error" action={{ label: 'Go to Setting', onClick: () => onGoToSettings?.() }}>
-              Mic is not available.
+            <Snackbar variant="Error" action={{ label: 'Go back', onClick: () => onGoToSettings?.() }}>
+              Your microphone is not available.
             </Snackbar>
           )}
           <AppBar
