@@ -21,7 +21,7 @@ const DESCRIPTION = `
 const meta = {
   title: 'Screens/SummaryScreen',
   component: SummaryScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

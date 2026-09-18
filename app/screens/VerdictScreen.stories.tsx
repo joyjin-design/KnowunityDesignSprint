@@ -29,7 +29,7 @@ const LONG_ANSWER =
 const meta = {
   title: 'Screens/VerdictScreen',
   component: VerdictScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

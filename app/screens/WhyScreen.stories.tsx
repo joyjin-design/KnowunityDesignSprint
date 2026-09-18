@@ -41,7 +41,7 @@ function explainQ2(missing: ConceptId[]): ReactNode {
 const meta = {
   title: 'Screens/WhyScreen',
   component: WhyScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

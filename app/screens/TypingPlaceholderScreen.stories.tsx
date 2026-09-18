@@ -19,7 +19,7 @@ const DESCRIPTION = `
 const meta = {
   title: 'Screens/TypingPlaceholderScreen',
   component: TypingPlaceholderScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

@@ -23,7 +23,7 @@ const DESCRIPTION = `
 const meta = {
   title: 'Screens/LoopScreen',
   component: LoopScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

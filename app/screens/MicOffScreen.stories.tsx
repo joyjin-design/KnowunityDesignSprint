@@ -30,7 +30,7 @@ const Q1 = 'What does the nucleus do in a cell?';
 const meta = {
   title: 'Screens/MicOffScreen',
   component: MicOffScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },

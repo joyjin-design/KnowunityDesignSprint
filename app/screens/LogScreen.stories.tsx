@@ -90,7 +90,7 @@ const ROWS: LogRow[] = [SESSION_1, Q1_PASS, Q2_PARTIAL, Q3_SKIPPED, SESSION_2, Q
 const meta = {
   title: 'Screens/LogScreen',
   component: LogScreen,
-  tags: ['autodocs'],
+  tags: ['autodocs', '!dev'],
   parameters: {
     layout: 'fullscreen',
     docs: { description: { component: DESCRIPTION } },
