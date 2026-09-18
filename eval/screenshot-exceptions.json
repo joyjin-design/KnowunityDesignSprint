@@ -1,0 +1,7 @@
+[
+  {
+    "a": "screens-loopscreen--mic-unavailable",
+    "b": "screens-loopscreen--accidental-tap",
+    "reason": "Both are meant to silently drop back to Idle with no visible state change — confirmed intentional in eval/scorecard-01.md and re-confirmed independently in eval/scorecard-02.md, not a render bug."
+  }
+]

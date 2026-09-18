@@ -1,0 +1,385 @@
+{
+  "storybookUrl": "http://localhost:6006",
+  "viewport": "390x844",
+  "dark": true,
+  "renderedAt": "2026-09-18T17:44:21.961Z",
+  "totalStories": 45,
+  "collisions": [
+    {
+      "a": "screens-loopscreen--mic-unavailable",
+      "b": "screens-loopscreen--accidental-tap",
+      "aName": "Screens/LoopScreen / Mic Unavailable",
+      "bName": "Screens/LoopScreen / Accidental Tap",
+      "known": false
+    }
+  ],
+  "unsettled": [
+    {
+      "id": "screens-loopscreen--processing",
+      "title": "Screens/LoopScreen",
+      "name": "Processing"
+    }
+  ],
+  "results": [
+    {
+      "id": "screens-examplanscreen--homescreen",
+      "title": "Screens/ExamPlanScreen",
+      "name": "frame=00Homescreen",
+      "file": "eval/screenshots/Screens-ExamPlanScreen/screens-examplanscreen--homescreen.png",
+      "hash": "20ef58a737a5bba4",
+      "settled": true
+    },
+    {
+      "id": "screens-examplanscreen--exam",
+      "title": "Screens/ExamPlanScreen",
+      "name": "frame=01Exam",
+      "file": "eval/screenshots/Screens-ExamPlanScreen/screens-examplanscreen--exam.png",
+      "hash": "2e5fa37041cbd844",
+      "settled": true
+    },
+    {
+      "id": "screens-examplanscreen--hint-animate",
+      "title": "Screens/ExamPlanScreen",
+      "name": "frame=02Hint-animate",
+      "file": "eval/screenshots/Screens-ExamPlanScreen/screens-examplanscreen--hint-animate.png",
+      "hash": "ef5d28d5a462a96c",
+      "settled": true
+    },
+    {
+      "id": "screens-examplanscreen--voicerecall-on",
+      "title": "Screens/ExamPlanScreen",
+      "name": "frame=03VoicerecallON",
+      "file": "eval/screenshots/Screens-ExamPlanScreen/screens-examplanscreen--voicerecall-on.png",
+      "hash": "ac776b1f6cb6ed21",
+      "settled": true
+    },
+    {
+      "id": "screens-examplanscreen--flow",
+      "title": "Screens/ExamPlanScreen",
+      "name": "Flow: 00Homescreen to a node",
+      "file": "eval/screenshots/Screens-ExamPlanScreen/screens-examplanscreen--flow.png",
+      "hash": "f3c55022e4081408",
+      "settled": true
+    },
+    {
+      "id": "screens-gatescreen--first-time",
+      "title": "Screens/GateScreen",
+      "name": "First time (13575:1934)",
+      "file": "eval/screenshots/Screens-GateScreen/screens-gatescreen--first-time.png",
+      "hash": "a8681f272570cbf6",
+      "settled": true
+    },
+    {
+      "id": "screens-gatescreen--permission-sheet-open",
+      "title": "Screens/GateScreen",
+      "name": "Permission sheet open (13555:8294)",
+      "file": "eval/screenshots/Screens-GateScreen/screens-gatescreen--permission-sheet-open.png",
+      "hash": "49aa0ae3811823ea",
+      "settled": true
+    },
+    {
+      "id": "screens-gatescreen--after-an-earlier-denial",
+      "title": "Screens/GateScreen",
+      "name": "After an earlier denial (no frame)",
+      "file": "eval/screenshots/Screens-GateScreen/screens-gatescreen--after-an-earlier-denial.png",
+      "hash": "e2071c23b4ad6775",
+      "settled": true
+    },
+    {
+      "id": "screens-gatescreen--still-off-after-rechecking",
+      "title": "Screens/GateScreen",
+      "name": "Still off after rechecking",
+      "file": "eval/screenshots/Screens-GateScreen/screens-gatescreen--still-off-after-rechecking.png",
+      "hash": "176ebc823ac4e065",
+      "settled": true
+    },
+    {
+      "id": "screens-gatescreen--on-device",
+      "title": "Screens/GateScreen",
+      "name": "showStatusBar=false",
+      "file": "eval/screenshots/Screens-GateScreen/screens-gatescreen--on-device.png",
+      "hash": "972acfbbaa4649c6",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--no-turns-yet",
+      "title": "Screens/LogScreen",
+      "name": "No turns yet",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--no-turns-yet.png",
+      "hash": "0361fbb586977482",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--turns-listed",
+      "title": "Screens/LogScreen",
+      "name": "Turns listed",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--turns-listed.png",
+      "hash": "27e08ee6460fde5c",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--copy-failed",
+      "title": "Screens/LogScreen",
+      "name": "Copy as CSV fails",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--copy-failed.png",
+      "hash": "3d4257d2b7c4a938",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--clear-log-confirm",
+      "title": "Screens/LogScreen",
+      "name": "Clear log confirm",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--clear-log-confirm.png",
+      "hash": "437d927b3e9eba67",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--save-failed-warning",
+      "title": "Screens/LogScreen",
+      "name": "Failed save warning",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--save-failed-warning.png",
+      "hash": "e236ced636746d45",
+      "settled": true
+    },
+    {
+      "id": "screens-logscreen--latency-hang-selected",
+      "title": "Screens/LogScreen",
+      "name": "Latency=hang selected",
+      "file": "eval/screenshots/Screens-LogScreen/screens-logscreen--latency-hang-selected.png",
+      "hash": "5d1074a1adb5dc36",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--idle",
+      "title": "Screens/LoopScreen",
+      "name": "Idle",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--idle.png",
+      "hash": "f0e56e929a3efe73",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--mic-unavailable",
+      "title": "Screens/LoopScreen",
+      "name": "Mic Unavailable",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--mic-unavailable.png",
+      "hash": "032e4b81b801dac2",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--idle-mic-snackbar",
+      "title": "Screens/LoopScreen",
+      "name": "Idle Mic Snackbar",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--idle-mic-snackbar.png",
+      "hash": "6092124869dd684e",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--recording",
+      "title": "Screens/LoopScreen",
+      "name": "Recording",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--recording.png",
+      "hash": "e24de5b5e3f5bedb",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--accidental-tap",
+      "title": "Screens/LoopScreen",
+      "name": "Accidental Tap",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--accidental-tap.png",
+      "hash": "032e4b81b801dac2",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--processing",
+      "title": "Screens/LoopScreen",
+      "name": "Processing",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--processing.png",
+      "hash": "f22c2eccae594531",
+      "settled": false
+    },
+    {
+      "id": "screens-loopscreen--still-listening-cue",
+      "title": "Screens/LoopScreen",
+      "name": "Still Listening Cue",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--still-listening-cue.png",
+      "hash": "28125fe9df722e93",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--interrupted-mid-recording",
+      "title": "Screens/LoopScreen",
+      "name": "Interrupted Mid Recording",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--interrupted-mid-recording.png",
+      "hash": "f59c61086c6f4573",
+      "settled": true
+    },
+    {
+      "id": "screens-loopscreen--on-device",
+      "title": "Screens/LoopScreen",
+      "name": "On Device",
+      "file": "eval/screenshots/Screens-LoopScreen/screens-loopscreen--on-device.png",
+      "hash": "2b03fa582ad8c185",
+      "settled": true
+    },
+    {
+      "id": "screens-micoffscreen--default",
+      "title": "Screens/MicOffScreen",
+      "name": "Default",
+      "file": "eval/screenshots/Screens-MicOffScreen/screens-micoffscreen--default.png",
+      "hash": "9851bc8c671c4216",
+      "settled": true
+    },
+    {
+      "id": "screens-micoffscreen--no-dim-behind-the-sheet",
+      "title": "Screens/MicOffScreen",
+      "name": "No dim behind the sheet",
+      "file": "eval/screenshots/Screens-MicOffScreen/screens-micoffscreen--no-dim-behind-the-sheet.png",
+      "hash": "d69404262ede8d9c",
+      "settled": true
+    },
+    {
+      "id": "screens-micoffscreen--on-device",
+      "title": "Screens/MicOffScreen",
+      "name": "showStatusBar=false",
+      "file": "eval/screenshots/Screens-MicOffScreen/screens-micoffscreen--on-device.png",
+      "hash": "11ae269d75408f8c",
+      "settled": true
+    },
+    {
+      "id": "screens-summaryscreen--all-pass",
+      "title": "Screens/SummaryScreen",
+      "name": "All Pass",
+      "file": "eval/screenshots/Screens-SummaryScreen/screens-summaryscreen--all-pass.png",
+      "hash": "fc199a1aecef71ec",
+      "settled": true
+    },
+    {
+      "id": "screens-summaryscreen--some-non-pass",
+      "title": "Screens/SummaryScreen",
+      "name": "Some Non Pass",
+      "file": "eval/screenshots/Screens-SummaryScreen/screens-summaryscreen--some-non-pass.png",
+      "hash": "ac91fad427cd1ac1",
+      "settled": true
+    },
+    {
+      "id": "screens-summaryscreen--none-pass",
+      "title": "Screens/SummaryScreen",
+      "name": "None Pass",
+      "file": "eval/screenshots/Screens-SummaryScreen/screens-summaryscreen--none-pass.png",
+      "hash": "c1bf7f534fd43c51",
+      "settled": true
+    },
+    {
+      "id": "screens-typingplaceholderscreen--default",
+      "title": "Screens/TypingPlaceholderScreen",
+      "name": "Default",
+      "file": "eval/screenshots/Screens-TypingPlaceholderScreen/screens-typingplaceholderscreen--default.png",
+      "hash": "4fcc4a0bd1b0d5a8",
+      "settled": true
+    },
+    {
+      "id": "screens-typingplaceholderscreen--on-device",
+      "title": "Screens/TypingPlaceholderScreen",
+      "name": "showStatusBar=false",
+      "file": "eval/screenshots/Screens-TypingPlaceholderScreen/screens-typingplaceholderscreen--on-device.png",
+      "hash": "b96c21948ab970a8",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--pass",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Pass",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--pass.png",
+      "hash": "7dc1fadf33e2b78f",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--partial",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Partial",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--partial.png",
+      "hash": "8bd5a521f04a5af5",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--fail",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Fail",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--fail.png",
+      "hash": "49fbec3884e141f7",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--pass-with-long-answer",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Pass, long answer",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--pass-with-long-answer.png",
+      "hash": "b5e3b90bbfcf76c6",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--silence-with-long-answer",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Silence, long answer",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--silence-with-long-answer.png",
+      "hash": "b2362abadfb9c894",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--silence-nothing-heard",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Silence, nothing heard",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--silence-nothing-heard.png",
+      "hash": "bbdfd6d53f92e294",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--silence-question-asked",
+      "title": "Screens/VerdictScreen",
+      "name": "outcome=Silence, question asked",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--silence-question-asked.png",
+      "hash": "8b4bdb59cab45b7e",
+      "settled": true
+    },
+    {
+      "id": "screens-verdictscreen--on-device",
+      "title": "Screens/VerdictScreen",
+      "name": "showStatusBar=false",
+      "file": "eval/screenshots/Screens-VerdictScreen/screens-verdictscreen--on-device.png",
+      "hash": "4da912b02b182e09",
+      "settled": true
+    },
+    {
+      "id": "screens-whyscreen--after-pass",
+      "title": "Screens/WhyScreen",
+      "name": "After Pass",
+      "file": "eval/screenshots/Screens-WhyScreen/screens-whyscreen--after-pass.png",
+      "hash": "a410c0151cb11347",
+      "settled": true
+    },
+    {
+      "id": "screens-whyscreen--after-partial",
+      "title": "Screens/WhyScreen",
+      "name": "After Partial",
+      "file": "eval/screenshots/Screens-WhyScreen/screens-whyscreen--after-partial.png",
+      "hash": "de213d76f3381443",
+      "settled": true
+    },
+    {
+      "id": "screens-whyscreen--after-fail",
+      "title": "Screens/WhyScreen",
+      "name": "After Fail",
+      "file": "eval/screenshots/Screens-WhyScreen/screens-whyscreen--after-fail.png",
+      "hash": "e5538c3bcb284495",
+      "settled": true
+    },
+    {
+      "id": "screens-whyscreen--after-pass-long-answer",
+      "title": "Screens/WhyScreen",
+      "name": "After Pass, long answer",
+      "file": "eval/screenshots/Screens-WhyScreen/screens-whyscreen--after-pass-long-answer.png",
+      "hash": "ac11f2807b42d6fc",
+      "settled": true
+    }
+  ]
+}
