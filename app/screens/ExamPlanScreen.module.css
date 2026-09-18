@@ -116,35 +116,42 @@
 /*
  * 00Homescreen's exam-tab "new" badge (design-system.md's `badge`) — a live
  * dot composited over the still export in place of its own baked-in one
- * (public/frames/00-homescreen.png re-exported with the real badge instance,
- * I13619:3274;4794:5834;13619:3216, hidden). Fill/stroke colors are the
- * same tokens the real instance binds — `accent/coral/bold` fill,
- * `accent/coral/on-bold` stroke — already documented as this badge's real
- * colors in design-system.md.
+ * (public/frames/00-homescreen.png re-exported with the real badge instance
+ * hidden). Fill/stroke colors are the same tokens the real instance binds —
+ * `accent/coral/bold` fill, `accent/coral/on-bold` stroke — already
+ * documented as this badge's real colors in design-system.md.
  *
- * Position is pinned to the exam-tab icon's own corner, not the real
- * instance's own (inset) coordinates: the live Figma badge sits centered at
- * (215, 783.07) in the frame's 390×844 point space, about 8pt in from the
- * icon's literal top-right corner on each axis — matching pixel-for-pixel
- * is what the arrow overlay above does, but here it read as floating with
- * too much gap from the icon (your call, 2026-09-16). left/top below
- * instead center the dot exactly on the Navigation Button icon's own
- * top-right corner (that icon: x 183–223, y 775.07–815.07 in the same
- * point space, read off Figma) — a small negative offset from the literal
- * Figma badge position, perched right on the corner the way a notification
- * badge usually sits, half on the icon and half off it.
+ * Position matches the exam-tab's live Figma instance, `Target-new` (Figma
+ * 13736:3073), which bundles the icon and its own nested Badge instance as
+ * real children — center read off the live 00Homescreen frame at
+ * (215.5, 782.57) in the frame's 390×844 point space (2026-09-18).
  *
- * top is 56px less than that derivation gives (715.57, not 771.57) —
- * 2026-09-16's status-bar crop shortened the 390×844 frame this was measured
- * against to 390×788, the same 56pt every zone in frames.ts shifted by.
- * left is untouched: the crop was vertical only.
+ * top is 56px less than that (726.57, not 782.57) — 2026-09-16's
+ * status-bar crop shortened the 390×844 frame this was measured against to
+ * 390×788, the same 56pt every zone in frames.ts shifted by. left is
+ * untouched: the crop was vertical only.
+ *
+ * left/top/width/height are expressed as a fraction of the 390×788 frame
+ * (`calc()`, not raw px) — a real bug caught 2026-09-19: `.frame`/`.image`
+ * (FrameImage.module.css) are fluid (`width: 100%`), the same reason
+ * `.zone`'s tap targets are computed as percentages in FrameImage.tsx, but
+ * this badge was still raw absolute px assuming a 1:1 Figma-point-to-CSS-px
+ * frame. That assumption only holds at exactly 390px wide; any other
+ * container width scales the image while the badge stayed put, drifting
+ * off the icon's corner — reproduced at 450px, where it landed near the
+ * "Flashcards" chip instead of the tab bar. Storybook's own viewport addon
+ * pins stories to 390×844 so this never showed up there, but a shared
+ * preview URL or a differently-sized embed isn't guaranteed that pin.
+ * `.arrowBox` above has the same underlying assumption (raw px plus a
+ * `matrix()` translate, which can't take a percentage) — not fixed here,
+ * flagged as the same class of bug.
  */
 .badge {
   position: absolute;
-  left: 219.5px;
-  top: 715.57px;
-  width: 7px;
-  height: 7px;
+  left: calc(212 / 390 * 100%);
+  top: calc(723.0625 / 788 * 100%);
+  width: calc(7 / 390 * 100%);
+  height: calc(7 / 788 * 100%);
   pointer-events: none;
 }
 
