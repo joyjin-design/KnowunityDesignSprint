@@ -12,17 +12,20 @@
   /* Figma's frame is a fixed 390×844 device rectangle. The width is capped at
      size.screen.width (390) and centered, so the frame never renders wider
      than the phone it's designed for (e.g. a desktop browser); on the phone
-     itself it simply fills the viewport. The 844 height isn't a token, so
-     the frame still fills the viewport's height. */
+     itself it simply fills the viewport. Height fills the viewport too, except
+     inside the desktop phone frame (app/_prototype/DeviceFrame.module.css),
+     which sets --device-height to size.screen.height (844). */
   width: 100%;
   max-width: var(--size-screen-width);
   margin-inline: auto;
-  height: 100dvh;
+  height: var(--device-height, 100dvh);
   /* The app runs full-bleed as a home-screen web app (viewport-fit=cover), so
      the real iOS status bar and home indicator sit over the page. These insets
      are the device's own measurements, not design values, so there's no token
-     for them; they resolve to 0 everywhere else, including Storybook. */
-  padding-top: env(safe-area-inset-top);
+     for them; they resolve to 0 everywhere else, including Storybook. In the
+     desktop phone frame, --device-inset-top stands in for the top inset (the
+     height of the frame's mock status bar). */
+  padding-top: var(--device-inset-top, env(safe-area-inset-top));
   padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
   background: var(--color-background-page);

@@ -16,17 +16,19 @@
 /* Figma's three height variants all hug their content, so the 300/494/768
    totals are artifacts of empty-slot placeholders rather than real sizes.
    These detents are the agreed substitute — a cap, not a fixed height, so
-   the sheet still hugs shorter content. */
+   the sheet still hugs shorter content. They're fractions of the viewport on
+   a phone, and of the 844 phone inside the desktop frame (--device-height,
+   app/_prototype/DeviceFrame.module.css), not of the laptop window. */
 .sheet[data-height='S'] {
-  max-height: 40dvh;
+  max-height: calc(var(--device-height, 100dvh) * 0.4);
 }
 
 .sheet[data-height='M'] {
-  max-height: 60dvh;
+  max-height: calc(var(--device-height, 100dvh) * 0.6);
 }
 
 .sheet[data-height='L'] {
-  max-height: 90dvh;
+  max-height: calc(var(--device-height, 100dvh) * 0.9);
 }
 
 .middleSection {

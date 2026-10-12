@@ -14,7 +14,9 @@
  * status bar, same as Screen's did before 2026-09-14. Fixed the same way:
  * the top 56pt is cropped off every PNG in public/frames/, FrameImage pads
  * that space with env(safe-area-inset-top) instead, and every zone below is
- * shifted up 56pt from its original Figma position to match.
+ * shifted up 56pt from its original Figma position to match. (In the desktop
+ * phone frame the pad is the 48pt mock status bar instead, so the image ends
+ * 8pt above the frame's 844pt bottom.)
  */
 
 export type FrameId = '00Homescreen' | '01Exam' | '02Hint-animate' | '03VoicerecallON';

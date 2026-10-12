@@ -1,0 +1,72 @@
+/* Desktop phone frame (sprint-context.md, 2026-10-12). Prototype
+   scaffolding around the student flow in app/page.tsx, not a design-system
+   component. On a phone none of this applies: every rule below sits inside a
+   media query keyed to input type, not width — a mouse or trackpad is
+   "desktop", so a phone never matches whatever its width or orientation,
+   and no invented breakpoint number is needed.
+
+   The frame doesn't restyle any screen itself. It sets two variables that
+   Screen, FrameImage and BottomSheet read with a fallback to their phone
+   values, so anything rendered outside this wrapper (Storybook, /log) is
+   unchanged. */
+@media (hover: hover) and (pointer: fine) {
+  .stage {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    /* Scrim over the page colour: a shade darker than the phone, so the
+       frame reads against it using existing tokens only. */
+    background:
+      linear-gradient(var(--color-background-scrim), var(--color-background-scrim)),
+      var(--color-background-page);
+  }
+
+  .device {
+    --device-height: var(--size-screen-height);
+    /* The mock status bar's height, standing in for iOS's own top inset. */
+    --device-inset-top: var(--size-space-1200);
+
+    position: relative;
+    width: var(--size-screen-width);
+    height: var(--size-screen-height);
+    overflow: hidden;
+    background: var(--color-background-page);
+    border-radius: var(--size-radius-600);
+    /* An outline, not a border, so the frame stays exactly 390×844. */
+    outline: var(--size-stroke-border) solid var(--color-border-default);
+    /* Shrinks the whole phone to fit a window shorter than 844 plus a
+       space/800 margin above and below; never grows past 1:1.
+       tan(atan2(a, b)) turns the length ratio a/b into a plain number,
+       which `zoom` needs. `zoom` rather than `transform: scale` because it
+       also shrinks the layout box, so the grid still centres it and the
+       page never scrolls. */
+    zoom: min(1, tan(atan2(100dvh - 2 * var(--size-space-800), var(--size-screen-height))));
+  }
+}
+
+/* Mock iOS status bar, desktop only: the real one only exists on a phone.
+   Sits over everything in the frame, as the real bar sits over the app. */
+.statusBar {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .statusBar {
+    display: block;
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+/* Screen's own status-bar styles (time only, same box and offsets), minus
+   Screen's bottom hairline: the real iOS bar has none. `composes` can't sit
+   inside a media query, hence these inner classes. */
+.statusBarRow {
+  composes: statusBar from '../components/Screen.module.css';
+}
+
+.time {
+  composes: time from '../components/Screen.module.css';
+}

@@ -142,6 +142,7 @@
   --size-control-s: 32px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' S size. */
   --size-control-m: 40px; /** Fixed height of a small pill-shaped interactive control (chips, small tags). Not derived from padding, added for chips' M size. */
   --size-screen-width: 390px; /** Device frame width (Figma scaffold size `iPhone 13`, 390x844). USE: max width of every screen's root container, so a screen never renders wider than the phone it's designed for. */
+  --size-screen-height: 844px; /** Device frame height (Figma scaffold size `iPhone 13`, 390x844). USE: height of the desktop phone frame (app/_prototype/DeviceFrame.module.css); on a real phone screens fill the viewport instead. */
   --effect-blur-100: 4px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
   --effect-blur-800: 32px; /** Blur radius primitive. Drives the Blur/* effect styles. Recreated to replace an orphaned variable (previously Blur/100 or Blur/800). */
   --color-background-page: var(--color-navy-950); /** Root screen canvas; use for every screen's base background. */
