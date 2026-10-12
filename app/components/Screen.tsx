@@ -11,8 +11,8 @@ export type ScreenSize = 'iPhone 13';
 
 export interface ScreenProps {
   /** Figma variant axis `size`. One option in scope; see ScreenSize. It
-   * doesn't drive layout — the frame fills the viewport rather than
-   * hardcoding Figma's unbound 390×844. */
+   * doesn't drive layout — the frame is always capped at
+   * `size.screen.width` (390) and fills the viewport's height. */
   size?: ScreenSize;
   /** Figma slot `topNavigation` — "Placeholder for navigation items, such as
    * back buttons, home top nav with streaks & similar." */

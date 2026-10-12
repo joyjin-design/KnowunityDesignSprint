@@ -6,7 +6,11 @@
    Not `position: relative` any more — see .content below for why the
    positioned ancestor moved. */
 .frame {
+  /* Capped at the 390px device width, centered, like Screen — the exports
+     are 390pt frames, so this keeps them 1:1 on any wider viewport. */
   width: 100%;
+  max-width: var(--size-screen-width);
+  margin-inline: auto;
   padding-top: env(safe-area-inset-top);
   background: var(--color-background-page);
 }

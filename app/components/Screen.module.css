@@ -9,12 +9,14 @@
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+  /* Figma's frame is a fixed 390×844 device rectangle. The width is capped at
+     size.screen.width (390) and centered, so the frame never renders wider
+     than the phone it's designed for (e.g. a desktop browser); on the phone
+     itself it simply fills the viewport. The 844 height isn't a token, so
+     the frame still fills the viewport's height. */
   width: 100%;
-  /* Figma's frame is a fixed 390×844 device rectangle. Neither number is a
-     token, and this prototype is 390-only, so the frame fills the viewport
-     instead — same call every other component here made (BottomSheet,
-     TranscriptDisplay, ProgressIndicator all went fluid rather than
-     hardcoding an unbound pixel width). */
+  max-width: var(--size-screen-width);
+  margin-inline: auto;
   height: 100dvh;
   /* The app runs full-bleed as a home-screen web app (viewport-fit=cover), so
      the real iOS status bar and home indicator sit over the page. These insets
