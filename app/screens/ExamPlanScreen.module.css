@@ -196,3 +196,41 @@
     opacity: 0;
   }
 }
+
+/*
+ * The Voice recall toggle chip's icon (01Exam, 02Hint-animate,
+ * 03VoicerecallON): Phosphor `microphone-bold` as a live SVG, because each
+ * still export baked in an outdated battery icon. That icon's 20×20pt box is
+ * painted out of the three PNGs with the chip's own flat fill (sampled from
+ * the image, so it's image data, not a design value), and this draws the
+ * current Figma icon on top.
+ *
+ * Position is the icon instance's box read off the live Figma frames,
+ * (135, 66) 20×20 in the 390×844 point space, identical on all three —
+ * minus the 56pt status-bar crop, so top is 10. Fractions of the 390×788
+ * frame, the same as .badge above, so it tracks the image at any width.
+ *
+ * Colours: on 03VoicerecallON's filled chip, Figma binds
+ * `interactive/primaryActive` (violet/200), used as is. On the dark
+ * chip (01Exam; 02Hint-animate follows it), Figma binds the primitive
+ * `color/violet/500` directly, which design-system.md rules out ("never read
+ * a primitive directly"); `accent/brand/bold` is the semantic token that
+ * resolves to the same violet/500.
+ */
+.chipIcon {
+  position: absolute;
+  left: calc(135 / 390 * 100%);
+  top: calc(10 / 788 * 100%);
+  width: calc(20 / 390 * 100%);
+  height: calc(20 / 788 * 100%);
+  color: var(--color-accent-brand-bold);
+  pointer-events: none;
+}
+
+.chipIcon svg {
+  display: block;
+}
+
+.chipIconOn {
+  color: var(--color-interactive-primary-active);
+}

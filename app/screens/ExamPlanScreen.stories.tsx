@@ -64,7 +64,12 @@ export const Homescreen: Story = {
 export const Exam: Story = {
   name: 'frame=01Exam',
   args: { frame: '01Exam' },
-  play: async ({ canvas, args }) => {
+  play: async ({ canvas, canvasElement, args }) => {
+    // The Voice recall chip's microphone is a live SVG over the export, in
+    // Figma's dark-chip colour (accent/brand/bold = violet/500).
+    const mic = canvasElement.querySelector<HTMLElement>('[data-overlay="toggle-chip-icon"]');
+    await expect(mic?.querySelector('svg path')).not.toBeNull();
+    await expect(getComputedStyle(mic!).color).toBe('rgb(145, 120, 230)');
     await userEvent.click(canvas.getByRole('button', { name: 'Show me' }));
     await expect(args.onZone).toHaveBeenCalledWith('show-me');
   },
@@ -77,7 +82,9 @@ export const HintAnimate: Story = {
   play: async ({ canvas, canvasElement, args }) => {
     // The arrow is a real, live SVG overlay, not baked into the image: the
     // curve plus its two arrowhead strokes, three <path>s in total.
-    await expect(canvasElement.querySelectorAll('svg path')).toHaveLength(3);
+    await expect(canvasElement.querySelectorAll('[data-overlay="hint-arrow"] svg path')).toHaveLength(3);
+    // The toggle chip's microphone is a live SVG too, as on 01Exam.
+    await expect(canvasElement.querySelector('[data-overlay="toggle-chip-icon"] svg path')).not.toBeNull();
     await userEvent.click(canvas.getByRole('button', { name: 'Voice recall' }));
     await expect(args.onZone).toHaveBeenCalledWith('voice-recall-toggle');
   },
@@ -87,7 +94,11 @@ export const HintAnimate: Story = {
 export const VoicerecallOn: Story = {
   name: 'frame=03VoicerecallON',
   args: { frame: '03VoicerecallON' },
-  play: async ({ canvas, args }) => {
+  play: async ({ canvas, canvasElement, args }) => {
+    // On the filled chip the microphone takes interactive/primaryActive (violet/200).
+    const mic = canvasElement.querySelector<HTMLElement>('[data-overlay="toggle-chip-icon"]');
+    await expect(mic?.querySelector('svg path')).not.toBeNull();
+    await expect(getComputedStyle(mic!).color).toBe('rgb(210, 204, 250)');
     await userEvent.click(canvas.getByRole('button', { name: /Organelle Identification/ }));
     await expect(args.onZone).toHaveBeenLastCalledWith('node-1');
     await userEvent.click(canvas.getByRole('button', { name: /Comparing Cell Types/ }));

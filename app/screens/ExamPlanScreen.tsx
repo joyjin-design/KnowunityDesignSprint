@@ -68,7 +68,7 @@ function HintAnimateOverlay({
   const wingB = isFirstShow ? `${styles.wingB} ${styles.drawing}` : styles.wingB;
 
   return (
-    <div className={styles.arrowBox} aria-hidden="true">
+    <div className={styles.arrowBox} aria-hidden="true" data-overlay="hint-arrow">
       <svg width="113" height="117" viewBox="0 0 113 117">
         <path
           className={line}
@@ -105,15 +105,53 @@ function HomescreenBadgeOverlay() {
   );
 }
 
+/** Phosphor `microphone-bold`, the Voice recall toggle chip's icon in Figma
+ * (13761:5969, "Phosphor icons (voice recall)"). Path copied verbatim from
+ * Figma's own SVG export of that component, on its 20×20 box. */
+const MICROPHONE_BOLD_PATH =
+  'M10 14.0625C11.0771 14.0613 12.1097 13.6328 12.8713 12.8713C13.6328 12.1097 14.0613 11.0771 14.0625 10V5C14.0625 3.92256 13.6345 2.88925 12.8726 2.12738C12.1108 1.36551 11.0774 0.9375 10 0.9375C8.92256 0.9375 7.88925 1.36551 7.12738 2.12738C6.36551 2.88925 5.9375 3.92256 5.9375 5V10C5.93874 11.0771 6.36715 12.1097 7.12875 12.8713C7.89035 13.6328 8.92294 14.0613 10 14.0625ZM7.8125 5C7.8125 4.41984 8.04297 3.86344 8.4532 3.4532C8.86344 3.04297 9.41984 2.8125 10 2.8125C10.5802 2.8125 11.1366 3.04297 11.5468 3.4532C11.957 3.86344 12.1875 4.41984 12.1875 5V10C12.1875 10.5802 11.957 11.1366 11.5468 11.5468C11.1366 11.957 10.5802 12.1875 10 12.1875C9.41984 12.1875 8.86344 11.957 8.4532 11.5468C8.04297 11.1366 7.8125 10.5802 7.8125 10V5ZM10.9375 17.1266V18.75C10.9375 18.9986 10.8387 19.2371 10.6629 19.4129C10.4871 19.5887 10.2486 19.6875 10 19.6875C9.75136 19.6875 9.5129 19.5887 9.33709 19.4129C9.16127 19.2371 9.0625 18.9986 9.0625 18.75V17.1266C7.3344 16.8969 5.74838 16.0479 4.59892 14.7372C3.44947 13.4266 2.81471 11.7433 2.8125 10C2.8125 9.75136 2.91127 9.5129 3.08709 9.33709C3.2629 9.16127 3.50136 9.0625 3.75 9.0625C3.99864 9.0625 4.2371 9.16127 4.41291 9.33709C4.58873 9.5129 4.6875 9.75136 4.6875 10C4.6875 11.409 5.24721 12.7602 6.2435 13.7565C7.23978 14.7528 8.59104 15.3125 10 15.3125C11.409 15.3125 12.7602 14.7528 13.7565 13.7565C14.7528 12.7602 15.3125 11.409 15.3125 10C15.3125 9.75136 15.4113 9.5129 15.5871 9.33709C15.7629 9.16127 16.0014 9.0625 16.25 9.0625C16.4986 9.0625 16.7371 9.16127 16.9129 9.33709C17.0887 9.5129 17.1875 9.75136 17.1875 10C17.1853 11.7433 16.5505 13.4266 15.4011 14.7372C14.2516 16.0479 12.6656 16.8969 10.9375 17.1266Z';
+
+/**
+ * The Voice recall toggle chip's icon on 01Exam, 02Hint-animate and
+ * 03VoicerecallON: a live SVG in place of the still export's own icon,
+ * whose 20×20 box is painted out of each PNG with the chip's flat fill
+ * (sprint-context.md, 2026-10-12). `on` is 03VoicerecallON's filled chip.
+ * See ExamPlanScreen.module.css for the geometry and colours.
+ */
+function ToggleChipIconOverlay({ on = false }: { on?: boolean }) {
+  return (
+    <div
+      className={on ? `${styles.chipIcon} ${styles.chipIconOn}` : styles.chipIcon}
+      aria-hidden="true"
+      data-overlay="toggle-chip-icon"
+    >
+      <svg viewBox="0 0 20 20" width="100%" height="100%">
+        <path d={MICROPHONE_BOLD_PATH} fill="currentColor" />
+      </svg>
+    </div>
+  );
+}
+
 const NOOP = () => {};
 
-/** The one frame with a live overlay on top of its still export. */
+/** Live overlays composited on top of a frame's still export. */
 function frameOverlay(id: FrameId, hidden: boolean, hintPlayed: boolean, onHintPlayed: () => void) {
   if (id === '02Hint-animate') {
-    return <HintAnimateOverlay hidden={hidden} hintPlayed={hintPlayed} onHintPlayed={onHintPlayed} />;
+    return (
+      <>
+        <ToggleChipIconOverlay />
+        <HintAnimateOverlay hidden={hidden} hintPlayed={hintPlayed} onHintPlayed={onHintPlayed} />
+      </>
+    );
   }
   if (id === '00Homescreen') {
     return <HomescreenBadgeOverlay />;
+  }
+  if (id === '01Exam') {
+    return <ToggleChipIconOverlay />;
+  }
+  if (id === '03VoicerecallON') {
+    return <ToggleChipIconOverlay on />;
   }
   return null;
 }
