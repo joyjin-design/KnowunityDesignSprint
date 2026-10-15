@@ -21,26 +21,69 @@
       var(--color-background-page);
   }
 
+  /* iPhone hardware around the screen: a space/300 bezel in the stage's own
+     near-black, with a border/strong rim standing in for the metal band.
+     The outer radius is the screen's radius plus the bezel, so the two
+     corners stay concentric. */
+  .bezel {
+    position: relative;
+    padding: var(--size-space-300);
+    background: inherit;
+    border-radius: calc(var(--size-radius-900) + var(--size-space-300));
+    outline: var(--size-stroke-heavy-border) solid var(--color-border-strong);
+    /* Shrinks the whole phone to fit a window shorter than the 844 screen
+       plus its bezel and a space/800 margin above and below; never grows
+       past 1:1. tan(atan2(a, b)) turns the length ratio a/b into a plain
+       number, which `zoom` needs. `zoom` rather than `transform: scale`
+       because it also shrinks the layout box, so the grid still centres it
+       and the page never scrolls. */
+    zoom: min(
+      1,
+      tan(
+        atan2(
+          100dvh - 2 * var(--size-space-800),
+          var(--size-screen-height) + 2 * var(--size-space-300)
+        )
+      )
+    );
+  }
+
   .device {
     --device-height: var(--size-screen-height);
     /* The mock status bar's height, standing in for iOS's own top inset. */
     --device-inset-top: var(--size-space-1200);
 
     position: relative;
+    /* Keeps every z-index inside the app (sheets, scrims) below the island. */
+    isolation: isolate;
     width: var(--size-screen-width);
     height: var(--size-screen-height);
     overflow: hidden;
     background: var(--color-background-page);
-    border-radius: var(--size-radius-600);
-    /* An outline, not a border, so the frame stays exactly 390×844. */
-    outline: var(--size-stroke-border) solid var(--color-border-default);
-    /* Shrinks the whole phone to fit a window shorter than 844 plus a
-       space/800 margin above and below; never grows past 1:1.
-       tan(atan2(a, b)) turns the length ratio a/b into a plain number,
-       which `zoom` needs. `zoom` rather than `transform: scale` because it
-       also shrinks the layout box, so the grid still centres it and the
-       page never scrolls. */
-    zoom: min(1, tan(atan2(100dvh - 2 * var(--size-space-800), var(--size-screen-height))));
+    border-radius: var(--size-radius-900);
+  }
+}
+
+/* Dynamic Island, desktop only, centred in the status bar. Its size has no
+   tokens, so it borrows the nearest ones, the same cross-category reuse as
+   Screen's .time box: illustration/1500 (120) × control/s (32) against the
+   real island's ~126×37, sitting space/300 below the top of the screen. */
+.island {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .island {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    top: calc(var(--size-space-300) * 2);
+    left: 50%;
+    translate: -50% 0;
+    width: var(--size-illustration-1500);
+    height: var(--size-control-s);
+    background: inherit;
+    border-radius: var(--size-radius-full);
   }
 }
 
